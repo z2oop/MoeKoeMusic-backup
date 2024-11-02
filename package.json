@@ -84,7 +84,10 @@
     }
   },
   "type": "module",
-  "author": "MoeJue",
+  "author": {
+    "name": "MoeJue",
+    "email": "MoeJue@qq.com"
+  },
   "blog": "MoeJue.cn",
   "license": "MIT",
   "description": "An open-source KuGou third-party music client",

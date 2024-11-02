@@ -167,3 +167,4 @@ jobs:
             release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
