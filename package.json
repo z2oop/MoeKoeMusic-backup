@@ -21,6 +21,7 @@
     "node": ">=18"
   },
   "build": {
+    "compression": "maximum",
     "extraResources": [
       {
         "from": "build/icons/",

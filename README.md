@@ -226,4 +226,3 @@ API 源代码来自 [MakcRe/KuGouMusicApi](https://github.com/MakcRe/KuGouMusicA
 ![image](./images/4.png)
 ![image](./images/5.png)
 ![image](./images/6.png)
-![image](./images/7.png)

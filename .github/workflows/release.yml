@@ -1,0 +1,113 @@
+name: Release
+
+# 定义触发条件：在 main 分支推送或手动触发工作流
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    # 运行环境：使用最新的 Ubuntu
+    runs-on: ubuntu-latest
+    
+    steps:
+    # 1. 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # 2. 设置 Node.js 版本（根据需要修改版本号）
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '18'
+
+    # 3. 安装项目依赖
+    - name: Install dependencies
+      run: npm install
+    
+    # 4. 运行通用的构建命令
+    - name: Run common build
+      run: npm run build 
+
+    # 4. 分别构建 Windows、macOS 和 Linux 平台版本
+    - name: Build for Windows
+      run: npm run electron:build:win 
+
+    - name: Build for macOS
+      run: npm run electron:build:macos
+
+    - name: Build for Linux
+      run: npm run electron:build:linux
+
+    # 5. 自动递增版本号
+    - name: Create release version
+      id: create_version
+      run: |
+        # 获取最新的标签版本号，如果没有则默认为 "v1.0.0"
+        VERSION=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+        # 递增版本号的最后一位
+        NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
+        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+    # 6. 创建 GitHub Release
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.NEW_VERSION }}  # 使用自动递增的版本号作为标签
+        release_name: "Release ${{ env.NEW_VERSION }}"  # 发布名称
+        body: $(git log -1 --pretty=%B)  # 使用最新的提交描述作为发布说明
+        draft: false
+        prerelease: false
+
+    # 7. 压缩并上传 Windows 平台文件
+    - name: Archive and Upload Windows Build
+      run: |
+        mkdir -p release
+        zip -r release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip ./dist/windows/*  # 压缩 Windows 构建文件
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
+        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
+        asset_content_type: application/zip
+
+    # 8. 压缩并上传 macOS 平台文件 (.dmg 和 .zip)
+    - name: Upload macOS DMG
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64.dmg  # 确保此路径与构建生成的文件一致
+        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_mac.dmg
+        asset_content_type: application/x-apple-diskimage
+
+    - name: Upload macOS ZIP
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64-mac.zip  # 确保此路径与构建生成的文件一致
+        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_mac.zip
+        asset_content_type: application/zip
+
+    # 9. 压缩并上传 Linux 平台文件
+    - name: Archive and Upload Linux Build
+      run: |
+        zip -r release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip ./dist/linux/*  # 压缩 Linux 构建文件
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
+        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
+        asset_content_type: application/zip
