@@ -8,106 +8,162 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    # 运行环境：使用最新的 Ubuntu
-    runs-on: ubuntu-latest
-    
+  # Windows 端打包
+  build-windows:
+    name: Build for Windows
+    runs-on: windows-latest
+    timeout-minutes: 30
     steps:
-    # 1. 检出代码
-    - name: Checkout code
-      uses: actions/checkout@v2
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # 2. 设置 Node.js 版本（根据需要修改版本号）
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
+      # 2. 设置 Node.js 版本
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
 
-    # 3. 安装项目依赖
-    - name: Install dependencies
-      run: npm install
-    
-    # 4. 运行通用的构建命令
-    - name: Run common build
-      run: npm run build 
+      # 3. 安装项目依赖
+      - name: Install dependencies
+        run: npm install
 
-    # 4. 分别构建 Windows、macOS 和 Linux 平台版本
-    - name: Build for Windows
-      run: npm run electron:build:win 
+      # 4. 运行通用的构建命令
+      - name: Run common build
+        run: npm run build
 
-    - name: Build for macOS
-      run: npm run electron:build:macos
+      # 5. 针对 Windows 的专用构建
+      - name: Run Windows build
+        run: npm run electron:build:win 
 
-    - name: Build for Linux
-      run: npm run electron:build:linux
+      # 6. 压缩 Windows 构建产物
+      - name: Archive Windows Build
+        run: |
+          mkdir -p release
+          zip -r release/MoeKoe_Music_${{ github.event.release.tag_name }}_win.zip ./dist/windows/*
 
-    # 5. 自动递增版本号
-    - name: Create release version
-      id: create_version
-      run: |
-        # 获取最新的标签版本号，如果没有则默认为 "v1.0.0"
-        VERSION=$(git describe --tags --abbrev=0 || echo "v1.0.0")
-        # 递增版本号的最后一位
-        NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
-        echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+      # 7. 上传 Windows 构建产物到 GitHub Actions 以便后续使用
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-win
+          path: release/MoeKoe_Music_${{ github.event.release.tag_name }}_win.zip
 
-    # 6. 创建 GitHub Release
-    - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ env.NEW_VERSION }}  # 使用自动递增的版本号作为标签
-        release_name: "Release ${{ env.NEW_VERSION }}"  # 发布名称
-        body: $(git log -1 --pretty=%B)  # 使用最新的提交描述作为发布说明
-        draft: false
-        prerelease: false
+  # macOS 端打包
+  build-macos:
+    name: Build for macOS
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # 7. 压缩并上传 Windows 平台文件
-    - name: Archive and Upload Windows Build
-      run: |
-        mkdir -p release
-        zip -r release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip ./dist/windows/*  # 压缩 Windows 构建文件
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
-        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
-        asset_content_type: application/zip
+      # 2. 设置 Node.js 版本
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
 
-    # 8. 压缩并上传 macOS 平台文件 (.dmg 和 .zip)
-    - name: Upload macOS DMG
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64.dmg  # 确保此路径与构建生成的文件一致
-        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_mac.dmg
-        asset_content_type: application/x-apple-diskimage
+      # 3. 安装项目依赖
+      - name: Install dependencies
+        run: npm install
 
-    - name: Upload macOS ZIP
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64-mac.zip  # 确保此路径与构建生成的文件一致
-        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_mac.zip
-        asset_content_type: application/zip
+      # 4. 运行通用的构建命令
+      - name: Run common build
+        run: npm run build
 
-    # 9. 压缩并上传 Linux 平台文件
-    - name: Archive and Upload Linux Build
-      run: |
-        zip -r release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip ./dist/linux/*  # 压缩 Linux 构建文件
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
-        asset_name: MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
-        asset_content_type: application/zip
+      # 5. 针对 macOS 的专用构建
+      - name: Run macOS build
+        run: npm run electron:build:macos
+
+      # 6. 上传 macOS DMG 构建产物
+      - name: Upload macOS DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-macos-dmg
+          path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64.dmg
+
+      # 7. 上传 macOS ZIP 构建产物
+      - name: Upload macOS ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-macos-zip
+          path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64-mac.zip
+
+  # Linux 端打包
+  build-linux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. 设置 Node.js 版本
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      # 3. 安装项目依赖
+      - name: Install dependencies
+        run: npm install
+
+      # 4. 运行通用的构建命令
+      - name: Run common build
+        run: npm run build
+
+      # 5. 针对 Linux 的专用构建
+      - name: Run Linux build
+        run: npm run electron:build:linux
+
+      # 6. 压缩 Linux 构建产物
+      - name: Archive Linux Build
+        run: |
+          mkdir -p release
+          zip -r release/MoeKoe_Music_${{ github.event.release.tag_name }}_linux.zip ./dist/linux/*
+
+      # 7. 上传 Linux 构建产物到 GitHub Actions 以便后续使用
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-linux
+          path: release/MoeKoe_Music_${{ github.event.release.tag_name }}_linux.zip
+
+  # 创建 GitHub Release
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-macos, build-linux]
+    steps:
+      # 1. 检出代码
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2. 自动递增版本号
+      - name: Increment version
+        id: create_version
+        run: |
+          VERSION=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+          NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      # 3. 使用自动递增的版本号作为标签，并使用最新的提交描述作为发布说明
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.NEW_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: "Release ${{ env.NEW_VERSION }}"
+          body: $(git log -1 --pretty=%B)
+          draft: false
+          prerelease: false
+          files: |
+            release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
+            release/MoeKoe_Music_${{ env.NEW_VERSION }}_mac.dmg
+            release/MoeKoe_Music_${{ env.NEW_VERSION }}_mac.zip
+            release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

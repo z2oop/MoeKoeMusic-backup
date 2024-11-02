@@ -101,7 +101,20 @@ app.on('ready', () => {
         if (process.env.NODE_ENV == 'development') {
             apiPath = path.join(__dirname, '../api/app_api');
         } else {
-            apiPath = path.join(process.resourcesPath, '../api/app_api');
+            // 生产环境下，针对不同平台设置 API 路径
+            switch (process.platform) {
+                case 'win32':
+                    apiPath = path.join(process.resourcesPath, '../api/app_win.exe');
+                    break;
+                case 'darwin':
+                    apiPath = path.join(process.resourcesPath, '../api/app_macos');
+                    break;
+                case 'linux':
+                    apiPath = path.join(process.resourcesPath, '../api/app_linux');
+                    break;
+                default:
+                    throw new Error(`Unsupported platform: ${process.platform}`);
+            }
         }
         log.info(`API路径: ${apiPath}`);
 

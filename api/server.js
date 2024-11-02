@@ -111,13 +111,13 @@ async function consturctServer(moduleDefs) {
   /**
    * Serving static files
    */
-  app.use(express.static(path.join(__dirname, 'public')));
+  // app.use(express.static(path.join(__dirname, 'public')));
 
   /**
    * docs
    */
 
-  app.use('/docs', express.static(path.join(__dirname, 'docs')));
+  // app.use('/docs', express.static(path.join(__dirname, 'docs')));
 
   // Cache
   app.use(cache('2 minutes', (_, res) => res.statusCode === 200));

@@ -13,16 +13,15 @@
       "node_modules/pako",
       "node_modules/qrcode",
       "node_modules/safe-decode-uri-component",
-      "module",
-      "public"
+      "module"
     ]
   },
   "scripts": {
     "dev": "nodemon --config nodemon.json index.js",
     "start": "node app.js",
-    "pkgwin": "pkg . -t node14-win-x64 -C GZip -o bin/app_api --no-bytecode",
-    "pkglinux": "pkg . -t node14-linux-x64 -C GZip -o bin/app_api --no-bytecode",
-    "pkgmacos": "pkg . -t node14-macos-x64 -C GZip -o bin/app_api --no-bytecode"
+    "pkgwin": "pkg . -t node14-win-x64 -C GZip -o bin/app_win --no-bytecode",
+    "pkglinux": "pkg . -t node14-linux-x64 -C GZip -o bin/app_linux --no-bytecode",
+    "pkgmacos": "pkg . -t node14-macos-x64 -C GZip -o bin/app_macos --no-bytecode"
   },
   "engines": {
     "node": ">=12"

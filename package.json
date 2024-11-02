@@ -2,11 +2,14 @@
   "name": "moekoemusic",
   "version": "1.0.0",
   "main": "electron/main.js",
+  "workspaces": [
+    "api/kugoumusicapi"
+  ],
   "scripts": {
     "serve": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron:serve": "NODE_ENV=development electron .",
+    "electron:serve": "cross-env NODE_ENV=development electron .",
     "api": "node API/app.js",
     "dev": "npm run api & npm run serve & npm run electron:serve",
     "build:api:win": "npm run --prefix ./api pkgwin",
@@ -15,7 +18,7 @@
     "electron:build:win": "run-s build:api:win \"electron:build -- --win\"",
     "electron:build:linux": "run-s build:api:linux \"electron:build -- --linux\"",
     "electron:build:macos": "run-s build:api:macos \"electron:build -- --mac --arm64\"",
-    "electron:build": "NODE_ENV=production electron-builder"
+    "electron:build": "cross-env NODE_ENV=production electron-builder"
   },
   "engines": {
     "node": ">=18"
@@ -33,11 +36,28 @@
     ],
     "extraFiles": [
       {
-        "from": "api/bin/app_api",
-        "to": "api/app_api/",
+        "from": "api/bin/app_win.exe",
+        "to": "api/app_win.exe",
         "filter": [
           "**/*"
-        ]
+        ],
+        "condition": "win32"
+      },
+      {
+        "from": "api/bin/app_macos",
+        "to": "api/app_macos",
+        "filter": [
+          "**/*"
+        ],
+        "condition": "darwin"
+      },
+      {
+        "from": "api/bin/app_linux",
+        "to": "api/app_linux",
+        "filter": [
+          "**/*"
+        ],
+        "condition": "linux"
       }
     ],
     "appId": "com.MoeKoe.Music",
@@ -72,7 +92,7 @@
       ]
     },
     "linux": {
-      "icon": "build/icons/icon.png",
+      "icon": "build/icons/linux_256x256.png",
       "target": [
         "AppImage",
         "deb"
@@ -88,6 +108,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.4",
     "@vue/compiler-sfc": "^3.5.12",
+    "cross-env": "^7.0.3",
     "electron": "^33.0.2",
     "electron-builder": "^25.1.8",
     "npm-run-all": "^4.1.5",
