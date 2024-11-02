@@ -24,6 +24,7 @@
     "node": ">=18"
   },
   "build": {
+    "publish": null,
     "compression": "maximum",
     "extraResources": [
       {
