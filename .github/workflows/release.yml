@@ -40,7 +40,8 @@ jobs:
       - name: Archive Windows Build
         run: |
           mkdir -p release
-          zip -r release/MoeKoe_Music_${{ github.event.release.tag_name }}_win.zip ./dist/windows/*
+          Compress-Archive -Path ./dist/windows/* -DestinationPath release/MoeKoe_Music__win.zip
+        shell: pwsh
 
       # 7. 上传 Windows 构建产物到 GitHub Actions 以便后续使用
       - name: Upload Windows artifact
@@ -123,7 +124,12 @@ jobs:
       - name: Archive Linux Build
         run: |
           mkdir -p release
-          zip -r release/MoeKoe_Music_${{ github.event.release.tag_name }}_linux.zip ./dist/linux/*
+          if [ -d "./dist/linux" ] && [ "$(ls -A ./dist/linux)" ]; then
+            zip -r release/MoeKoe_Music__linux.zip ./dist/linux/*
+          else
+            echo "No files to zip in ./dist/linux/"
+          fi
+        shell: bash
 
       # 7. 上传 Linux 构建产物到 GitHub Actions 以便后续使用
       - name: Upload Linux artifact
