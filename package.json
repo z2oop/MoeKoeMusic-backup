@@ -36,28 +36,11 @@
     ],
     "extraFiles": [
       {
-        "from": "api/bin/app_win.exe",
-        "to": "api/app_win.exe",
+        "from": "api/bin",
+        "to": "api/",
         "filter": [
           "**/*"
-        ],
-        "condition": "win32"
-      },
-      {
-        "from": "api/bin/app_macos",
-        "to": "api/app_macos",
-        "filter": [
-          "**/*"
-        ],
-        "condition": "darwin"
-      },
-      {
-        "from": "api/bin/app_linux",
-        "to": "api/app_linux",
-        "filter": [
-          "**/*"
-        ],
-        "condition": "linux"
+        ]
       }
     ],
     "appId": "com.MoeKoe.Music",
