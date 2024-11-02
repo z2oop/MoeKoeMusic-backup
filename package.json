@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "electron/main.js",
   "workspaces": [
-    "api/kugoumusicapi"
+    "api/"
   ],
   "scripts": {
     "serve": "vite",
