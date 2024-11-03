@@ -145,19 +145,19 @@ jobs:
     needs: [increment-version, build-windows, build-macos, build-linux]
     steps:
       - name: Download Windows artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: app-win
           path: ./release
 
       - name: Download macOS artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: app-macos
           path: ./release
 
       - name: Download Linux artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: app-linux
           path: ./release
