@@ -161,9 +161,9 @@ jobs:
         with:
           name: app-linux
           path: ./release
-      
+      - run: sleep 5
       - name: List files in release folder
-        run: ls -al ./release
+        run: find ${{ github.workspace }}/release -type f
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -182,11 +182,11 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            ./release/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
-            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
-            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
-            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ./release/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
+            ${{ github.workspace }}/release/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
+            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
+            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
+            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
+            ${{ github.workspace }}/release/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
