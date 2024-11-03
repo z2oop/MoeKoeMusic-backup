@@ -181,7 +181,12 @@ jobs:
           body: ${{ env.COMMIT_MESSAGE }}
           draft: false
           prerelease: true
-          files: ./release/*.*
+          files: |
+            ./release/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
+            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
+            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
+            ./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
+            ./release/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
