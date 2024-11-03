@@ -1,12 +1,12 @@
 <br />
 <p align="center">
-    <img src="images/logo.png" alt="Logo" width="156" height="156">
+    <img src="https://github.com/iAJue/MoeKoeMusic/raw/main/images/logo.png" alt="Logo" width="156" height="156">
   <h2 align="center" style="font-weight: 600">MoeKoe Music</h2>
 
   <p align="center">
     一款开源简洁高颜值的酷狗第三方客户端
     <br />
-    <a href="https://music.qier222.com" target="blank"><strong>🌎 GitHub仓库</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/iAJue/MoeKoeMusic/" target="blank"><strong>🌎 GitHub仓库</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://github.com/iAJue/MoeKoeMusic/releases" target="blank"><strong>📦️ 下载安装包</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://MoeJue.cn" target="blank"><strong>💬 访问博客</strong></a>
     <br />
@@ -14,7 +14,7 @@
   </p>
 </p>
 
-![images](./images/5.png)
+![images](https://github.com/iAJue/MoeKoeMusic/raw/main/images/5.png)
 
 ## 前言
 
@@ -220,9 +220,9 @@ API 源代码来自 [MakcRe/KuGouMusicApi](https://github.com/MakcRe/KuGouMusicA
 
 ## 🖼️ 截图
 
-![image](./images/1.png)
-![image](./images/2.png)
-![image](./images/3.png)
-![image](./images/4.png)
-![image](./images/5.png)
-![image](./images/6.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/1.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/2.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/3.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/4.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/5.png)
+![image](https://github.com/iAJue/MoeKoeMusic/raw/main/images/6.png)
