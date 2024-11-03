@@ -6,7 +6,10 @@
   "bin": "./app.js",
   "types": "./interface.d.ts",
   "pkg": {
-    "scripts": "module/*.js",
+    "scripts": [
+      "module/*.js",
+      "node_modules/axios/dist/**/*.js"
+    ],
     "assets": [
       "node_modules/axios",
       "node_modules/express",

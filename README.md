@@ -110,11 +110,11 @@ npm run build
   ```sh
   npm run build:api:win
   ```
-  - Linux:
+   - Linux:
   ```sh
   npm run build:api:linux
   ```
-  - macOS:
+   - macOS:
   ```sh
   npm run build:api:macos
   ```

@@ -7,6 +7,9 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   # Windows 端打包
   build-windows:
@@ -36,19 +39,17 @@ jobs:
       - name: Run Windows build
         run: npm run electron:build:win 
 
-      # 6. 压缩 Windows 构建产物
-      - name: Archive Windows Build
+      # 6. 重命名 Windows 构建产物为动态版本号
+      - name: Rename Windows artifact
         run: |
-          mkdir -p release
-          Compress-Archive -Path ./dist_electron/* -DestinationPath release/MoeKoe_Music__win.zip
-        shell: pwsh
+          mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./dist_electron/MoeKoe Music Setup ${{ env.NEW_VERSION }}.exe"
 
-      # 7. 上传 Windows 构建产物到 GitHub Actions 以便后续使用
+      # 7. 上传重命名后的 Windows 构建产物到 GitHub Actions 以便后续使用
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-win
-          path: release/MoeKoe_Music_${{ github.event.release.tag_name }}_win.zip
+          path: ./dist_electron/MoeKoe\ Music\ Setup\ ${{ env.NEW_VERSION }}.exe
 
   # macOS 端打包
   build-macos:
@@ -78,19 +79,24 @@ jobs:
       - name: Run macOS build
         run: npm run electron:build:macos
 
-      # 6. 上传 macOS DMG 构建产物
+      # 6. 重命名 macOS 构建产物为动态版本号
+      - name: Rename macOS artifacts
+        run: |
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}-arm64.dmg"
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}-arm64-mac.zip"
+
+      # 7. 上传重命名后的 macOS 构建产物
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: app-macos-dmg
-          path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64.dmg
+          path: ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64.dmg
 
-      # 7. 上传 macOS ZIP 构建产物
       - name: Upload macOS ZIP
         uses: actions/upload-artifact@v4
         with:
           name: app-macos-zip
-          path: ./dist_electron/MoeKoe\ Music-1.0.0-arm64-mac.zip
+          path: ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64-mac.zip
 
   # Linux 端打包
   build-linux:
@@ -120,23 +126,20 @@ jobs:
       - name: Run Linux build
         run: npm run electron:build:linux
 
-      # 6. 压缩 Linux 构建产物
-      - name: Archive Linux Build
+      # 6. 重命名 Linux 构建产物为动态版本号
+      - name: Rename Linux artifacts
         run: |
-          mkdir -p release
-          if [ -d "./dist_electron" ] && [ "$(ls -A ./dist_electron)" ]; then
-            zip -r release/MoeKoe_Music__linux.zip ./dist_electron/*
-          else
-            echo "No files to zip in ./dist_electron/"
-          fi
-        shell: bash
+          mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}.AppImage"
+          mv "./dist_electron/moekoemusic_1.0.0_amd64.deb" "./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb"
 
-      # 7. 上传 Linux 构建产物到 GitHub Actions 以便后续使用
-      - name: Upload Linux artifact
+      # 7. 上传重命名后的 Linux 构建产物
+      - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-linux
-          path: release/MoeKoe_Music_${{ github.event.release.tag_name }}_linux.zip
+          path: |
+            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}.AppImage
+            ./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb
 
   # 创建 GitHub Release
   create-release:
@@ -160,17 +163,18 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.NEW_VERSION }}
+          tag_name: ${{ env.NEW_VERSION }}-Beta
           token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: "Release ${{ env.NEW_VERSION }}"
+          name: "Release ${{ env.NEW_VERSION }}"
           body: $(git log -1 --pretty=%B)
           draft: false
-          prerelease: false
+          prerelease: true
           files: |
-            release/MoeKoe_Music_${{ env.NEW_VERSION }}_win.zip
-            release/MoeKoe_Music_${{ env.NEW_VERSION }}_mac.dmg
-            release/MoeKoe_Music_${{ env.NEW_VERSION }}_mac.zip
-            release/MoeKoe_Music_${{ env.NEW_VERSION }}_linux.zip
+            ./dist_electron/MoeKoe\ Music\ Setup\ ${{ env.NEW_VERSION }}.exe
+            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64.dmg
+            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64-mac.zip
+            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}.AppImage
+            ./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
