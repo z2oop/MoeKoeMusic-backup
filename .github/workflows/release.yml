@@ -161,6 +161,9 @@ jobs:
         with:
           name: app-linux
           path: ./release
+      
+      - name: List files in release folder
+        run: ls -al ./release
 
       - name: Checkout code
         uses: actions/checkout@v2
