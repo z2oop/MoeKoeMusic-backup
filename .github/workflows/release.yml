@@ -1,6 +1,5 @@
 name: Release
 
-# 定义触发条件：在 main 分支推送或手动触发工作流
 on:
   push:
     branches:
@@ -21,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # 确保获取所有历史记录和标签
+          fetch-depth: 0
 
       - name: Increment version
         id: set-version
@@ -30,7 +29,7 @@ jobs:
           NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
           echo "::set-output name=NEW_VERSION::$NEW_VERSION"
 
-  # Windows 端打包
+  # Windows 端打包并上传到 GitHub Release
   build-windows:
     name: Build for Windows
     runs-on: windows-latest
@@ -52,19 +51,23 @@ jobs:
         run: npm run build
 
       - name: Run Windows build
-        run: npm run electron:build:win 
+        run: npm run electron:build:win
 
       - name: Rename Windows artifact
         run: |
           mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
 
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Windows artifact to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: app-win
-          path: ./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
+          tag_name: ${{ needs.increment-version.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "Release ${{ needs.increment-version.outputs.version }}"
+          body: ${{ env.COMMIT_MESSAGE }}
+          prerelease: true
+          files: "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
 
-  # macOS 端打包
+  # macOS 端打包并上传到 GitHub Release
   build-macos:
     name: Build for macOS
     runs-on: macos-latest
@@ -93,15 +96,19 @@ jobs:
           mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
           mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
 
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload macOS artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: app-macos
-          path: |
-            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
-            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
+          tag_name: ${{ needs.increment-version.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: "Release ${{ needs.increment-version.outputs.version }}"
+          body: ${{ env.COMMIT_MESSAGE }}
+          prerelease: true
+          files: |
+            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
+            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
 
-  # Linux 端打包
+  # Linux 端打包并上传到 GitHub Release
   build-linux:
     name: Build for Linux
     runs-on: ubuntu-latest
@@ -130,63 +137,15 @@ jobs:
           mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
           mv "./dist_electron/moekoemusic_1.0.0_amd64.deb" "./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
 
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-linux
-          path: |
-            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
-
-  # 创建 GitHub Release
-  create-release:
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: [increment-version, build-windows, build-macos, build-linux]
-    steps:
-      - name: Download Windows artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-win
-          path: ./release
-
-      - name: Download macOS artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: app-macos
-          path: ./release
-
-      - name: Download Linux artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: app-linux
-          path: ./release
-      - run: sleep 5
-      - name: List files in release folder
-        run: find ${{ github.workspace }}/release -type f
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Get latest commit message
-        id: get_commit_message
-        run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
-
-      - name: Create GitHub Release
+      - name: Upload Linux artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.increment-version.outputs.version }}-Beta
+          tag_name: ${{ needs.increment-version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ needs.increment-version.outputs.version }}"
           body: ${{ env.COMMIT_MESSAGE }}
-          draft: false
           prerelease: true
           files: |
-            ${{ github.workspace }}/release/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
-            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
-            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
-            ${{ github.workspace }}/release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ${{ github.workspace }}/release/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
+            "./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
+        
