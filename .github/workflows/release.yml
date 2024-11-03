@@ -95,6 +95,9 @@ jobs:
         run: |
           mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
           mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
+      
+      - name: List files after renaming
+        run: ls -al ./dist_electron
 
       - name: Upload macOS artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -105,8 +108,8 @@ jobs:
           body: ${{ env.COMMIT_MESSAGE }}
           prerelease: true
           files: |
-            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
-            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
 
   # Linux 端打包并上传到 GitHub Release
   build-linux:
@@ -146,6 +149,6 @@ jobs:
           body: ${{ env.COMMIT_MESSAGE }}
           prerelease: true
           files: |
-            "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
-            "./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
+            ./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
         
