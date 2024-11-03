@@ -20,11 +20,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # 确保获取所有历史记录和标签
 
       - name: Increment version
         id: set-version
         run: |
-          VERSION=$(git describe --tags --abbrev=0 || echo "v1.0.0")
+          # 获取最新的标签版本号，如果没有则默认 v1.0.0
+          VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          # 将最后一个部分递增
           NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
           echo "::set-output name=NEW_VERSION::$NEW_VERSION"
 
@@ -52,15 +56,10 @@ jobs:
       - name: Run Windows build
         run: npm run electron:build:win 
 
-      - name: Rename Windows artifact
+      - name: Rename and move Windows artifact
         run: |
-          mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./dist_electron/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
-
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-win
-          path: ./dist_electron/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
+          mkdir -p release
+          mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./release/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
 
   # macOS 端打包
   build-macos:
@@ -86,18 +85,11 @@ jobs:
       - name: Run macOS build
         run: npm run electron:build:macos
 
-      - name: Rename macOS artifacts
+      - name: Rename and move macOS artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
-          mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
-
-      - name: Upload macOS artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-macos
-          path: |
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
+          mkdir -p release
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
 
   # Linux 端打包
   build-linux:
@@ -123,18 +115,11 @@ jobs:
       - name: Run Linux build
         run: npm run electron:build:linux
 
-      - name: Rename Linux artifacts
+      - name: Rename and move Linux artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
-          mv "./dist_electron/moekoemusic_1.0.0_amd64.deb" "./dist_electron/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
-
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-linux
-          path: |
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ./dist_electron/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
+          mkdir -p release
+          mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./release/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
+          mv "./dist_electron/moekoemusic_1.0.0_amd64.deb" "./release/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
 
   # 创建 GitHub Release
   create-release:
@@ -158,12 +143,7 @@ jobs:
           body: ${{ env.COMMIT_MESSAGE }}
           draft: false
           prerelease: true
-          files: |
-            ./dist_electron/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
-            ./dist_electron/MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ./dist_electron/moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb
+          files: ./release/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
