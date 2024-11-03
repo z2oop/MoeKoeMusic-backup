@@ -42,14 +42,14 @@ jobs:
       # 6. 重命名 Windows 构建产物为动态版本号
       - name: Rename Windows artifact
         run: |
-          mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./dist_electron/MoeKoe Music Setup ${{ env.NEW_VERSION }}.exe"
+          mv "./dist_electron/MoeKoe Music Setup 1.0.0.exe" "./dist_electron/MoeKoe_Music_Setup_${{ env.NEW_VERSION }}.exe"
 
       # 7. 上传重命名后的 Windows 构建产物到 GitHub Actions 以便后续使用
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-win
-          path: ./dist_electron/MoeKoe\ Music\ Setup\ ${{ env.NEW_VERSION }}.exe
+          path: ./dist_electron/MoeKoe_Music_Setup_${{ env.NEW_VERSION }}.exe
 
   # macOS 端打包
   build-macos:
@@ -57,46 +57,39 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. 设置 Node.js 版本
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # 3. 安装项目依赖
       - name: Install dependencies
         run: npm install
 
-      # 4. 运行通用的构建命令
       - name: Run common build
         run: npm run build
 
-      # 5. 针对 macOS 的专用构建
       - name: Run macOS build
         run: npm run electron:build:macos
 
-      # 6. 重命名 macOS 构建产物为动态版本号
       - name: Rename macOS artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}-arm64.dmg"
-          mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}-arm64-mac.zip"
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64.dmg" "./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64.dmg"
+          mv "./dist_electron/MoeKoe Music-1.0.0-arm64-mac.zip" "./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64-mac.zip"
 
-      # 7. 上传重命名后的 macOS 构建产物
       - name: Upload macOS DMG
         uses: actions/upload-artifact@v4
         with:
           name: app-macos-dmg
-          path: ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64.dmg
+          path: ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64.dmg
 
       - name: Upload macOS ZIP
         uses: actions/upload-artifact@v4
         with:
           name: app-macos-zip
-          path: ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64-mac.zip
+          path: ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64-mac.zip
 
   # Linux 端打包
   build-linux:
@@ -104,41 +97,34 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. 设置 Node.js 版本
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      # 3. 安装项目依赖
       - name: Install dependencies
         run: npm install
 
-      # 4. 运行通用的构建命令
       - name: Run common build
         run: npm run build
 
-      # 5. 针对 Linux 的专用构建
       - name: Run Linux build
         run: npm run electron:build:linux
 
-      # 6. 重命名 Linux 构建产物为动态版本号
       - name: Rename Linux artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./dist_electron/MoeKoe Music-${{ env.NEW_VERSION }}.AppImage"
+          mv "./dist_electron/MoeKoe Music-1.0.0.AppImage" "./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}.AppImage"
           mv "./dist_electron/moekoemusic_1.0.0_amd64.deb" "./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb"
 
-      # 7. 上传重命名后的 Linux 构建产物
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: app-linux
           path: |
-            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}.AppImage
+            ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}.AppImage
             ./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb
 
   # 创建 GitHub Release
@@ -147,11 +133,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-windows, build-macos, build-linux]
     steps:
-      # 1. 检出代码
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # 2. 自动递增版本号
       - name: Increment version
         id: create_version
         run: |
@@ -159,21 +143,25 @@ jobs:
           NEW_VERSION=$(echo $VERSION | awk -F. -v OFS=. '{$NF++; print}')
           echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
 
-      # 3. 使用自动递增的版本号作为标签，并使用最新的提交描述作为发布说明
+      # 提取最新提交信息作为发布说明
+      - name: Get latest commit message
+        id: get_commit_message
+        run: echo "COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.NEW_VERSION }}-Beta
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ env.NEW_VERSION }}"
-          body: $(git log -1 --pretty=%B)
+          body: ${{ env.COMMIT_MESSAGE }}
           draft: false
           prerelease: true
           files: |
-            ./dist_electron/MoeKoe\ Music\ Setup\ ${{ env.NEW_VERSION }}.exe
-            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64.dmg
-            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}-arm64-mac.zip
-            ./dist_electron/MoeKoe\ Music-${{ env.NEW_VERSION }}.AppImage
+            ./dist_electron/MoeKoe_Music_Setup_${{ env.NEW_VERSION }}.exe
+            ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64.dmg
+            ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}-arm64-mac.zip
+            ./dist_electron/MoeKoe_Music_${{ env.NEW_VERSION }}.AppImage
             ./dist_electron/moekoemusic_${{ env.NEW_VERSION }}_amd64.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
