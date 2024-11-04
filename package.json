@@ -42,6 +42,10 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "public/assets",
+        "to": "assets"
       }
     ],
     "appId": "com.MoeKoe.Music",

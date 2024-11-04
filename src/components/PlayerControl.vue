@@ -179,9 +179,9 @@ const formatTime = (seconds) => {
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
 };
 const easterEggImages = [
-    { src: '/src/assets/images/miku.png', class: 'miku' },
-    { src: '/src/assets/images/miku2.png', class: 'miku2' },
-    { src: '/src/assets/images/miku3.png', class: 'miku3' }
+    { src: '/assets/images/miku.png', class: 'miku' },
+    { src: '/assets/images/miku2.png', class: 'miku2' },
+    { src: '/assets/images/miku3.png', class: 'miku3' }
 ];
 const easterEggImage = computed(() => {
     const author = currentSong.value?.author || '';

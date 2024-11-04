@@ -31,7 +31,7 @@ function createWindow() {
             enableRemoteModule: false, // 禁用 remote 模块
             sandbox: false, // 禁用沙盒模式，确保 preload 中的功能可用
         },
-        icon: path.join(__dirname, '../build/icons/icon.png')
+        icon: path.join(__dirname, '../build/icons/icon.ico')
     });
 
     mainWindow.center();

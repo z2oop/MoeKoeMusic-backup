@@ -95,9 +95,9 @@ async function consturctServer(moduleDefs) {
     const cookies = (req.headers.cookie || '').split(/;\s+|(?<!\s)\s+$/g);
     if (!cookies.includes('KUGOU_API_PLATFORM')) {
       if (req.protocol === 'https') {
-        res.append('Set-Cookie', `KUGOU_API_PLATFORM=${process.env.platform}; PATH=/; SameSite=None; Secure`);
+        res.append('Set-Cookie', `KUGOU_API_PLATFORM=lite; PATH=/; SameSite=None; Secure`);
       } else {
-        res.append('Set-Cookie', `KUGOU_API_PLATFORM=${process.env.platform}; PATH=/`);
+        res.append('Set-Cookie', `KUGOU_API_PLATFORM=lite; PATH=/`);
       }
     }
 
