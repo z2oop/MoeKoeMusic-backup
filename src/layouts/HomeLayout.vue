@@ -58,6 +58,10 @@ onMounted(() => {
     --color-box-shadow: rgba(30, 144, 255, 0.2);
 }
 
+* {
+    user-select: none;
+}
+
 body,
 html {
     margin: 0;

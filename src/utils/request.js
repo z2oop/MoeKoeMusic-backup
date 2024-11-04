@@ -38,6 +38,10 @@ httpClient.interceptors.response.use(
     error => {
         if (error.response) {
             console.error(`HTTP Error: ${error.response.status}, Message: ${error.response.data.message}`);
+            if (error.response.data && error.response.data.data) {
+                alert(error.response.data.data);
+                return
+            }
         } else if (error.request) {
             console.error('No response received:', error.request);
         } else {
