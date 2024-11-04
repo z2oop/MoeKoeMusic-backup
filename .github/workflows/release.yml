@@ -45,7 +45,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-all
 
       - name: Run common build
         run: npm run build
@@ -83,7 +83,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-all
 
       - name: Run common build
         run: npm run build
@@ -127,7 +127,7 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: npm install
+        run: npm run install-all
 
       - name: Run common build
         run: npm run build

@@ -69,7 +69,7 @@ git clone https://github.com/iAJue/MoeKoeMusic.git
 
 ```sh
 cd MoeKoeMusic
-npm install
+npm run install-all
 ```
 3. 启动开发者模式
 ```sh

@@ -2,10 +2,8 @@
   "name": "moekoemusic",
   "version": "1.0.0",
   "main": "electron/main.js",
-  "workspaces": [
-    "api/"
-  ],
   "scripts": {
+    "install-all": "npm install && cd api && npm install",
     "serve": "vite",
     "build": "vite build",
     "preview": "vite preview",

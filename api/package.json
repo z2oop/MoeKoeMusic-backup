@@ -7,8 +7,7 @@
   "types": "./interface.d.ts",
   "pkg": {
     "scripts": [
-      "module/*.js",
-      "node_modules/axios/dist/**/*.js"
+      "module/*.js"
     ],
     "assets": [
       "node_modules/axios",
