@@ -5,6 +5,9 @@ import App from './App.vue';
 import router from './router/router';
 import { formatMilliseconds, getCover, applyColorTheme, setTheme } from '../src/utils/utils';
 import ModalPlugin from './plugins/ModalPlugin';
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
+
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -29,4 +32,6 @@ window.addEventListener('unhandledrejection', event => {
 app.use(pinia);
 app.use(router);
 app.use(ModalPlugin);
+app.use(ElementPlus);
+
 app.mount('#app');
