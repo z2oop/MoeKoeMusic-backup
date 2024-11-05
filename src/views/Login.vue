@@ -207,8 +207,8 @@ const phoneLogin = async () => {
             ElMessage.error(`登录失败，${response ? response.data : '无响应数据'}`);
         }
     } catch (error) {
-        console.error('登录失败:', error.message || '未知错误');
-        ElMessage.error(error.message || '登录失败');
+        console.error('登录失败:', error.response.data.data || '未知错误');
+        ElMessage.error(error.response.data.data || '登录失败');
     } finally {
         isPhoneLoginLoading.value = false;
     }
@@ -344,7 +344,17 @@ h2 {
 
 .logintype-menu .el-segmented {
   --el-segmented-item-selected-color: #fff;
-  --el-segmented-item-selected-bg-color: #409eff;
+  --el-segmented-item-selected-bg-color: var(--primary-color);
   --el-border-radius-base: 16px;
+}
+
+.el-button{
+    --el-button-bg-color: var(--primary-color);
+    --el-button-border-color: var(--primary-color);
+    --el-button-hover-bg-color: var(--primary-color);
+    --el-button-hover-border-color: var(--primary-color);
+    --el-button-active-bg-color:var(--primary-color);
+    --el-button-active-border-color: var(--primary-color);
+
 }
 </style>
