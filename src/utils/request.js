@@ -39,7 +39,7 @@ httpClient.interceptors.response.use(
         if (error.response) {
             console.error(`HTTP Error: ${error.response.status}, Message: ${error.response.data.message}`);
             if (error.response.data && error.response.data.data) {
-                alert(error.response.data.data);
+                window.$modal.alert(error.response.data.data);
                 return
             }
         } else if (error.request) {
@@ -47,7 +47,7 @@ httpClient.interceptors.response.use(
         } else {
             console.error('Error:', error.message);
         }
-        alert('服务器错误,请稍后再试!');
+        window.$modal.alert('服务器错误,请稍后再试!');
         return Promise.reject(error);
     }
 );

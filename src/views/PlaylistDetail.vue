@@ -9,8 +9,8 @@
                 <p class="playlist-description">{{ detail.intro }}</p>
                 <div class="playlist-actions">
                     <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i class="fas fa-play"></i> 播放</button>
-                    <button class="fav-btn"><i class="fas fa-heart"></i></button>
-                    <button class="more-btn"><i class="fas fa-ellipsis-h"></i></button>
+                    <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i class="fas fa-heart"></i></button>
+                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo.userid"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
             </div>
         </div>
@@ -37,7 +37,8 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
-
+import { MoeAuthStore } from '../stores/store';
+const MoeAuth = MoeAuthStore();
 const route = useRoute();
 const tracks = ref([]);
 const currentPage = ref(1);
@@ -50,7 +51,9 @@ const playSong = (hash, name, img, author) => {
 const getPlaylistAllSongs = (id) => {
     props.playerControl.getPlaylistAllSongs(id);
 }
-
+const toggleFavorite = (id) => {
+    
+}
 const props = defineProps({
   playerControl: Object
 });

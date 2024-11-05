@@ -75,7 +75,7 @@ const emailLogin = async () => {
             router.push(route.query.redirect || '/library');
         }
     } catch (error) {
-        alert(error.message);
+        window.$modal.alert(error.message);
     }
 };
 
@@ -83,9 +83,9 @@ const emailLogin = async () => {
 const sendCaptcha = async () => {
     const response = await get(`/captcha/sent?mobile=${mobile.value}`);
     if (response.status == 1) {
-        alert('验证码已发送');
+        window.$modal.alert('验证码已发送');
     } else {
-        alert('验证码发送失败');
+        window.$modal.alert('验证码发送失败');
     }
 };
 
@@ -96,7 +96,7 @@ const phoneLogin = async () => {
         MoeAuth.setData({UserInfo:response.data});
         router.push(route.query.redirect || '/library');
     } else {
-        alert('手机号登录失败，请检查验证码');
+        window.$modal.alert('手机号登录失败，请检查验证码');
     }
 };
 
@@ -115,7 +115,7 @@ const generateQrCode = async () => {
         qrKey.value = response.data.qrcode;
         createQrCode();
     } else {
-        alert('二维码生成失败');
+        window.$modal.alert('二维码生成失败');
     }
 };
 
@@ -126,7 +126,7 @@ const createQrCode = async () => {
         qrCode.value = response.data.base64;
         checkQrStatus();
     } else {
-        alert('获取二维码失败');
+        window.$modal.alert('获取二维码失败');
     }
 };
 
@@ -143,12 +143,12 @@ const checkQrStatus = async () => {
                     MoeAuth.setData({UserInfo:response.data});
                 } else if (response.data.status === 0) {
                     clearInterval(interval);
-                    alert('二维码已过期，请重新生成');
+                    window.$modal.alert('二维码已过期，请重新生成');
                 }
             }
         } catch (error) {
             clearInterval(interval);
-            alert('二维码检测失败');
+            window.$modal.alert('二维码检测失败');
         }
     }, 5000);
 };

@@ -207,7 +207,7 @@ const playSong = (song) => {
 // 播放上一首
 const playPrevious = () => {
     if(musicQueueStore.queue.length === 0){
-        alert('你还没有添加歌曲哦，快去添加吧！');
+        window.$modal.alert('你还没有添加歌曲哦，快去添加吧！');
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
@@ -230,7 +230,7 @@ const playPrevious = () => {
 // 播放下一首
 const playNext = () => {
     if(musicQueueStore.queue.length === 0){
-        alert('你还没有添加歌曲哦，快去添加吧！');
+        window.$modal.alert('你还没有添加歌曲哦，快去添加吧！');
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
@@ -348,13 +348,13 @@ const getPlaylistAllSongs = async (id) => {
         const url = `/playlist/track/all?id=${id}&pagesize=500`;
         const response = await get(url);
         if (response.status !== 1) {
-            alert('获取歌单失败');
+            window.$modal.alert('获取歌单失败');
             return;
         }
         addPlaylistToQueue(response.data.info)
     } catch (error) {
         console.error(error);
-        alert('获取歌单失败');
+        window.$modal.alert('获取歌单失败');
     }
 }
 // 添加歌单到播放列表
@@ -381,7 +381,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         currentSong.value.name = name;
         currentSong.value.img = img;
         currentSong.value.hash = hash;
-        const url = `/song/url?hash=${hash}`;
+        const url = `/song/url?hash=${hash}&free_part=1`;
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = '获取音乐失败';

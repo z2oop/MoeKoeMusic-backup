@@ -3,9 +3,11 @@
         <div class="profile-section">
             <img class="profile-pic" :src="user.pic" alt="用户头像" />
             <h2 class="section-title">{{ user.nickname }}的音乐库</h2>
-            <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level" src="@/assets/images/vip.png"
+            <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level"
+                :src="`/assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`概念版: ${userVip[0].vip_end_time}`" />
-            <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level" src="@/assets/images/vip2.png"
+            <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
+                :src="`/assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`畅听版: ${userVip[1].vip_end_time}`" />
         </div>
         <h2 class="section-title" style="margin-bottom: 0px;">我喜欢听</h2>
@@ -77,6 +79,8 @@
 import { ref, onMounted } from 'vue';
 import { get } from '../utils/request';
 import { MoeAuthStore } from '../stores/store';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 const MoeAuth = MoeAuthStore();
 const user = ref({});
 const userPlaylists = ref([]);
@@ -104,29 +108,35 @@ const props = defineProps({
 });
 
 onMounted(() => {
-
     if (MoeAuth.isAuthenticated) {
         user.value = MoeAuth.UserInfo;
-        // 获取用户创建和收藏的歌单
-        getplaylist()
-        // 获取用户关注的歌手
-        getfollow()
-        // 获取用户听歌历史
-        getlisten()
         // 获取用户vip信息
         getVipInfo()
-        if (canRequestVip()) {
-            // 自动领取VIP
-            get('/youth/vip')
-            // 刷新token
-            // get(`/login/token?token=${user.value.token}&userid=${user.value.userid}`);
-        }
     }
 });
+const getUserDetails = () => {
+    // 获取用户创建和收藏的歌单
+    getplaylist()
+    // 获取用户关注的歌手
+    getfollow()
+    // 获取用户听歌历史
+    getlisten()
+
+    if (canRequestVip()) {
+        // 自动领取VIP
+        get('/youth/vip')
+        // 刷新token
+        // get(`/login/token?token=${user.value.token}&userid=${user.value.userid}`);
+    }
+}
 const getVipInfo = async () => {
     const VipInfoResponse = await get('/user/vip/detail');
     if (VipInfoResponse.status === 1) {
         userVip.value = VipInfoResponse.data.busi_vip
+        getUserDetails();
+    } else {
+        window.$modal.alert('登录失效,请重新登录');
+        router.push('/login');
     }
 }
 const getlisten = async () => {

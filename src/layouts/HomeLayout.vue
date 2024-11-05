@@ -23,7 +23,7 @@ onMounted(() => {
     if (savedConfig) {
         proxy.$applyColorTheme(savedConfig['themeColor']);
     }
-    if (savedConfig && savedConfig['greetings']=='开启') {
+    if (savedConfig && (savedConfig['greetings']=='开启' || savedConfig['greetings']=='null')) {
         const randomIndex = Math.floor(Math.random() * audioFiles.length);
         const selectedAudioFile = audioFiles[randomIndex];
         audio.value = new Audio(selectedAudioFile);
