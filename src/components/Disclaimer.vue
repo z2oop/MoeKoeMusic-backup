@@ -34,7 +34,7 @@ onMounted(() => {
     }
 });
 const isElectron = () => {
-    return typeof window !== 'undefined' && typeof window.require === 'function';
+    return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
 };
 const agree = () => {
     showModal.value = false;

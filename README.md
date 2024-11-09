@@ -52,6 +52,7 @@
 - [ ] ⚙️ 系统架构优化
 - [ ] 🎶 歌曲、歌单/收藏、取消
 
+更新日志请查看 [releases](https://github.com/iAJue/MoeKoeMusic/releases)
 
 ## 📦️ 安装
 
@@ -106,18 +107,18 @@ npm run build
 
 3. 使用 `npm install` 安装项目依赖。
 4. 编译API服务端
-   - Windows:
-  ```sh
-  npm run build:api:win
-  ```
-   - Linux:
-  ```sh
-  npm run build:api:linux
-  ```
-   - macOS:
-  ```sh
-  npm run build:api:macos
-  ```
+    - Windows:
+        ```sh
+        npm run build:api:win
+        ```
+    - Linux:
+        ```sh
+        npm run build:api:linux
+        ```
+    - macOS:
+      ```sh
+      npm run build:api:macos
+      ```
 
 5. 选择下列的命令来打包适合的你的安装包，打包出来的文件在 `/dist_electron` 目录下。了解更多信息可访问 [electron-builder 文档](https://www.electron.build/cli)
 

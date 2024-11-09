@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <TitleBar />
         <RouterView />
         <Disclaimer />
     </div>
@@ -7,6 +8,8 @@
 
 <script setup>
 import Disclaimer from '@/components/Disclaimer.vue';
+import TitleBar from '@/components/TitleBar.vue';
+
 </script>
 
 <style scoped>
