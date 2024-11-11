@@ -130,13 +130,13 @@ export function startApiServer() {
         } else {
             switch (process.platform) {
                 case 'win32':
-                    apiPath = path.join(process.resourcesPath, 'api', 'app_win.exe');
+                    apiPath = path.join(process.resourcesPath, '../api', 'app_win.exe');
                     break;
                 case 'darwin':
-                    apiPath = path.join(process.resourcesPath, 'api', 'app_macos');
+                    apiPath = path.join(process.resourcesPath, '../api', 'app_macos');
                     break;
                 case 'linux':
-                    apiPath = path.join(process.resourcesPath, 'api', 'app_linux');
+                    apiPath = path.join(process.resourcesPath, '../api', 'app_linux');
                     break;
                 default:
                     reject(new Error(`Unsupported platform: ${process.platform}`));

@@ -23,9 +23,9 @@
             <div class="extra-controls">
                 <button class="extra-btn" @click="toggleRandom"><i
                         :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
-                        :title="isRandom ? '随机播放' : '顺序播放'"></i></button>
+                        :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
                 <button class="extra-btn" @click="toggleLoop"><i :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
-                        :title="isLoop ? '单曲循环' : '列表循环'"></i></button>
+                        :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan')"></i></button>
                 <button class="extra-btn" @click="toggleQueue"><i class="fas fa-list"></i></button>
 
                 <!-- 音量控制 -->
@@ -44,7 +44,7 @@
         <transition name="fade">
             <div v-if="showQueue" class="queue-popup">
                 <div class="queue-header">
-                    <h3>播放列表 ({{ musicQueueStore.queue.length }})</h3>
+                    <h3><span>{{ $t('bo-fang-lie-biao') }}</span> ({{ musicQueueStore.queue.length }})</h3>
                 </div>
 
                 <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="300"
@@ -76,7 +76,7 @@
     <!-- 全屏歌词界面 -->
     <transition name="slide-up">
         <div v-if="showLyrics" class="lyrics-bg"
-            :style="(lyricsBackground == '打开' ? ({ backgroundImage: `url(${currentSong?.img || 'https://random.MoeJue.cn/randbg.php'})` }) : ({ background: 'var(--background-color)' }))">
+            :style="(lyricsBackground == 'on' ? ({ backgroundImage: `url(${currentSong?.img || 'https://random.MoeJue.cn/randbg.php'})` }) : ({ background: 'var(--background-color)' }))">
             <div class="lyrics-screen">
                 <div class="close-btn">
                     <i class="fas fa-chevron-down" @click="toggleLyrics"></i>
@@ -104,8 +104,8 @@
                     <div class="player-controls">
                         <button class="control-btn" @click="toggleRandom"><i
                                 :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
-                                :title="isRandom ? '随机播放' : '顺序播放'"></i></button>
-
+                                :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
+                                
                         <button class="control-btn" @click="playPrevious"><i class="fas fa-step-backward"></i></button>
                         <button class="control-btn" @click="togglePlayPause">
                             <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
@@ -114,7 +114,7 @@
 
                         <button class="control-btn" @click="toggleLoop"><i
                                 :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
-                                :title="isLoop ? '单曲循环' : '列表循环'"></i></button>
+                                :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan') "></i></button>
                     </div>
                 </div>
                 <div id="lyrics-container">
@@ -140,6 +140,8 @@ import { RecycleScroller } from 'vue3-virtual-scroller'; // 使用 RecycleScroll
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; // 引入样式
 import { get } from '../utils/request'; // 引入请求函数
 import { useMusicQueueStore } from '../stores/musicQueue'; // 引入播放队列的 store
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
 const isDragging = ref(false);
 const showQueue = ref(false);
@@ -156,8 +158,8 @@ const progressWidth = ref(0);
 const lyricsData = ref([]);
 const scrollAmount = ref(226);
 const currentTime = ref(0);
-const SongTips = ref('暂无歌词');
-const lyricsBackground = ref('打开');
+const SongTips = ref(t('zan-wu-ge-ci'));
+const lyricsBackground = ref('on');
 let currentLineIndex = 0;
 onMounted(() => {
     const savedVolume = localStorage.getItem('player_volume');
@@ -199,7 +201,6 @@ const playSong = (song) => {
     audio.src = song.url;
     audio.play();
     playing.value = true;
-    console.log(currentSong.value)
     localStorage.setItem('current_song', JSON.stringify(currentSong.value));
 };
 
@@ -207,7 +208,7 @@ const playSong = (song) => {
 // 播放上一首
 const playPrevious = () => {
     if(musicQueueStore.queue.length === 0){
-        window.$modal.alert('你还没有添加歌曲哦，快去添加吧！');
+        window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
@@ -230,7 +231,7 @@ const playPrevious = () => {
 // 播放下一首
 const playNext = () => {
     if(musicQueueStore.queue.length === 0){
-        window.$modal.alert('你还没有添加歌曲哦，快去添加吧！');
+        window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
@@ -348,13 +349,13 @@ const getPlaylistAllSongs = async (id) => {
         const url = `/playlist/track/all?id=${id}&pagesize=500`;
         const response = await get(url);
         if (response.status !== 1) {
-            window.$modal.alert('获取歌单失败');
+            window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
             return;
         }
         addPlaylistToQueue(response.data.info)
     } catch (error) {
         console.error(error);
-        window.$modal.alert('获取歌单失败');
+        window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
     }
 }
 // 添加歌单到播放列表
@@ -365,7 +366,7 @@ const addPlaylistToQueue = async (info) => {
             id: index + 1,
             hash: song.hash,
             name: song.name,
-            img: song.cover.replace("{size}", 400),
+            img: song.cover.replace("{size}", 480),
             author: song.name,
             timeLength: song.timelen
         };
@@ -384,9 +385,9 @@ const addSongToQueue = async (hash, name, img, author) => {
         const url = `/song/url?hash=${hash}&free_part=1`;
         const response = await get(url);
         if (response.status !== 1) {
-            currentSong.value.author = currentSong.value.name = '获取音乐失败';
+            currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
             if(musicQueueStore.queue.length === 0) return;
-            currentSong.value.author = '3秒后自动切换下一首';
+            currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
             setTimeout(() => {
                 playNext();
             }, 3000);
@@ -422,9 +423,9 @@ const addSongToQueue = async (hash, name, img, author) => {
             playSong(newSong);
         }
     } catch (error) {
-        currentSong.value.author = currentSong.value.name = '获取音乐地址失败';
+        currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-di-zhi-shi-bai');
         if(musicQueueStore.queue.length === 0) return;
-        currentSong.value.author = '3秒后自动切换下一首';
+        currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
         setTimeout(() => {
             playNext();
         }, 3000);
@@ -457,13 +458,13 @@ const toggleLyrics = async () => {
         lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
     showLyrics.value = !showLyrics.value;
-    SongTips.value = '获取歌词中...';
+    SongTips.value = t('huo-qu-ge-ci-zhong');
     if (showLyrics.value && currentSong.value) {
         try {
             if (lyricsData.value.length != 0) return;
             getLyrics(currentSong.value.hash)
         } catch (error) {
-            SongTips.value = '获取歌词失败';
+            SongTips.value = t('huo-qu-ge-ci-shi-bai');
             console.error('获取歌词失败:', error);
         }
     }
@@ -473,12 +474,12 @@ const toggleLyrics = async () => {
 const getLyrics = async (hash) => {
     const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
     if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
-        SongTips.value = '暂无歌词';
+        SongTips.value = t('zan-wu-ge-ci');
         return;
     }
     const lyricResponse = await get(`/lyric?id=${lyricSearchResponse.candidates[0].id}&accesskey=${lyricSearchResponse.candidates[0].accesskey}&decode=true`);
     if (lyricResponse.status !== 200) {
-        SongTips.value = '获取歌词失败';
+        SongTips.value = t('huo-qu-ge-ci-shi-bai');
         return;
     }
     parseLyrics(lyricResponse.decodeContent);

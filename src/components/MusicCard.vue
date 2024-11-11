@@ -1,6 +1,6 @@
 <template>
     <div class="music-card">
-        <img :src="albumCover" alt="专辑封面" />
+        <img :src="albumCover" alt="album cover" />
         <p>{{ songTitle }}</p>
         <p>{{ artist }}</p>
     </div>

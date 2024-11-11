@@ -1,6 +1,6 @@
 <template>
     <div class="discover-page">
-        <h2 class="section-title">发现</h2>
+        <h2 class="section-title">{{ $t('fa-xian') }}</h2>
         <div class="tabs">
             <button v-for="(tab, index) in tabs" :key="index" @click="selectTab(index)"
                 :class="{ active: selectedTab === index }" :tag_id="tab.tag_id">

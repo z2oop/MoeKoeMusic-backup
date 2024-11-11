@@ -1,7 +1,7 @@
 <template>
     <div class="search-page">
         <div v-if="searchResults.length > 0" class="search-results">
-            <h2 class="section-title">搜索结果</h2>
+            <h2 class="section-title">{{ $t('sou-suo-jie-guo') }}</h2>
             <ul>
                 <li v-for="(result, index) in searchResults" :key="index" class="result-item" @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)">
                     <img :src="$getCover(result.Image, 100)" alt="Cover" />
@@ -12,9 +12,9 @@
                 </li>
             </ul>
             <div class="pagination">
-                <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
-                <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-                <button @click="nextPage" :disabled="currentPage === totalPages">下一页</button>
+                <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
+                <span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye') }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span>
+                <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
             </div>
         </div>
     </div>

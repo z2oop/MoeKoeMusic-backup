@@ -7,6 +7,7 @@ import { formatMilliseconds, getCover, applyColorTheme, setTheme } from '../src/
 import ModalPlugin from './plugins/ModalPlugin';
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import i18n from './utils/i18n';
 
 
 const app = createApp(App);
@@ -31,6 +32,7 @@ window.addEventListener('unhandledrejection', event => {
 });
 app.use(pinia);
 app.use(router);
+app.use(i18n);
 app.use(ModalPlugin);
 app.use(ElementPlus);
 

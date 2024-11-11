@@ -1,17 +1,17 @@
 <template>
     <div v-if="showModal" class="modal-overlay">
         <div class="modal-content">
-            <h2>用户条款</h2>
-            <p>1. 本程序是酷狗第三方客户端，并非酷狗官方，需要更完善的功能请下载官方客户端体验.</p>
-            <p>2. 本项目仅供学习交流使用，您在使用过程中应尊重版权，不得用于商业或非法用途。</p>
-            <p>3. 在使用本项目的过程中，可能会生成版权内容。本项目不拥有这些版权内容的所有权。为了避免侵权行为，您需在 24 小时内清除由本项目产生的版权内容。</p>
-            <p>4. 本项目的开发者不对因使用或无法使用本项目所导致的任何损害承担责任，包括但不限于数据丢失、停工、计算机故障或其他经济损失。</p>
-            <p>5. 您不得在违反当地法律法规的情况下使用本项目。因违反法律法规所导致的任何法律后果由用户承担。</p>
-            <p>6. 本项目仅用于技术探索和研究，不接受任何商业合作、广告或捐赠。如果官方音乐平台对此项目存有疑虑，可随时联系开发者移除相关内容。</p>
-            <p>同意继续使用本项目，您即接受以上条款声明内容。</p>
+            <h2>{{ $t('yong-hu-tiao-kuan') }}</h2>
+            <p>{{ $t('1-ben-cheng-xu-shi-ku-gou-di-san-fang-ke-hu-duan-bing-fei-ku-gou-guan-fang-xu-yao-geng-wan-shan-de-gong-neng-qing-xia-zai-guan-fang-ke-hu-duan-ti-yan') }}</p>
+            <p>{{ $t('2-ben-xiang-mu-jin-gong-xue-xi-jiao-liu-shi-yong-nin-zai-shi-yong-guo-cheng-zhong-ying-zun-zhong-ban-quan-bu-de-yong-yu-shang-ye-huo-fei-fa-yong-tu') }}</p>
+            <p>{{ $t('3-zai-shi-yong-ben-xiang-mu-de-guo-cheng-zhong-ke-neng-hui-sheng-cheng-ban-quan-nei-rong-ben-xiang-mu-bu-yong-you-zhe-xie-ban-quan-nei-rong-de-suo-you-quan-wei-le-bi-mian-qin-quan-hang-wei-nin-xu-zai-24-xiao-shi-nei-qing-chu-you-ben-xiang-mu-chan-sheng-de-ban-quan-nei-rong') }}</p>
+            <p>{{ $t('4-ben-xiang-mu-de-kai-fa-zhe-bu-dui-yin-shi-yong-huo-wu-fa-shi-yong-ben-xiang-mu-suo-dao-zhi-de-ren-he-sun-hai-cheng-dan-ze-ren-bao-kuo-dan-bu-xian-yu-shu-ju-diu-shi-ting-gong-ji-suan-ji-gu-zhang-huo-qi-ta-jing-ji-sun-shi') }}</p>
+            <p>{{ $t('5-nin-bu-de-zai-wei-fan-dang-di-fa-lv-fa-gui-de-qing-kuang-xia-shi-yong-ben-xiang-mu-yin-wei-fan-fa-lv-fa-gui-suo-dao-zhi-de-ren-he-fa-lv-hou-guo-you-yong-hu-cheng-dan') }}</p>
+            <p>{{ $t('6-ben-xiang-mu-jin-yong-yu-ji-shu-tan-suo-he-yan-jiu-bu-jie-shou-ren-he-shang-ye-he-zuo-guang-gao-huo-juan-zeng-ru-guo-guan-fang-yin-le-ping-tai-dui-ci-xiang-mu-cun-you-yi-lv-ke-sui-shi-lian-xi-kai-fa-zhe-yi-chu-xiang-guan-nei-rong') }}</p>
+            <p>{{ $t('tong-yi-ji-xu-shi-yong-ben-xiang-mu-nin-ji-jie-shou-yi-shang-tiao-kuan-sheng-ming-nei-rong') }}</p>
             <div class="button-group">
-                <button @click="agree">同意</button>
-                <button @click="disagree">不同意</button>
+                <button @click="agree">{{ $t('tong-yi') }}</button>
+                <button @click="disagree">{{ $t('bu-tong-yi') }}</button>
             </div>
         </div>
     </div>

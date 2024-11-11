@@ -1,16 +1,16 @@
 <template>
     <div class="library-page">
         <div class="profile-section">
-            <img class="profile-pic" :src="user.pic" alt="用户头像" />
-            <h2 class="section-title">{{ user.nickname }}的音乐库</h2>
+            <img class="profile-pic" :src="user.pic" alt="{{ $t('yong-hu-tou-xiang') }}" />
+            <h2 class="section-title">{{ user.nickname }}<span>{{ $t('de-yin-le-ku') }}</span></h2>
             <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level"
                 :src="`/assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
-                :title="`概念版: ${userVip[0].vip_end_time}`" />
+                :title="`${ $t('gai-nian-ban') } ${userVip[0].vip_end_time}`" /> 
             <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
                 :src="`/assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
-                :title="`畅听版: ${userVip[1].vip_end_time}`" />
+                :title="`${ $t('chang-ting-ban') } ${userVip[1].vip_end_time}`" />
         </div>
-        <h2 class="section-title" style="margin-bottom: 0px;">我喜欢听</h2>
+        <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
             <div class="song-list">
                 <ul>
@@ -46,7 +46,7 @@
                         alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
-                        <p>{{ playlist.count }} 首歌</p>
+                        <p>{{ playlist.count }} <span>{{ $t('shou-ge') }}</span></p>
                     </div>
                 </router-link>
             </div>
@@ -59,7 +59,7 @@
                     <img :src="$getCover(playlist.pic, 240)" alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
-                        <p>{{ playlist.count }} 首歌</p>
+                        <p>{{ playlist.count }} <span>{{ $t('shou-ge') }}</span></p>
                     </div>
                 </router-link>
             </div>
@@ -72,6 +72,7 @@
                 </div>
             </div>
         </div>
+        <el-empty v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0)" :description="t('zhe-li-shi-mo-du-mei-you')" />
     </div>
 </template>
 
@@ -80,6 +81,8 @@ import { ref, onMounted } from 'vue';
 import { get } from '../utils/request';
 import { MoeAuthStore } from '../stores/store';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 const router = useRouter();
 const MoeAuth = MoeAuthStore();
 const user = ref({});
@@ -88,10 +91,8 @@ const collectedPlaylists = ref([]);
 const followedArtists = ref([]);
 const listenHistory = ref([]);
 const userVip = ref({});
-
-
 // 分类标签和选中状态
-const categories = ref(['我创建的歌单', '我收藏的歌单', '我关注的歌手']);
+const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-guan-zhu-de-ge-shou')]);
 const selectedCategory = ref(0); // 默认选中第一个
 
 // 分类标签切换
@@ -135,7 +136,7 @@ const getVipInfo = async () => {
         userVip.value = VipInfoResponse.data.busi_vip
         getUserDetails();
     } else {
-        window.$modal.alert('登录失效,请重新登录');
+        window.$modal.alert(t('deng-lu-shi-xiao-qing-zhong-xin-deng-lu'));
         router.push('/login');
     }
 }

@@ -9,6 +9,13 @@
     <a href="https://github.com/iAJue/MoeKoeMusic/" target="blank"><strong>🌎 GitHub仓库</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://github.com/iAJue/MoeKoeMusic/releases" target="blank"><strong>📦️ 下载安装包</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
     <a href="https://MoeJue.cn" target="blank"><strong>💬 访问博客</strong></a>
+  </p>
+  <p align="center">
+    <a href="https://github.com/iAJue/MoeKoeMusic/README.md" target="blank"><strong>🇨🇳 简体中文</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/iAJue/MoeKoeMusic/docs/README_tw.md" target="blank"><strong>🇨🇳 繁体中文</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/iAJue/MoeKoeMusic/docs/README_ja.md" target="blank"><strong>🇯🇵 日本語</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/iAJue/MoeKoeMusic/docs/README_en.md" target="blank"><strong>🇺🇸 English</strong></a>&nbsp;&nbsp;|&nbsp;&nbsp;
+    <a href="https://github.com/iAJue/MoeKoeMusic/docs/README_ko.md" target="blank"><strong>🇰🇷 한국어</strong></a>
     <br />
     <br />
   </p>
@@ -47,7 +54,7 @@
 - [ ] 🟥 支持 Last.fm Scrobble
 - [ ] 🎧 支持 Mpris
 - [ ] ⌨️ 自定义快捷键和全局快捷键
-- [ ] 🤟 多语言支持
+- [x] 🤟 多语言支持
 - [ ] 📻 桌面歌词
 - [ ] ⚙️ 系统架构优化
 - [ ] 🎶 歌曲、歌单/收藏、取消

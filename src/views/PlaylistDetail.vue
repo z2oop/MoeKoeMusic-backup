@@ -8,7 +8,7 @@
                 <p class="playlist-meta">{{ detail.tags }}</p>
                 <p class="playlist-description">{{ detail.intro }}</p>
                 <div class="playlist-actions">
-                    <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i class="fas fa-play"></i> 播放</button>
+                    <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
                     <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i class="fas fa-heart"></i></button>
                     <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo.userid"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
@@ -16,18 +16,18 @@
         </div>
 
         <div class="track-list">
-            <h2 class="track-list-title">歌曲列表 ( {{ detail.count }} )</h2>
+            <h2 class="track-list-title"><span>{{ $t('ge-qu-lie-biao') }}</span> ( {{ detail.count }} )</h2>
             <ul>
-                <li v-for="(track, index) in tracks" :key="index" @click="playSong(track.hash, track.name, $getCover(track.cover, 640), track.name)">
+                <li v-for="(track, index) in tracks" :key="index" @click="playSong(track.hash, track.name, $getCover(track.cover, 480), track.name)">
                     <div class="track-number">{{ (currentPage - 1) * pageSize + index + 1 }}</div>
                     <div class="track-title">{{ track.name }} <span v-if="track.privilege == 10" class="icon vip-icon">VIP</span> <span v-if="track.relate_goods.length > 1" class="icon sq-icon">SQ</span></div>
                     <div class="track-duration">{{ $formatMilliseconds(track.timelen) }}</div>
                 </li>
             </ul>
             <div class="pagination">
-                <button @click="prevPage" :disabled="currentPage === 1">上一页</button>
-                <span>第 {{ currentPage }} 页 / 共 {{ totalPages }} 页</span>
-                <button @click="nextPage" :disabled="currentPage === totalPages">下一页</button>
+                <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
+                <span class="current-page-info"><span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye') }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span></span>
+                <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
             </div>
         </div>
     </div>
@@ -227,6 +227,10 @@ const prevPage = () => {
     gap: 10px;
 }
 
+.pagination .current-page-info{
+    line-height: 29px;
+}
+
 .pagination button {
     padding: 5px 10px;
     border: 1px solid #ccc;
@@ -243,7 +247,6 @@ const prevPage = () => {
 .pagination span {
     font-size: 14px;
     color: #666;
-    line-height: 29px;
 }
 .icon{
     margin-left: 5px;

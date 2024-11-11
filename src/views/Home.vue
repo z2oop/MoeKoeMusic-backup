@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <h2 class="section-title">推荐</h2>
+        <h2 class="section-title">{{ $t('tui-jian') }}</h2>
         <div class="recommendations">
             <div class="recommend-card">
                 <a href="https://activity.kugou.com/download/v-a23b0cf0/index.html" target="_blank"><img src="@/assets/images/home/recommend1.png" class="recommend-image" title="酷狗概念版下载"></a>
@@ -22,7 +22,7 @@
             </div>
         </div>
 
-        <h2 class="section-title">推荐歌曲</h2>
+        <h2 class="section-title">{{ $t('tui-jian-ge-qu') }}</h2>
         <div class="song-list">
             <div class="song-item" v-for="(song, index) in songs" :key="index" @click="playSong(song.hash, song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)">
                 <img :src="$getCover(song.sizable_cover, 64)" :alt="song.ori_audio_name" class="song-cover">
@@ -32,7 +32,7 @@
                 </div>
             </div>
         </div>
-        <h2 class="section-title">推荐歌单</h2>
+        <h2 class="section-title">{{ $t('tui-jian-ge-dan') }}</h2>
         <div class="playlist-grid">
             <div class="playlist-item" v-for="(playlist, index) in special_list" :key="index">
                 <router-link :to="{

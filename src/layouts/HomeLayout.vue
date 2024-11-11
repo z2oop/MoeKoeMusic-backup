@@ -23,13 +23,15 @@ onMounted(() => {
     if (savedConfig) {
         proxy.$applyColorTheme(savedConfig['themeColor']);
     }
-    if (savedConfig && (savedConfig['greetings']=='开启' || savedConfig['greetings']=='null')) {
-        const randomIndex = Math.floor(Math.random() * audioFiles.length);
-        const selectedAudioFile = audioFiles[randomIndex];
-        audio.value = new Audio(selectedAudioFile);
-        audio.value.play().catch(error => {
-            console.error('未交互', error);
-        });
+    if (savedConfig && (savedConfig['greetings'] == 'on' || savedConfig['greetings'] == 'null')) {
+        setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * audioFiles.length);
+            const selectedAudioFile = audioFiles[randomIndex];
+            audio.value = new Audio(selectedAudioFile);
+            audio.value.play().catch(error => {
+                console.error('未交互', error);
+            });
+        }, 2000);
     }
 });
 </script>

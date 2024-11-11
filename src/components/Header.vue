@@ -13,13 +13,13 @@
                 </button>
             </div>
             <div class="nav-links">
-                <router-link to="/">首页</router-link>
-                <router-link to="/discover">发现</router-link>
-                <router-link to="/library">音乐库</router-link>
+                <router-link to="/">{{ $t('shou-ye') }}</router-link>
+                <router-link to="/discover">{{ $t('fa-xian') }}</router-link>
+                <router-link to="/library">{{ $t('yin-le-ku') }}</router-link>
             </div>
             <div class="search-profile">
                 <div class="search-bar">
-                    <input v-model="searchQuery" type="text" placeholder="搜索音乐、歌手、歌单..." @keydown.enter="getSearch">
+                    <input v-model="searchQuery" type="text" :placeholder="$t('sou-suo-yin-le-ge-shou-ge-dan')" @keydown.enter="getSearch">
                 </div>
                 <div class="profile" @click="toggleProfile">
                     <img :src="MoeAuth.UserInfo ? MoeAuth.UserInfo.pic : './assets/images/profile.jpg'"
@@ -28,24 +28,24 @@
                         <ul>
                             <li>
                                 <router-link to="/settings">
-                                    <i class="fas fa-cog"></i> 设置
+                                    <i class="fas fa-cog"></i> {{ $t('she-zhi') }}
                                 </router-link>
                             </li>
                             <li>
                                 <a v-if="MoeAuth.isAuthenticated" @click="logout"><i
-                                        class="fas fa-sign-out-alt"></i>退出</a>
+                                        class="fas fa-sign-out-alt"></i>{{ $t('tui-chu') }}</a>
                                 <router-link to="/login" v-else>
-                                    <i class="fas fa-sign-in-alt"></i> 登录
+                                    <i class="fas fa-sign-in-alt"></i> {{ $t('deng-lu') }}
                                 </router-link>
                             </li>
                             <li>
                                 <a href="https://github.com/iAJue/MoeKoeMusic/releases" target="_blank">
-                                    <i class="fab fa-github"></i> 更新
+                                    <i class="fab fa-github"></i> {{ $t('geng-xin') }}
                                 </a>
                             </li>
                             <li>
                                 <a @click="Disclaimer()">
-                                    <i class="fas fa-info-circle"></i> 关于
+                                    <i class="fas fa-info-circle"></i> {{ $t('guan-yu') }}
                                 </a>
                             </li>
                         </ul>
@@ -56,19 +56,18 @@
     </header>
     <div v-if="isDisclaimerVisible" class="modal-overlay" @click="Disclaimer">
         <div class="modal-content" @click.stop>
-            <h2>免责声明</h2>
-            <p>0. 本程序是酷狗第三方客户端，并非酷狗官方，需要更完善的功能请下载官方客户端体验.</p>
-            <p>1. 本项目仅供学习使用，请尊重版权，请勿利用此项目从事商业行为及非法用途！</p>
-            <p>2. 使用本项目的过程中可能会产生版权数据。对于这些版权数据，本项目不拥有它们的所有权。为了避免侵权，使用者务必在 24 小时内清除使用本项目的过程中所产生的版权数据。</p>
-            <p>3.
-                由于使用本项目产生的包括由于本协议或由于使用或无法使用本项目而引起的任何性质的任何直接、间接、特殊、偶然或结果性损害（包括但不限于因商誉损失、停工、计算机故障或故障引起的损害赔偿，或任何及所有其他商业损害或损失）由使用者负责。
+            <h2>{{ $t('mian-ze-sheng-ming') }}</h2>
+            <p>{{ $t('0-ben-cheng-xu-shi-ku-gou-di-san-fang-ke-hu-duan-bing-fei-ku-gou-guan-fang-xu-yao-geng-wan-shan-de-gong-neng-qing-xia-zai-guan-fang-ke-hu-duan-ti-yan') }}</p>
+            <p>{{ $t('1-ben-xiang-mu-jin-gong-xue-xi-shi-yong-qing-zun-zhong-ban-quan-qing-wu-li-yong-ci-xiang-mu-cong-shi-shang-ye-hang-wei-ji-fei-fa-yong-tu') }}</p>
+            <p>{{ $t('2-shi-yong-ben-xiang-mu-de-guo-cheng-zhong-ke-neng-hui-chan-sheng-ban-quan-shu-ju-dui-yu-zhe-xie-ban-quan-shu-ju-ben-xiang-mu-bu-yong-you-ta-men-de-suo-you-quan-wei-le-bi-mian-qin-quan-shi-yong-zhe-wu-bi-zai-24-xiao-shi-nei-qing-chu-shi-yong-ben-xiang-mu-de-guo-cheng-zhong-suo-chan-sheng-de-ban-quan-shu-ju') }}</p>
+            <p>{{ $t('3-you-yu-shi-yong-ben-xiang-mu-chan-sheng-de-bao-kuo-you-yu-ben-xie-yi-huo-you-yu-shi-yong-huo-wu-fa-shi-yong-ben-xiang-mu-er-yin-qi-de-ren-he-xing-zhi-de-ren-he-zhi-jie-jian-jie-te-shu-ou-ran-huo-jie-guo-xing-sun-hai-bao-kuo-dan-bu-xian-yu-yin-shang-yu-sun-shi-ting-gong-ji-suan-ji-gu-zhang-huo-gu-zhang-yin-qi-de-sun-hai-pei-chang-huo-ren-he-ji-suo-you-qi-ta-shang-ye-sun-hai-huo-sun-shi-you-shi-yong-zhe-fu-ze') }}
             </p>
-            <p>4. 禁止在违反当地法律法规的情况下使用本项目。对于使用者在明知或不知当地法律法规不允许的情况下使用本项目所造成的任何违法违规行为由使用者承担，本项目不承担由此造成的任何直接、间接、特殊、偶然或结果性责任。
+            <p>{{ $t('4-jin-zhi-zai-wei-fan-dang-di-fa-lv-fa-gui-de-qing-kuang-xia-shi-yong-ben-xiang-mu-dui-yu-shi-yong-zhe-zai-ming-zhi-huo-bu-zhi-dang-di-fa-lv-fa-gui-bu-yun-xu-de-qing-kuang-xia-shi-yong-ben-xiang-mu-suo-zao-cheng-de-ren-he-wei-fa-wei-gui-hang-wei-you-shi-yong-zhe-cheng-dan-ben-xiang-mu-bu-cheng-dan-you-ci-zao-cheng-de-ren-he-zhi-jie-jian-jie-te-shu-ou-ran-huo-jie-guo-xing-ze-ren') }}
             </p>
-            <p>5. 音乐平台不易，请尊重版权，支持正版。</p>
-            <p>6. 本项目仅用于对技术可行性的探索及研究，不接受任何商业（包括但不限于广告等）合作及捐赠。</p>
-            <p>7. 如果官方音乐平台觉得本项目不妥，可联系本项目更改或移除。</p>
-            <button @click="Disclaimer">关闭</button>
+            <p>{{ $t('5-yin-le-ping-tai-bu-yi-qing-zun-zhong-ban-quan-zhi-chi-zheng-ban') }}</p>
+            <p>{{ $t('6-ben-xiang-mu-jin-yong-yu-dui-ji-shu-ke-hang-xing-de-tan-suo-ji-yan-jiu-bu-jie-shou-ren-he-shang-ye-bao-kuo-dan-bu-xian-yu-guang-gao-deng-he-zuo-ji-juan-zeng') }}</p>
+            <p>{{ $t('7-ru-guo-guan-fang-yin-le-ping-tai-jue-de-ben-xiang-mu-bu-tuo-ke-lian-xi-ben-xiang-mu-geng-gai-huo-yi-chu') }}</p>
+            <button @click="Disclaimer">{{ $t('guan-bi') }}</button>
         </div>
     </div>
 </template>

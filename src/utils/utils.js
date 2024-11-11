@@ -1,6 +1,6 @@
 export const applyColorTheme = (theme) => {
     let colors;
-    if (theme === '男男蓝') {
+    if (theme === 'blue') {
         colors = {
             '--primary-color': '#4A90E2',
             '--secondary-color': '#AEDFF7',
@@ -9,7 +9,7 @@ export const applyColorTheme = (theme) => {
             '--color-secondary-bg-for-transparent': 'rgba(174, 223, 247, 0.28)',
             '--color-box-shadow': 'rgba(74, 144, 226, 0.2)',
         };
-    } else if (theme === '头顶绿') {
+    } else if (theme === 'green') {
         colors = {
             '--primary-color': '#34C759',
             '--secondary-color': '#A7F3D0',
@@ -51,11 +51,11 @@ export const formatMilliseconds = (time) => {
 export const setTheme = (theme) => {
     const root = document.documentElement;
 
-    if (theme === '深色') {
+    if (theme === 'dark') {
         root.setAttribute('data-theme', 'dark');
-    } else if (theme === '浅色') {
+    } else if (theme === 'light') {
         root.setAttribute('data-theme', 'light');
-    } else if (theme === '自动') {
+    } else if (theme === 'auto') {
         // 跟随系统主题
         const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
         root.setAttribute('data-theme', prefersDarkScheme.matches ? 'dark' : 'light');

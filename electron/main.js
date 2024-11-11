@@ -1,4 +1,4 @@
-import { app, ipcMain, globalShortcut } from 'electron';
+import { app, ipcMain, globalShortcut, dialog } from 'electron';
 import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut } from './appServices.js';
 import Store from 'electron-store';
 
@@ -11,8 +11,18 @@ app.on('ready', () => {
         createTray(mainWindow);
     }).catch((error) => {
         console.error('Failed to start API server:', error);
-        alert(`Failed to start API server: ${error.message}`)
-        app.quit();
+        dialog.showMessageBox({
+            type: 'error',
+            title: '错误',
+            message: 'API 服务启动失败，请检查！',
+            buttons: ['确定']
+        }).then(result => {
+            if (result.response === 0) {
+                app.isQuitting = true;
+                app.quit();
+            }
+            return;
+        });
     });
     registerShortcut();
 });

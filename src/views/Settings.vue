@@ -1,64 +1,64 @@
 <template>
     <div class="settings-page">
         <section class="setting-section">
-            <div class="setting-item">
-                <span>语言</span>
+            <div class="setting-item" @click="openSelection('language')">
+                <span>{{ $t('yu-yan') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.language }}</span>
+                    <span>{{ selectedSettings.language.displayText }}</span>
                 </div>
             </div>
 
             <div class="setting-item" @click="openSelection('themeColor')">
-                <span>主色调</span>
+                <span>{{ $t('zhu-se-tiao') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.themeColor }}</span>
+                    <span>{{ selectedSettings.themeColor.displayText }}</span>
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>外观</span>
+                <span>{{ $t('wai-guan') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.theme }}</span>
+                    <span>{{ selectedSettings.theme.displayText }}</span>
                 </div>
             </div>
         </section>
 
         <section class="setting-section">
-            <h3>声音</h3>
+            <h3>{{ $t('sheng-yin') }}</h3>
             <div class="setting-item">
-                <span>音质选择</span>
+                <span>{{ $t('yin-zhi-xuan-ze') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.quality }}</span>
+                    <span>{{ selectedSettings.quality.displayText }}</span>
                 </div>
             </div>
             <div class="setting-item">
-                <span>启动问候语</span>
+                <span>{{ $t('qi-dong-wen-hou-yu') }}</span>
                 <div class="setting-control" @click="openSelection('greetings')">
-                    <span>{{ selectedSettings.greetings }}</span>
+                    <span>{{ selectedSettings.greetings.displayText }}</span>
                 </div>
             </div>
         </section>
 
         <section class="setting-section">
-            <h3>歌词</h3>
+            <h3>{{ $t('ge-ci') }}</h3>
             <div class="setting-item" @click="openSelection('lyricsBackground')">
-                <span>显示歌词背景</span>
+                <span>{{ $t('xian-shi-ge-ci-bei-jing') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.lyricsBackground }}</span>
+                    <span>{{ selectedSettings.lyricsBackground.displayText }}</span>
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>显示桌面歌词</span>
+                <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.desktopLyrics }}</span>
+                    <span>{{ selectedSettings.desktopLyrics.displayText }}</span>
                 </div>
             </div>
 
             <div class="setting-item">
-                <span>歌词字体大小</span>
+                <span>{{ $t('ge-ci-zi-ti-da-xiao') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.lyricsFontSize }}</span>
+                    <span>{{ selectedSettings.lyricsFontSize.displayText }}</span>
                 </div>
             </div>
         </section>
@@ -68,58 +68,123 @@
                 <h3>{{ selectionTypeMap[selectionType].title }}</h3>
                 <ul>
                     <li v-for="option in selectionTypeMap[selectionType].options" :key="option" @click="selectOption(option)">
-                        {{ option }}
+                        {{ option.displayText }}
                     </li>
                 </ul>
-                <button @click="closeSelection">关闭</button>
+                <button @click="closeSelection">{{ $t('guan-bi') }}</button>
             </div>
         </div>
     </div>
 </template>
 
+
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 const { proxy } = getCurrentInstance();
 
 const selectedSettings = ref({
-    language: '🇨🇳 简体中文',
-    themeColor: '少女粉',
-    theme: '浅色',
-    quality: '普通音质 - 128Kbps',
-    lyricsBackground: '打开',
-    desktopLyrics: '关闭',
-    lyricsFontSize: '中',
-    greetings:'开启'
+    language: { displayText: '🇯🇵 日本語', value: 'ja' },
+    themeColor: { displayText: t('shao-nv-fen'), value: 'pink' },
+    theme: { displayText: t('qian-se'), value: 'light' },
+    quality: { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
+    lyricsBackground: { displayText: t('da-kai'), value: 'on' },
+    desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
+    lyricsFontSize: { displayText: t('zhong'), value: 'medium' },
+    greetings: { displayText: t('kai-qi'), value: 'on' }
 });
 
 const isSelectionOpen = ref(false);
 const selectionType = ref('');
 
 const selectionTypeMap = {
-    language: { title: '选择语言', options: ['🇨🇳 简体中文', '🇨🇳 繁体中文', '🇺🇸 English', '🇯🇵 日本語'] },
-    themeColor: { title: '选择主色调', options: ['少女粉', '男男蓝', '头顶绿'] },
-    theme: { title: '选择外观', options: ['自动', '浅色', '深色'] },
-    quality: { title: '音质选择', options: ['普通音质 - 128Kbps', '高音质 - 320Kbps'] },
-    lyricsBackground: { title: '显示歌词背景', options: ['打开', '关闭'] },
-    desktopLyrics: { title: '显示桌面歌词', options: ['打开', '关闭'] },
-    lyricsFontSize: { title: '歌词字体大小', options: ['小', '中', '大'] },
-    greetings: { title: '启动问候语', options: ['开启', '关闭'] }
+    language: {
+        title: t('xuan-ze-yu-yan'),
+        options: [
+            { displayText: '🇨🇳 简体中文', value: 'zh-CN' },
+            { displayText: '🇨🇳 繁体中文', value: 'zh-TW' },
+            { displayText: '🇺🇸 English', value: 'en' },
+            { displayText: '🇯🇵 日本語', value: 'ja' },
+            { displayText: '🇰🇷 한국어', value: 'ko' }
+        ]
+    },
+    themeColor: {
+        title: t('xuan-ze-zhu-se-tiao'),
+        options: [
+            { displayText: t('shao-nv-fen'), value: 'pink' },
+            { displayText: t('nan-nan-lan'), value: 'blue' },
+            { displayText: t('tou-ding-lv'), value: 'green' }
+        ]
+    },
+    theme: {
+        title: t('xuan-ze-wai-guan'),
+        options: [
+            { displayText: t('zi-dong'), value: 'auto' },
+            { displayText: t('qian-se'), value: 'light' },
+            { displayText: t('shen-se'), value: 'dark' }
+        ]
+    },
+    quality: {
+        title: t('yin-zhi-xuan-ze'),
+        options: [
+            { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
+            { displayText: t('gao-yin-zhi-320kbps'), value: 'high' }
+        ]
+    },
+    lyricsBackground: {
+        title: t('xian-shi-ge-ci-bei-jing'),
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
+    },
+    desktopLyrics: {
+        title: t('xian-shi-zhuo-mian-ge-ci'),
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
+    },
+    lyricsFontSize: {
+        title: t('ge-ci-zi-ti-da-xiao'),
+        options: [
+            { displayText: t('xiao'), value: 'small' },
+            { displayText: t('zhong'), value: 'medium' },
+            { displayText: t('da'), value: 'large' }
+        ]
+    },
+    greetings: {
+        title: t('qi-dong-wen-hou-yu'),
+        options: [
+            { displayText: t('kai-qi'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
+    }
 };
 
 const openSelection = (type) => {
-    selectionType.value = type;
     isSelectionOpen.value = true;
+    selectionType.value = type;
 };
 
 const selectOption = (option) => {
     selectedSettings.value[selectionType.value] = option;
     if (selectionType.value === 'themeColor') {
-        proxy.$applyColorTheme(option);
-    }else if (selectionType.value === 'theme') {
-        // proxy.$setTheme(option); 
+        proxy.$applyColorTheme(option.value);
+    } else if (selectionType.value === 'theme') {
+        // proxy.$setTheme(option.value);
+    } else if (selectionType.value === 'language') {
+        proxy.$i18n.locale = option.value;
     }
-    localStorage.setItem('settings', JSON.stringify(selectedSettings.value));
+    saveSettings();
     closeSelection();
+};
+const saveSettings = () => {
+    const settingsToSave = Object.fromEntries(
+        Object.entries(selectedSettings.value).map(([key, setting]) => [key, setting.value])
+    );
+    localStorage.setItem('settings', JSON.stringify(settingsToSave));
 };
 
 const closeSelection = () => {
@@ -127,13 +192,16 @@ const closeSelection = () => {
 };
 
 onMounted(() => {
-    const savedSettings = localStorage.getItem('settings');
+    const savedSettings = JSON.parse(localStorage.getItem('settings'));
     if (savedSettings) {
-        selectedSettings.value = JSON.parse(savedSettings);
+        for (const key in savedSettings) {
+            const displayText = selectionTypeMap[key].options.find(
+                (option) => option.value === savedSettings[key]
+            ).displayText;
+            selectedSettings.value[key] = { displayText, value: savedSettings[key] };
+        }
     }
 });
-
-
 </script>
 
 <style scoped>
