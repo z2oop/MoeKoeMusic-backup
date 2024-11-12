@@ -10,7 +10,7 @@
                 <div class="playlist-actions">
                     <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
                     <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i class="fas fa-heart"></i></button>
-                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo.userid"><i class="fas fa-ellipsis-h"></i></button>
+                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i class="fas fa-ellipsis-h"></i></button>
                 </div>
             </div>
         </div>

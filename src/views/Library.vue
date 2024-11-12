@@ -15,7 +15,7 @@
             <div class="song-list">
                 <ul>
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
-                        @click="playSong(song.hash, (song.album_name ? song.album_name : song.name), $getCover(song.image, 120), song.author_name)">
+                        @click="playSong(song.hash, (song.album_name ? song.album_name : song.name), $getCover(song.image, 480), song.author_name)">
                         <img :src="$getCover(song.image, 120)" alt="album cover" class="album-cover" />
                         <div class="song-info">
                             <p class="album-name">{{ song.album_name ? song.album_name : song.name }}</p>
