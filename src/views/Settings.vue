@@ -27,7 +27,7 @@
             <h3>{{ $t('sheng-yin') }}</h3>
             <div class="setting-item">
                 <span>{{ $t('yin-zhi-xuan-ze') }}</span>
-                <div class="setting-control">
+                <div class="setting-control" @click="openSelection('quality')">
                     <span>{{ selectedSettings.quality.displayText }}</span>
                 </div>
             </div>
@@ -81,6 +81,8 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { MoeAuthStore } from '../stores/store';
+const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const { proxy } = getCurrentInstance();
 
@@ -129,7 +131,8 @@ const selectionTypeMap = {
         title: t('yin-zhi-xuan-ze'),
         options: [
             { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
-            { displayText: t('gao-yin-zhi-320kbps'), value: 'high' }
+            { displayText: t('gao-yin-zhi-320kbps'), value: 'high' },
+            { displayText: t('wu-sun-yin-zhi-1104kbps'), value: 'lossless' }
         ]
     },
     lyricsBackground: {
@@ -176,6 +179,9 @@ const selectOption = (option) => {
         // proxy.$setTheme(option.value);
     } else if (selectionType.value === 'language') {
         proxy.$i18n.locale = option.value;
+    }else if( selectionType.value === 'quality' && !MoeAuth.isAuthenticated) {
+        window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
+        return
     }
     saveSettings();
     closeSelection();

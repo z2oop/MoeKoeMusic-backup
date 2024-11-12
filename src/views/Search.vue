@@ -3,7 +3,13 @@
         <div v-if="searchResults.length > 0" class="search-results">
             <h2 class="section-title">{{ $t('sou-suo-jie-guo') }}</h2>
             <ul>
-                <li v-for="(result, index) in searchResults" :key="index" class="result-item" @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)">
+                <li 
+                    v-for="(result, index) in searchResults" 
+                    :key="index" 
+                    class="result-item" 
+                    @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)"
+                    @contextmenu.prevent="showContextMenu($event, result)"
+                >
                     <img :src="$getCover(result.Image, 100)" alt="Cover" />
                     <div class="result-info">
                         <p class="result-name">{{ result.SongName }}</p>
@@ -11,6 +17,7 @@
                     </div>
                 </li>
             </ul>
+            <ContextMenu ref="contextMenuRef"/>
             <div class="pagination">
                 <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
                 <span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye') }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span>
@@ -21,6 +28,7 @@
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import ContextMenu from '../components/ContextMenu.vue';
 import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
 const route = useRoute();
@@ -29,6 +37,12 @@ const searchResults = ref([]);
 const currentPage = ref(1);
 const pageSize = ref(30);
 const totalPages = ref(1);
+const contextMenuRef = ref(null);
+const showContextMenu = (event, song) => {
+    if (contextMenuRef.value) {
+        contextMenuRef.value.openContextMenu(event, song);
+    }
+};
 
 onMounted(() => {
     performSearch();
@@ -81,7 +95,6 @@ const prevPage = () => {
 .search-results {
     padding: 20px;
 }
-
 .result-item {
     display: flex;
     align-items: center;
@@ -92,23 +105,19 @@ const prevPage = () => {
     border-radius: 5px;
     padding-left: 10px;
 }
-
 .result-item:hover {
     background-color: #f5f5f5;
 }
-
 .result-item img {
     width: 50px;
     height: 50px;
     border-radius: 5px;
     margin-right: 10px;
 }
-
 .result-info {
     display: flex;
     flex-direction: column;
 }
-
 .result-name {
     font-size: 16px;
     font-weight: bold;
@@ -119,7 +128,6 @@ const prevPage = () => {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 .result-type {
     font-size: 14px;
     color: #666;
@@ -131,13 +139,11 @@ const prevPage = () => {
     margin-top: 6px;
     margin-bottom: 0px;
 }
-
 .pagination {
     display: flex;
     justify-content: center;
     margin: 20px 0;
 }
-
 .pagination button {
     padding: 10px 15px;
     margin: 0 5px;
@@ -147,7 +153,6 @@ const prevPage = () => {
     border-radius: 5px;
     cursor: pointer;
 }
-
 .pagination button:disabled {
     background-color: #ccc;
     cursor: not-allowed;

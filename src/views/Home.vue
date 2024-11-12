@@ -24,7 +24,7 @@
 
         <h2 class="section-title">{{ $t('tui-jian-ge-qu') }}</h2>
         <div class="song-list">
-            <div class="song-item" v-for="(song, index) in songs" :key="index" @click="playSong(song.hash, song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)">
+            <div class="song-item" v-for="(song, index) in songs" :key="index" @click="playSong($getQuality(null, song), song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)" @contextmenu.prevent="showContextMenu($event, song)">
                 <img :src="$getCover(song.sizable_cover, 64)" :alt="song.ori_audio_name" class="song-cover">
                 <div class="song-info">
                     <div class="song-title">{{ song.ori_audio_name }}</div>
@@ -47,19 +47,25 @@
                 </router-link>
             </div>
         </div>
+        <ContextMenu ref="contextMenuRef"/>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { get } from '../utils/request';
-
+import ContextMenu from '../components/ContextMenu.vue';
 const songs = ref([]);
 const special_list = ref([]);
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
 };
-
+const contextMenuRef = ref(null);
+const showContextMenu = (event, song) => {
+    if (contextMenuRef.value) {
+        contextMenuRef.value.openContextMenu(event, {OriSongName:song.ori_audio_name,FileHash:song.hash});
+    }
+};
 const props = defineProps({
   playerControl: Object
 });

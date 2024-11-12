@@ -509,8 +509,11 @@ const parseLyrics = (text) => {
     lyricsData.value = parsedLyrics;
 };
 const centerFirstLine = () => {
-    const containerHeight = document.getElementById('lyrics-container').offsetHeight;
+    const lyricsContainer = document.getElementById('lyrics-container');
+    if (!lyricsContainer) return;
+    const containerHeight = lyricsContainer.offsetHeight;
     const lyricsElement = document.getElementById('lyrics');
+    if(!lyricsElement) return;
     const lyricsHeight = lyricsElement.offsetHeight;
     scrollAmount.value = (containerHeight - lyricsHeight) / 2;
 };
@@ -537,7 +540,9 @@ const highlightCurrentChar = (currentTime) => {
 
         if (isLineHighlighted && currentLineIndex !== index) {
             currentLineIndex = index;
-            const containerHeight = document.getElementById('lyrics-container').offsetHeight;
+            const lyricsContainer = document.getElementById('lyrics-container');
+            if (!lyricsContainer) return;
+            const containerHeight = lyricsContainer.offsetHeight;
             const lineElement = document.querySelectorAll('.line')[index];
             if (lineElement) {
                 const lineHeight = lineElement.offsetHeight;

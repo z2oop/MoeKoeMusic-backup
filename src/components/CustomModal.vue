@@ -4,7 +4,7 @@
         <div v-if="showAlert" class="modal-overlay">
             <div class="modal">
                 <h3>{{ alertMessage }}</h3>
-                <button @click="confirmAlert" class="btn">{{ $t('que-ding') }}</button>
+                <button @click="confirmAlert" class="btn">{{ i18n.global.t('que-ding') }}</button>
             </div>
         </div>
 
@@ -13,8 +13,8 @@
             <div class="modal">
                 <h3>{{ confirmMessage }}</h3>
                 <div class="buttons">
-                    <button @click="confirmAction(true)" class="btn">{{ $t('que-ding') }}</button>
-                    <button @click="confirmAction(false)" class="btn">{{ $t('qu-xiao') }}</button>
+                    <button @click="confirmAction(true)" class="btn">{{ i18n.global.t('que-ding') }}</button>
+                    <button @click="confirmAction(false)" class="btn">{{ i18n.global.t('qu-xiao') }}</button>
                 </div>
             </div>
         </div>
@@ -25,8 +25,8 @@
                 <h3>{{ promptMessage }}</h3>
                 <input type="text" v-model="promptInput" class="prompt-input" />
                 <div class="buttons">
-                    <button @click="submitPrompt" class="btn">{{ $t('que-ding') }}</button>
-                    <button @click="closePrompt" class="btn">{{ $t('qu-xiao') }}</button>
+                    <button @click="submitPrompt" class="btn">{{ i18n.global.t('que-ding') }}</button>
+                    <button @click="closePrompt" class="btn">{{ i18n.global.t('qu-xiao') }}</button>
                 </div>
             </div>
         </div>
@@ -34,13 +34,14 @@
         <!-- Loading 遮罩 -->
         <div v-if="showLoading" class="loading-overlay">
             <div class="loading-spinner"></div>
-            <p class="loading-text">{{ $t('shao-nv-qi-dao-zhong') }}</p>
+            <p class="loading-text">{{ i18n.global.t('shao-nv-qi-dao-zhong') }}</p>
         </div>
     </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import i18n from '@/utils/i18n';
 // 该组件代码来自萌音商城(MoeKoe.cn) © 阿珏酱
 // window.$modal.alert('这是一个 Alert'); // 直接调用 window.$modal
 // const result = await window.$modal.confirm('这是一个 Confirm');
@@ -181,7 +182,7 @@ defineExpose({
     transition: all 0.3s;
     margin-top: 10px;
     font-size: 20px;
-    width: 110px;
+    width: auto;
 }
 
 

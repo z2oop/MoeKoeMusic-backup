@@ -5,7 +5,7 @@
   "fa-xian": "Discover",
   "da": "big",
   "da-kai": "Open",
-  "gao-yin-zhi-320kbps": "High quality - 320Kbps",
+  "gao-yin-zhi-320kbps": "High quality sound - 320Kbps",
   "ge-ci": "lyrics",
   "ge-ci-zi-ti-da-xiao": "Lyrics font size",
   "guan-bi": "closure",
@@ -124,5 +124,13 @@
   "you-xiang-ge-shi-cuo-wu": "Email format error",
   "zan-wu-ge-ci": "No lyrics yet",
   "zheng-zai-sheng-cheng-er-wei-ma": "Generating QR code...",
-  "zhe-li-shi-mo-du-mei-you": "nothing here"
+  "zhe-li-shi-mo-du-mei-you": "nothing here",
+  "wu-sun-yin-zhi-1104kbps": "Lossless sound quality - 1104kbps",
+  "gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango": "High-quality music requires logging in before you can play it~",
+  "tian-jia-ge-dan": "Add to playlist",
+  "qing-xian-deng-lu": "Please log in first",
+  "cheng-gong-tian-jia-dao-ge-dan": "Successfully added to playlist!",
+  "tian-jia-dao-ge-dan-shi-bai": "Failed to add to playlist!",
+  "cheng-gong-qu-xiao-shou-cang": "Cancel favorites",
+  "qu-xiao-shou-cang-shi-bai": "Cancellation failed"
 }

@@ -27,7 +27,7 @@
   "xuan-ze-wai-guan": "选择外观",
   "zi-dong": "自动",
   "shen-se": "深色",
-  "gao-yin-zhi-320kbps": "高音质 - 320Kbps",
+  "gao-yin-zhi-320kbps": "高品音质 - 320Kbps",
   "xiao": "小",
   "da": "大",
   "sou-suo-jie-guo": "搜索结果",
@@ -124,5 +124,13 @@
   "sui-ji-bo-fang": "随机播放",
   "bo-fang-lie-biao": "播放列表",
   "zheng-zai-sheng-cheng-er-wei-ma": "正在生成二维码...",
-  "zhe-li-shi-mo-du-mei-you": "这里什么都没有"
+  "zhe-li-shi-mo-du-mei-you": "这里什么都没有",
+  "wu-sun-yin-zhi-1104kbps": "无损音质 - 1104kbps",
+  "gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango": "高品质音乐需要登录后才能播放哦~",
+  "tian-jia-ge-dan": "添加到歌单",
+  "qing-xian-deng-lu": "请先登录",
+  "cheng-gong-tian-jia-dao-ge-dan": "成功添加到歌单！",
+  "tian-jia-dao-ge-dan-shi-bai": "添加到歌单失败！",
+  "cheng-gong-qu-xiao-shou-cang": "取消收藏",
+  "qu-xiao-shou-cang-shi-bai": "取消失败"
 }

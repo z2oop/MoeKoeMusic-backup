@@ -8,9 +8,12 @@
                 <p class="playlist-meta">{{ detail.tags }}</p>
                 <p class="playlist-description">{{ detail.intro }}</p>
                 <div class="playlist-actions">
-                    <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
-                    <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i class="fas fa-heart"></i></button>
-                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i class="fas fa-ellipsis-h"></i></button>
+                    <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i
+                            class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
+                    <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i
+                            class="fas fa-heart"></i></button>
+                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i
+                            class="fas fa-ellipsis-h"></i></button>
                 </div>
             </div>
         </div>
@@ -18,23 +21,33 @@
         <div class="track-list">
             <h2 class="track-list-title"><span>{{ $t('ge-qu-lie-biao') }}</span> ( {{ detail.count }} )</h2>
             <ul>
-                <li v-for="(track, index) in tracks" :key="index" @click="playSong(track.hash, track.name, $getCover(track.cover, 480), track.name)">
+                <li v-for="(track, index) in tracks" :key="index"
+                    @click="playSong($getQuality(track.relate_goods), track.name, $getCover(track.cover, 480), track.name)"
+                    @contextmenu.prevent="showContextMenu($event, track)">
                     <div class="track-number">{{ (currentPage - 1) * pageSize + index + 1 }}</div>
-                    <div class="track-title">{{ track.name }} <span v-if="track.privilege == 10" class="icon vip-icon">VIP</span> <span v-if="track.relate_goods.length > 1" class="icon sq-icon">SQ</span></div>
+                    <div class="track-title">{{ track.name }}
+                        <span v-if="track.privilege == 10" class="icon vip-icon">VIP</span>
+                        <!-- 这里和酷狗官方显示的刚好相反 -->
+                        <span v-if="track.relate_goods.length > 2" class="icon sq-icon">HQ</span>
+                        <span v-else-if="track.relate_goods.length > 1" class="icon sq-icon">SQ</span>
+                    </div>
                     <div class="track-duration">{{ $formatMilliseconds(track.timelen) }}</div>
                 </li>
             </ul>
             <div class="pagination">
                 <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
-                <span class="current-page-info"><span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye') }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span></span>
+                <span class="current-page-info"><span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye')
+                        }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span></span>
                 <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
             </div>
         </div>
+        <ContextMenu ref="contextMenuRef" />
     </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
+import ContextMenu from '../components/ContextMenu.vue';
 import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
@@ -42,20 +55,21 @@ const MoeAuth = MoeAuthStore();
 const route = useRoute();
 const tracks = ref([]);
 const currentPage = ref(1);
-const pageSize = ref(10); 
+const pageSize = ref(10);
 const detail = ref([]);
+const contextMenuRef = ref(null);
 const totalPages = computed(() => Math.ceil(detail.value.count / pageSize.value));
 const playSong = (hash, name, img, author) => {
-    props.playerControl.addSongToQueue(hash, name ,img, author);
+    props.playerControl.addSongToQueue(hash, name, img, author);
 };
 const getPlaylistAllSongs = (id) => {
     props.playerControl.getPlaylistAllSongs(id);
 }
 const toggleFavorite = (id) => {
-    
+
 }
 const props = defineProps({
-  playerControl: Object
+    playerControl: Object
 });
 onMounted(() => {
     getdetail();
@@ -64,12 +78,21 @@ onMounted(() => {
 watch(currentPage, () => {
     getTracks();
 });
-
+const showContextMenu = (event, song) => {
+    if (contextMenuRef.value) {
+        contextMenuRef.value.openContextMenu(event, { 
+            OriSongName: song.name, 
+            FileHash: song.hash, 
+            fileid: song.fileid,
+            userid: detail.value.list_create_userid
+        }, detail.value.listid);
+    }
+};
 const getdetail = async () => {
     const response = await get('/playlist/detail', { ids: route.query.global_collection_id });
     if (response.status == 1) {
         detail.value = response.data[0];
-        getTracks(); 
+        getTracks();
     }
 };
 
@@ -203,6 +226,7 @@ const prevPage = () => {
     padding-right: 10px;
     cursor: pointer;
 }
+
 .track-list li:hover {
     background-color: #f0f0f0;
 }
@@ -227,7 +251,7 @@ const prevPage = () => {
     gap: 10px;
 }
 
-.pagination .current-page-info{
+.pagination .current-page-info {
     line-height: 29px;
 }
 
@@ -248,7 +272,8 @@ const prevPage = () => {
     font-size: 14px;
     color: #666;
 }
-.icon{
+
+.icon {
     margin-left: 5px;
     border: 1px solid;
     border-radius: 5px;
@@ -257,10 +282,12 @@ const prevPage = () => {
     padding-left: 6px;
     padding-right: 6px;
 }
-.vip-icon{
+
+.vip-icon {
     color: #ff6d00;
 }
-.sq-icon{
+
+.sq-icon {
     color: #0094ff;
 }
 </style>

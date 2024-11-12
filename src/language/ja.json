@@ -5,7 +5,7 @@
   "fa-xian": "発見する",
   "da": "大きい",
   "da-kai": "開ける",
-  "gao-yin-zhi-320kbps": "高品質 - 320Kbps",
+  "gao-yin-zhi-320kbps": "高品音質 - 320Kbps",
   "ge-ci": "歌詞",
   "ge-ci-zi-ti-da-xiao": "歌詞のフォントサイズ",
   "guan-bi": "閉鎖",
@@ -124,5 +124,13 @@
   "zan-wu-ge-ci": "まだ歌詞がありません",
   "huo-qu-er-wei-ma-shi-bai": "QRコードの取得に失敗しました",
   "zheng-zai-sheng-cheng-er-wei-ma": "QRコードを生成中...",
-  "zhe-li-shi-mo-du-mei-you": "ここには何もない"
+  "zhe-li-shi-mo-du-mei-you": "ここには何もない",
+  "wu-sun-yin-zhi-1104kbps": "ロスレス音質 - 1104kbps",
+  "gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango": "高品質の音楽を再生するにはログインが必要です~",
+  "tian-jia-ge-dan": "プレイリストに追加",
+  "qing-xian-deng-lu": "まずログインしてください",
+  "cheng-gong-tian-jia-dao-ge-dan": "プレイリストに追加されました！",
+  "tian-jia-dao-ge-dan-shi-bai": "プレイリストに追加できませんでした!",
+  "cheng-gong-qu-xiao-shou-cang": "お気に入りをキャンセルする",
+  "qu-xiao-shou-cang-shi-bai": "キャンセルに失敗しました"
 }
