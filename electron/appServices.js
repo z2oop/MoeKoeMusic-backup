@@ -206,4 +206,17 @@ export function registerShortcut() {
             }
         }
     });
+
+    globalShortcut.register('MediaPreviousTrack', () => {
+        mainWindow.webContents.send('play-previous-track');
+    });
+    globalShortcut.register('MediaNextTrack', () => {
+        mainWindow.webContents.send('play-next-track');
+    });
+    globalShortcut.register('Alt+CommandOrControl+Left', () => {
+        mainWindow.webContents.send('play-previous-track');
+    });
+    globalShortcut.register('Alt+CommandOrControl+Right', () => {
+        mainWindow.webContents.send('play-next-track');
+    });
 }

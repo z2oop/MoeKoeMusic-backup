@@ -47,7 +47,7 @@
                     <h3><span>{{ $t('bo-fang-lie-biao') }}</span> ({{ musicQueueStore.queue.length }})</h3>
                 </div>
 
-                <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="300"
+                <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="500"
                     :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" class="queue-list">
                     <template #default="{ item, index }">
                         <li class="queue-item" :key="item.id">
@@ -172,6 +172,11 @@ onMounted(() => {
     audio.volume = volume.value / 100;
     const current_song = localStorage.getItem('current_song');
     if (current_song) currentSong.value = JSON.parse(current_song);
+
+    if(isElectron()){
+        window.electron.ipcRenderer.on('play-previous-track', playPrevious);
+        window.electron.ipcRenderer.on('play-next-track', playNext);
+    }
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -446,9 +451,14 @@ audio.addEventListener('ended', () => {
         const nextIndex = (currentIndex + 1) % musicQueueStore.queue.length;
         nextSong = musicQueueStore.queue[nextIndex];
     }
-    addSongToQueue(nextSong.hash, nextSong.name);
+    addSongToQueue(nextSong.hash, nextSong.name, nextSong.img, nextSong.author);
 });
-
+audio.addEventListener('pause', () => {
+    playing.value = false;
+});
+audio.addEventListener('play', () => {
+    playing.value = true;
+});
 const toggleQueue = () => {
     showQueue.value = !showQueue.value;
 };
@@ -574,8 +584,14 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
+    if(isElectron()){
+        window.electron.ipcRenderer.removeAllListeners('play-previous-track');
+        window.electron.ipcRenderer.removeAllListeners('play-next-track');
+    }
 });
-
+const isElectron = () => {
+    return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
+};
 const handleClickOutside = (event) => {
     const queuePopup = document.querySelector('.queue-popup');
     if (queuePopup && !queuePopup.contains(event.target) && !event.target.closest('.extra-btn')) {

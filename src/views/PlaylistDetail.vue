@@ -27,9 +27,8 @@
                     <div class="track-number">{{ (currentPage - 1) * pageSize + index + 1 }}</div>
                     <div class="track-title">{{ track.name }}
                         <span v-if="track.privilege == 10" class="icon vip-icon">VIP</span>
-                        <!-- 这里和酷狗官方显示的刚好相反 -->
-                        <span v-if="track.relate_goods.length > 2" class="icon sq-icon">HQ</span>
-                        <span v-else-if="track.relate_goods.length > 1" class="icon sq-icon">SQ</span>
+                        <span v-if="track.relate_goods.length > 2" class="icon sq-icon">SQ</span>
+                        <span v-else-if="track.relate_goods.length > 1" class="icon sq-icon">HQ</span>
                     </div>
                     <div class="track-duration">{{ $formatMilliseconds(track.timelen) }}</div>
                 </li>
