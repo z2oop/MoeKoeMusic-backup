@@ -73,8 +73,33 @@ export function createWindow() {
             mainWindow.hide();
         }
     });
-
+    // createLyricsWindow()
     return mainWindow;
+}
+
+let lyricsWindow;
+
+function createLyricsWindow() {
+    lyricsWindow = new BrowserWindow({
+        width: 400,
+        height: 100,
+        alwaysOnTop: true, // 置顶
+        frame: false, // 无边框
+        transparent: true, // 背景透明
+        resizable: false, // 禁止调整大小
+        skipTaskbar: true, // 不显示在任务栏
+        webPreferences: {
+            nodeIntegration: true, // 允许 Node.js 集成
+            contextIsolation: false, // 允许与渲染进程共享上下文
+        }
+    });
+
+    // 加载桌面歌词的 HTML 文件
+    //   lyricsWindow.loadFile('lyrics.html');
+
+    lyricsWindow.loadURL(`http://127.0.0.1:8080/#/lyrics`);
+    // 可选：设置窗口置顶级别为屏幕最前面
+    lyricsWindow.setAlwaysOnTop(true, 'screen-saver');
 }
 
 // 创建托盘图标及菜单

@@ -7,6 +7,7 @@ import Login from '@/views/Login.vue';
 import Settings from '@/views/Settings.vue';
 import PlaylistDetail from '@/views/PlaylistDetail.vue';
 import Search from '@/views/Search.vue';
+import Lyrics from '@/views/Lyrics.vue';
 import { MoeAuthStore } from '@/stores/store';
 
 
@@ -23,8 +24,8 @@ const routes = [
             { path: '/playlistDetail', name: 'PlaylistDetail', component: PlaylistDetail },
             { path: '/search', name: 'Search', component: Search },
         ],
-    }
-
+    },
+    { path: '/lyrics', name: 'Lyrics', component: Lyrics },
 ];
 
 const router = createRouter({

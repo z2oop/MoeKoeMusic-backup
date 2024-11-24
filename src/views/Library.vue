@@ -4,10 +4,10 @@
             <img class="profile-pic" :src="user.pic" alt="{{ $t('yong-hu-tou-xiang') }}" />
             <h2 class="section-title">{{ user.nickname }}<span>{{ $t('de-yin-le-ku') }}</span></h2>
             <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level"
-                :src="`/assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
+                :src="`./assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`${ $t('gai-nian-ban') } ${userVip[0].vip_end_time}`" /> 
             <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
-                :src="`/assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
+                :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`${ $t('chang-ting-ban') } ${userVip[1].vip_end_time}`" />
         </div>
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
@@ -42,7 +42,7 @@
                     path: '/PlaylistDetail',
                     query: { global_collection_id: playlist.list_create_gid }
                 }">
-                    <img :src="playlist.pic ? $getCover(playlist.pic, 240) : 'https://dummyimage.com/240x240/ff6347/fff&text=live'"
+                    <img :src="playlist.pic ? $getCover(playlist.pic, 240) : '/assets/images/live.png'"
                         alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
@@ -131,15 +131,18 @@ const getUserDetails = () => {
     }
 }
 const getVipInfo = async () => {
-    const VipInfoResponse = await get('/user/vip/detail');
-    if (VipInfoResponse.status === 1) {
-        userVip.value = VipInfoResponse.data.busi_vip
-        getUserDetails();
-    } else {
+    try{
+        const VipInfoResponse = await get('/user/vip/detail');
+        if (VipInfoResponse.status === 1) {
+            userVip.value = VipInfoResponse.data.busi_vip
+            getUserDetails();
+        } 
+    } catch (error) {
         window.$modal.alert(t('deng-lu-shi-xiao-qing-zhong-xin-deng-lu'));
         router.push('/login');
     }
 }
+
 const getlisten = async () => {
     const historyResponse = await get('/user/listen', { type: 1 });
     if (historyResponse.status === 1) {

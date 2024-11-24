@@ -76,6 +76,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
+import { useI18n } from 'vue-i18n';
 const MoeAuth = MoeAuthStore();
 const searchQuery = ref(''); // 搜索关键字
 const isDisclaimerVisible = ref(false);
@@ -84,6 +85,7 @@ const route = useRoute();
 const canGoBack = ref(false);
 const canGoForward = ref(false);
 const forwardStack = ref([]);
+const { t } = useI18n();
 onMounted(() => {
     updateNavigationStatus();
 });
@@ -114,9 +116,12 @@ router.afterEach(() => {
 const refreshPage = () => {
     window.location.reload();
 };
-const logout = () => {
-    MoeAuth.clearData();
-    router.push({ path: '/' });
+const logout = async () => {
+    const result = await window.$modal.confirm(t('ni-que-ren-yao-tui-chu-deng-lu-ma'));
+    if (result) {
+        MoeAuth.clearData();
+        router.push({ path: '/' });   
+    }
 }
 const showProfile = ref(false);
 
