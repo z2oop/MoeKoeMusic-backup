@@ -54,7 +54,7 @@ const MoeAuth = MoeAuthStore();
 const route = useRoute();
 const tracks = ref([]);
 const currentPage = ref(1);
-const pageSize = ref(10);
+const pageSize = ref(20);
 const detail = ref([]);
 const contextMenuRef = ref(null);
 const totalPages = computed(() => Math.ceil(detail.value.count / pageSize.value));

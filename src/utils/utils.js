@@ -68,20 +68,30 @@ export const formatMilliseconds = (time) => {
 };
 
 export const setTheme = (theme) => {
-    const root = document.documentElement;
+    const html = document.documentElement;
+    const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
-    if (theme === 'dark') {
-        root.setAttribute('data-theme', 'dark');
-    } else if (theme === 'light') {
-        root.setAttribute('data-theme', 'light');
-    } else if (theme === 'auto') {
-        // 跟随系统主题
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        root.setAttribute('data-theme', prefersDarkScheme.matches ? 'dark' : 'light');
+    const applyTheme = (isDark) => {
+        if (isDark) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    };
 
-        // 添加监听器，以便系统主题更改时自动切换
-        prefersDarkScheme.addEventListener('change', (e) => {
-            root.setAttribute('data-theme', e.matches ? 'dark' : 'light');
-        });
+    switch (theme) {
+        case 'dark':
+            applyTheme(true);
+            break;
+        case 'light':
+            applyTheme(false);
+            break;
+        case 'auto':
+            applyTheme(prefersDarkScheme.matches);
+            prefersDarkScheme.addEventListener('change', (e) => {
+                applyTheme(e.matches);
+            });
+            break;
     }
 };

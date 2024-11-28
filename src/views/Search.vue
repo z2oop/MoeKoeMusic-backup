@@ -3,13 +3,9 @@
         <div v-if="searchResults.length > 0" class="search-results">
             <h2 class="section-title">{{ $t('sou-suo-jie-guo') }}</h2>
             <ul>
-                <li 
-                    v-for="(result, index) in searchResults" 
-                    :key="index" 
-                    class="result-item" 
+                <li v-for="(result, index) in searchResults" :key="index" class="result-item"
                     @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)"
-                    @contextmenu.prevent="showContextMenu($event, result)"
-                >
+                    @contextmenu.prevent="showContextMenu($event, result)">
                     <img :src="$getCover(result.Image, 100)" alt="Cover" />
                     <div class="result-info">
                         <p class="result-name">{{ result.SongName }}</p>
@@ -17,10 +13,11 @@
                     </div>
                 </li>
             </ul>
-            <ContextMenu ref="contextMenuRef"/>
+            <ContextMenu ref="contextMenuRef" />
             <div class="pagination">
                 <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
-                <span>{{ $t('di') }}</span> {{ currentPage }} <span>{{ $t('ye') }}</span> / <span>{{ $t('gong') }}</span> {{ totalPages }} <span>{{ $t('ye') }}</span>
+                <span>{{ $t('di') }}</span><span> {{ currentPage }} </span><span>{{ $t('ye') }}</span> <span>/</span>
+                <span>{{ $t('gong') }}</span><span> {{ totalPages }} </span><span>{{ $t('ye') }}</span>
                 <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
             </div>
         </div>
@@ -49,10 +46,10 @@ onMounted(() => {
 });
 watch(() => route.query.q, (newQuery) => {
     searchQuery.value = newQuery;
-    performSearch(); 
+    performSearch();
 });
 const props = defineProps({
-  playerControl: Object
+    playerControl: Object
 });
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
@@ -72,7 +69,7 @@ const performSearch = async () => {
         }
     } catch (error) {
         console.error("搜索请求失败", error);
-    } 
+    }
 };
 
 // 分页操作
@@ -95,6 +92,7 @@ const prevPage = () => {
 .search-results {
     padding: 20px;
 }
+
 .result-item {
     display: flex;
     align-items: center;
@@ -105,19 +103,23 @@ const prevPage = () => {
     border-radius: 5px;
     padding-left: 10px;
 }
+
 .result-item:hover {
     background-color: #f5f5f5;
 }
+
 .result-item img {
     width: 50px;
     height: 50px;
     border-radius: 5px;
     margin-right: 10px;
 }
+
 .result-info {
     display: flex;
     flex-direction: column;
 }
+
 .result-name {
     font-size: 16px;
     font-weight: bold;
@@ -128,6 +130,7 @@ const prevPage = () => {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
 .result-type {
     font-size: 14px;
     color: #666;
@@ -139,11 +142,13 @@ const prevPage = () => {
     margin-top: 6px;
     margin-bottom: 0px;
 }
+
 .pagination {
     display: flex;
     justify-content: center;
     margin: 20px 0;
 }
+
 .pagination button {
     padding: 10px 15px;
     margin: 0 5px;
@@ -153,16 +158,19 @@ const prevPage = () => {
     border-radius: 5px;
     cursor: pointer;
 }
+
 .pagination button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
+
 .section-title {
     font-size: 28px;
     font-weight: bold;
     margin-bottom: 30px;
     color: var(--primary-color);
 }
+
 .pagination span {
     font-size: 14px;
     color: #666;

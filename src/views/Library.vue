@@ -42,7 +42,7 @@
                     path: '/PlaylistDetail',
                     query: { global_collection_id: playlist.list_create_gid }
                 }">
-                    <img :src="playlist.pic ? $getCover(playlist.pic, 240) : './assets/images/live.png'"
+                    <img :src="playlist.pic ? $getCover(playlist.pic, 480) : './assets/images/live.png'"
                         alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
@@ -56,7 +56,7 @@
                     path: '/PlaylistDetail',
                     query: { global_collection_id: playlist.list_create_gid }
                 }">
-                    <img :src="$getCover(playlist.pic, 240)" alt="playlist cover" class="album-image" />
+                    <img :src="$getCover(playlist.pic, 480)" alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
                         <p>{{ playlist.count }} <span>{{ $t('shou-ge') }}</span></p>
@@ -154,7 +154,10 @@ const getlisten = async () => {
 const getfollow = async () => {
     const followResponse = await get('/user/follow');
     if (followResponse.status === 1) {
-        followedArtists.value = followResponse.data.lists;
+        followedArtists.value = followResponse.data.lists.map(artist => ({
+            ...artist,
+            pic: artist.pic.replace('/100/', '/480/')
+        }));
     }
 }
 const getplaylist = async () => {

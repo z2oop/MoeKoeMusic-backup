@@ -15,7 +15,7 @@
                 </div>
             </div>
 
-            <div class="setting-item">
+            <div class="setting-item" @click="openSelection('theme')">
                 <span>{{ $t('wai-guan') }}</span>
                 <div class="setting-control">
                     <span>{{ selectedSettings.theme.displayText }}</span>
@@ -176,7 +176,7 @@ const selectOption = (option) => {
     if (selectionType.value === 'themeColor') {
         proxy.$applyColorTheme(option.value);
     } else if (selectionType.value === 'theme') {
-        // proxy.$setTheme(option.value);
+        proxy.$setTheme(option.value);
     } else if (selectionType.value === 'language') {
         proxy.$i18n.locale = option.value;
     }else if( selectionType.value === 'quality' && !MoeAuth.isAuthenticated) {

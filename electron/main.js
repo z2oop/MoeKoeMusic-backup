@@ -8,7 +8,6 @@ const store = new Store();
 app.on('ready', () => {
     startApiServer().then(() => {
         mainWindow = createWindow();
-        createTray(mainWindow);
     }).catch((error) => {
         console.error('Failed to start API server:', error);
         dialog.showMessageBox({
@@ -24,6 +23,7 @@ app.on('ready', () => {
             return;
         });
     });
+    createTray(mainWindow);
     registerShortcut();
 });
 

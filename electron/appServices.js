@@ -19,8 +19,8 @@ let tray = null;
 export function createWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
-    const windowWidth = Math.min(1280, screenWidth * 0.8);
-    const windowHeight = Math.min(900, screenHeight * 0.9);
+    const windowWidth = Math.min(1200, screenWidth * 0.8);
+    const windowHeight = Math.min(938, screenHeight * 0.9);
     const lastWindowState = store.get('windowState') || {};
     mainWindow = new BrowserWindow({
         width: lastWindowState.width || windowWidth,

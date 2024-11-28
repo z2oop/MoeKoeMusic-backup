@@ -10,6 +10,7 @@
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import Header from "@/components/Header.vue";
 import PlayerControl from "@/components/PlayerControl.vue";
+import { setTheme } from '../utils/utils';
 const playerControl = ref(null);
 const { proxy } = getCurrentInstance();
 const audio = ref(null);
@@ -33,6 +34,10 @@ onMounted(() => {
             });
         }, 2000);
     }
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        setTheme(savedTheme);
+    }
 });
 </script>
 
@@ -49,15 +54,6 @@ onMounted(() => {
     --color-primary: #ea33e4;
     --color-secondary-bg-for-transparent: rgba(209, 209, 214, 0.28);
     --color-box-shadow: rgba(255, 105, 180, 0.2);
-}
-
-/* 深色主题 */
-[data-theme="dark"] {
-    --primary-color: #1E90FF;
-    --secondary-color: #ADD8E6;
-    --text-color: #f5f5f5;
-    --background-color: #1a1a1a;
-    --color-box-shadow: rgba(30, 144, 255, 0.2);
 }
 
 * {
