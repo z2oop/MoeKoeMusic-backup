@@ -42,7 +42,7 @@
                     path: '/PlaylistDetail',
                     query: { global_collection_id: playlist.list_create_gid }
                 }">
-                    <img :src="playlist.pic ? $getCover(playlist.pic, 240) : '/assets/images/live.png'"
+                    <img :src="playlist.pic ? $getCover(playlist.pic, 240) : './assets/images/live.png'"
                         alt="playlist cover" class="album-image" />
                     <div class="album-info">
                         <h3>{{ playlist.name }}</h3>
@@ -146,7 +146,9 @@ const getVipInfo = async () => {
 const getlisten = async () => {
     const historyResponse = await get('/user/listen', { type: 1 });
     if (historyResponse.status === 1) {
-        listenHistory.value = historyResponse.data.lists.slice(0, 16);
+        const allLists = historyResponse.data.lists;
+        const shuffled = allLists.sort(() => 0.5 - Math.random());
+        listenHistory.value = shuffled.slice(0, 16);
     }
 }
 const getfollow = async () => {
