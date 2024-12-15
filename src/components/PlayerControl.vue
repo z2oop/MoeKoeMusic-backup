@@ -44,13 +44,16 @@
         <transition name="fade">
             <div v-if="showQueue" class="queue-popup">
                 <div class="queue-header">
-                    <h3><span>{{ $t('bo-fang-lie-biao') }}</span> ({{ musicQueueStore.queue.length }})</h3>
+                    <h3>
+                        <span>{{ $t('bo-fang-lie-biao') }}</span> ({{ musicQueueStore.queue.length }})
+                        <i class="fas fa-trash-alt close-store" @click="musicQueueStore.clearQueue()" title="close"></i>
+                    </h3>
                 </div>
 
                 <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="500"
-                    :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" class="queue-list">
+                    :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" :start-index="getCurrentSongIndex()" class="queue-list">
                     <template #default="{ item, index }">
-                        <li class="queue-item" :key="item.id">
+                        <li class="queue-item" :class="{ 'playing': currentSong.hash == item.hash }" :key="item.id">
                             <div class="queue-song-info">
                                 <span class="queue-song-title">{{ item.name }}</span>
                                 <span class="queue-artist">{{ $formatMilliseconds(item.timeLength) }}</span>
@@ -105,7 +108,7 @@
                         <button class="control-btn" @click="toggleRandom"><i
                                 :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
                                 :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
-                                
+
                         <button class="control-btn" @click="playPrevious"><i class="fas fa-step-backward"></i></button>
                         <button class="control-btn" @click="togglePlayPause">
                             <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
@@ -114,7 +117,7 @@
 
                         <button class="control-btn" @click="toggleLoop"><i
                                 :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
-                                :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan') "></i></button>
+                                :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan')"></i></button>
                     </div>
                 </div>
                 <div id="lyrics-container">
@@ -145,7 +148,7 @@ const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
 const isDragging = ref(false);
 const showQueue = ref(false);
-const currentSong = ref({ name: '', author: '', img: '', url: '', hash: ''}); // 当前播放的音乐信息
+const currentSong = ref({ name: '', author: '', img: '', url: '', hash: '' }); // 当前播放的音乐信息
 const playing = ref(false); // 是否正在播放
 const isRandom = ref(true); // 是否随机播放
 const isLoop = ref(false); // 是否单曲循环
@@ -173,7 +176,7 @@ onMounted(() => {
     const current_song = localStorage.getItem('current_song');
     if (current_song) currentSong.value = JSON.parse(current_song);
 
-    if(isElectron()){
+    if (isElectron()) {
         window.electron.ipcRenderer.on('play-previous-track', playPrevious);
         window.electron.ipcRenderer.on('play-next-track', playNext);
     }
@@ -184,6 +187,12 @@ const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
+};
+// 添加获取当前歌曲索引的方法
+const getCurrentSongIndex = () => {
+    if (!currentSong.value?.hash) return 0;
+    const index = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
+    return index === -1 ? 0 : Math.max(0, index - 2); 
 };
 const easterEggImages = [
     { src: './assets/images/miku.png', class: 'miku' },
@@ -212,15 +221,15 @@ const playSong = (song) => {
 
 // 播放上一首
 const playPrevious = () => {
-    if(musicQueueStore.queue.length === 0){
+    if (musicQueueStore.queue.length === 0) {
         window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     let previousIndex;
-    if (currentIndex == -1){
+    if (currentIndex == -1) {
         previousIndex = 0;
-    }else if (isRandom.value) {
+    } else if (isRandom.value) {
         previousIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
     } else {
         previousIndex = currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1;
@@ -235,15 +244,15 @@ const playPrevious = () => {
 
 // 播放下一首
 const playNext = () => {
-    if(musicQueueStore.queue.length === 0){
+    if (musicQueueStore.queue.length === 0) {
         window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     let nextIndex;
-    if (currentIndex == -1){
+    if (currentIndex == -1) {
         nextIndex = 0;
-    }else if (isRandom.value) {
+    } else if (isRandom.value) {
         nextIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
     } else {
         nextIndex = (currentIndex + 1) % musicQueueStore.queue.length;
@@ -258,10 +267,10 @@ const playNext = () => {
 
 // 切换播放/暂停
 const togglePlayPause = () => {
-    if(!currentSong.value.hash){
+    if (!currentSong.value.hash) {
         playNext();
         return;
-    }else if(!audio.src){
+    } else if (!audio.src) {
         addSongToQueue(
             currentSong.value.hash,
             currentSong.value.name,
@@ -270,7 +279,7 @@ const togglePlayPause = () => {
         );
         return;
     }
-    
+
     if (playing.value) {
         audio.pause();
         playing.value = false;
@@ -351,16 +360,20 @@ const changeVolume = () => {
 // 获取歌单全部歌曲
 const getPlaylistAllSongs = async (id) => {
     try {
-        const url = `/playlist/track/all?id=${id}&pagesize=500`;
-        const response = await get(url);
-        if (response.status !== 1) {
-            window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
-            return;
+        let allSongs = [];
+        for(let page = 1; page <= 2; page++) {
+            const url = `/playlist/track/all?id=${id}&pagesize=250&page=${page}`;
+            const response = await get(url);
+            if (response.status !== 1) {
+                window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
+                return;
+            }
+            allSongs = allSongs.concat(response.data.info);
         }
-        addPlaylistToQueue(response.data.info)
+        addPlaylistToQueue(allSongs);
     } catch (error) {
         console.error(error);
-        window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
+        window.$modal.alert(t('huo-qu-ge-dan-shi-bai')); 
     }
 }
 // 添加歌单到播放列表
@@ -391,7 +404,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
-            if(musicQueueStore.queue.length === 0) return;
+            if (musicQueueStore.queue.length === 0) return;
             currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
             setTimeout(() => {
                 playNext();
@@ -400,7 +413,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         }
         const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
 
-        if(existingSongIndex === -1){
+        if (existingSongIndex === -1) {
             const song = {
                 id: musicQueueStore.queue.length + 1,
                 hash: hash,
@@ -412,7 +425,7 @@ const addSongToQueue = async (hash, name, img, author) => {
             };
             musicQueueStore.addSong(song);
             playSong(song);
-        }else{
+        } else {
             const updatedQueue = [...musicQueueStore.queue];
             const newSong = {
                 id: musicQueueStore.queue[existingSongIndex].id,
@@ -429,7 +442,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         }
     } catch (error) {
         currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-di-zhi-shi-bai');
-        if(musicQueueStore.queue.length === 0) return;
+        if (musicQueueStore.queue.length === 0) return;
         currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
         setTimeout(() => {
             playNext();
@@ -464,7 +477,7 @@ const toggleQueue = () => {
 };
 
 const toggleLyrics = async () => {
-    if(localStorage.getItem('settings')){
+    if (localStorage.getItem('settings')) {
         lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
     showLyrics.value = !showLyrics.value;
@@ -523,7 +536,7 @@ const centerFirstLine = () => {
     if (!lyricsContainer) return;
     const containerHeight = lyricsContainer.offsetHeight;
     const lyricsElement = document.getElementById('lyrics');
-    if(!lyricsElement) return;
+    if (!lyricsElement) return;
     const lyricsHeight = lyricsElement.offsetHeight;
     scrollAmount.value = (containerHeight - lyricsHeight) / 2;
 };
@@ -584,7 +597,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
-    if(isElectron()){
+    if (isElectron()) {
         window.electron.ipcRenderer.removeAllListeners('play-previous-track');
         window.electron.ipcRenderer.removeAllListeners('play-next-track');
     }
@@ -943,6 +956,13 @@ const handleClickOutside = (event) => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    position: sticky;
+    top: 0px;
+    z-index: 1;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
 }
 
 .queue-header h3 {
@@ -956,6 +976,10 @@ const handleClickOutside = (event) => {
     list-style: none;
     padding: 0;
     margin: 0;
+    flex: 1;
+    overflow-y: auto;
+    height: 350px;
+    scroll-behavior: smooth;
 }
 
 .queue-item {
@@ -1071,5 +1095,20 @@ const handleClickOutside = (event) => {
     color: var(--primary-color);
     margin: auto;
     font-size: 2em;
+}
+
+.close-store {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.queue-item.playing .queue-song-title {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.queue-item.playing .queue-artist {
+    color: var(--primary-color);
 }
 </style>
