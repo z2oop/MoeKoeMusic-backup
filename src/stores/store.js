@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-export const MoeAuthStore = defineStore('MoehData', {
+export const MoeAuthStore = defineStore('MoeData', {
     state: () => ({
         UserInfo: null, // 用户信息
         Config: null, // 配置信息
@@ -26,7 +26,7 @@ export const MoeAuthStore = defineStore('MoehData', {
         enabled: true, 
         strategies: [
             {
-                key: 'MoehData', 
+                key: 'MoeData', 
                 storage: localStorage,
                 paths: ['UserInfo', 'Config'], 
             },

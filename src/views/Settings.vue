@@ -11,7 +11,7 @@
             <div class="setting-item" @click="openSelection('themeColor')">
                 <span>{{ $t('zhu-se-tiao') }}</span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.themeColor.displayText }}</span>
+                    <span>🎨 {{ selectedSettings.themeColor.displayText }}</span>
                 </div>
             </div>
 
@@ -28,13 +28,13 @@
             <div class="setting-item">
                 <span>{{ $t('yin-zhi-xuan-ze') }}</span>
                 <div class="setting-control" @click="openSelection('quality')">
-                    <span>{{ selectedSettings.quality.displayText }}</span>
+                    <span>🎧 {{ selectedSettings.quality.displayText }}</span>
                 </div>
             </div>
             <div class="setting-item">
                 <span>{{ $t('qi-dong-wen-hou-yu') }}</span>
                 <div class="setting-control" @click="openSelection('greetings')">
-                    <span>{{ selectedSettings.greetings.displayText }}</span>
+                    <span>👋 {{ selectedSettings.greetings.displayText }}</span>
                 </div>
             </div>
         </section>
@@ -122,9 +122,9 @@ const selectionTypeMap = {
     theme: {
         title: t('xuan-ze-wai-guan'),
         options: [
-            { displayText: t('zi-dong'), value: 'auto' },
-            { displayText: t('qian-se'), value: 'light' },
-            { displayText: t('shen-se'), value: 'dark' }
+            { displayText: '🌗 ' + t('zi-dong'), value: 'auto' },
+            { displayText: '☀️ ' + t('qian-se'), value: 'light' },
+            { displayText: '🌙 ' + t('shen-se'), value: 'dark' }
         ]
     },
     quality: {
@@ -191,6 +191,7 @@ const saveSettings = () => {
         Object.entries(selectedSettings.value).map(([key, setting]) => [key, setting.value])
     );
     localStorage.setItem('settings', JSON.stringify(settingsToSave));
+    window.electron && window.electron.ipcRenderer.send('save-settings',settingsToSave);
 };
 
 const closeSelection = () => {

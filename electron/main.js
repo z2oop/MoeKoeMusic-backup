@@ -1,5 +1,5 @@
 import { app, ipcMain, globalShortcut, dialog } from 'electron';
-import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut } from './appServices.js';
+import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound } from './appServices.js';
 import Store from 'electron-store';
 
 let mainWindow = null;
@@ -8,8 +8,13 @@ const store = new Store();
 app.on('ready', () => {
     startApiServer().then(() => {
         mainWindow = createWindow();
+        mainWindow.webContents.on('did-finish-load', () => {
+            createTray(mainWindow);
+        });
+        playStartupSound();
+        registerShortcut();
     }).catch((error) => {
-        console.error('Failed to start API server:', error);
+        createTray(null);
         dialog.showMessageBox({
             type: 'error',
             title: '错误',
@@ -23,8 +28,6 @@ app.on('ready', () => {
             return;
         });
     });
-    createTray(mainWindow);
-    registerShortcut();
 });
 
 // 即将退出
@@ -84,4 +87,8 @@ ipcMain.on('window-control', (event, action) => {
 
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
+});
+// 保存设置
+ipcMain.on('save-settings', (event, settings) => {
+    store.set('settings', settings);
 });

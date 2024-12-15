@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import fs from 'fs';
 import kill from 'tree-kill';
+import { exec } from 'child_process';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -244,4 +245,39 @@ export function registerShortcut() {
     globalShortcut.register('Alt+CommandOrControl+Right', () => {
         mainWindow.webContents.send('play-next-track');
     });
+}
+// 播放启动问候语
+export function playStartupSound() {
+    const savedConfig = store.get('settings');
+    if (!savedConfig || (savedConfig['greetings'] !== 'on' && savedConfig['greetings'] !== 'null')) {
+        return;
+    }
+    const audioFiles = [
+        '/assets/sound/yise-jp.mp3',
+        '/assets/sound/qiqi-jp.mp3',
+        '/assets/sound/qiqi-zh.mp3'
+    ];
+    const randomIndex = Math.floor(Math.random() * audioFiles.length);
+    const soundPath = isDev 
+        ? path.join(__dirname, '..', 'public', audioFiles[randomIndex])
+        : path.join(process.resourcesPath, 'public', audioFiles[randomIndex]);
+    try {
+        switch (process.platform) {
+            case 'win32':
+                exec(`powershell -c (New-Object Media.SoundPlayer '${soundPath}').PlaySync()`);
+                break;
+            case 'darwin':
+                exec(`afplay "${soundPath}"`);
+                break;
+            case 'linux':
+                exec(`paplay "${soundPath}"`, (error) => {
+                    if (error) {
+                        exec(`play "${soundPath}"`);
+                    }
+                });
+                break;
+        }
+    } catch (error) {
+        console.error('播放启动问候语失败:', error);
+    }
 }

@@ -13,26 +13,10 @@ import PlayerControl from "@/components/PlayerControl.vue";
 import { setTheme } from '../utils/utils';
 const playerControl = ref(null);
 const { proxy } = getCurrentInstance();
-const audio = ref(null);
-const audioFiles = [
-    '/assets/sound/yise-jp.mp3',
-    '/assets/sound/qiqi-jp.mp3',
-    '/assets/sound/qiqi-zh.mp3'
-];
 onMounted(() => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
     if (savedConfig) {
         proxy.$applyColorTheme(savedConfig['themeColor']);
-    }
-    if (savedConfig && (savedConfig['greetings'] == 'on' || savedConfig['greetings'] == 'null')) {
-        setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * audioFiles.length);
-            const selectedAudioFile = audioFiles[randomIndex];
-            audio.value = new Audio(selectedAudioFile);
-            audio.value.play().catch(error => {
-                console.error('未交互', error);
-            });
-        }, 2000);
     }
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
