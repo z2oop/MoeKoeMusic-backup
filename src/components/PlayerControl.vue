@@ -51,7 +51,8 @@
                 </div>
 
                 <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="500"
-                    :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" :start-index="getCurrentSongIndex()" class="queue-list">
+                    :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" ref="queueScroller"
+                    class="queue-list">
                     <template #default="{ item, index }">
                         <li class="queue-item" :class="{ 'playing': currentSong.hash == item.hash }" :key="item.id">
                             <div class="queue-song-info">
@@ -138,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onUnmounted } from 'vue';
+import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller'; // 使用 RecycleScroller
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; // 引入样式
 import { get } from '../utils/request'; // 引入请求函数
@@ -164,6 +165,7 @@ const currentTime = ref(0);
 const SongTips = ref(t('zan-wu-ge-ci'));
 const lyricsBackground = ref('on');
 let currentLineIndex = 0;
+const queueScroller = ref(null);
 onMounted(() => {
     const savedVolume = localStorage.getItem('player_volume');
     if (savedVolume !== null) volume.value = parseFloat(savedVolume);
@@ -187,12 +189,6 @@ const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
-};
-// 添加获取当前歌曲索引的方法
-const getCurrentSongIndex = () => {
-    if (!currentSong.value?.hash) return 0;
-    const index = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-    return index === -1 ? 0 : Math.max(0, index - 2); 
 };
 const easterEggImages = [
     { src: './assets/images/miku.png', class: 'miku' },
@@ -361,7 +357,7 @@ const changeVolume = () => {
 const getPlaylistAllSongs = async (id) => {
     try {
         let allSongs = [];
-        for(let page = 1; page <= 2; page++) {
+        for (let page = 1; page <= 2; page++) {
             const url = `/playlist/track/all?id=${id}&pagesize=250&page=${page}`;
             const response = await get(url);
             if (response.status !== 1) {
@@ -373,7 +369,7 @@ const getPlaylistAllSongs = async (id) => {
         addPlaylistToQueue(allSongs);
     } catch (error) {
         console.error(error);
-        window.$modal.alert(t('huo-qu-ge-dan-shi-bai')); 
+        window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
     }
 }
 // 添加歌单到播放列表
@@ -472,8 +468,19 @@ audio.addEventListener('pause', () => {
 audio.addEventListener('play', () => {
     playing.value = true;
 });
-const toggleQueue = () => {
+const toggleQueue = async () => {
     showQueue.value = !showQueue.value;
+    if (showQueue.value) {
+        await nextTick();
+        setTimeout(() => {
+            const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
+            if (currentIndex !== -1 && queueScroller.value) {
+                const middleOffset = Math.floor(queueScroller.value.$el.clientHeight / 100);
+                const scrollToIndex = Math.max(0, currentIndex - middleOffset);
+                queueScroller.value.scrollToItem(scrollToIndex);
+            }
+        }, 100);
+    }
 };
 
 const toggleLyrics = async () => {
