@@ -218,7 +218,6 @@ header {
     position: fixed;
     width: 100%;
     top: 0px;
-    -webkit-app-region: drag;
     z-index: 9;
 }
 

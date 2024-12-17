@@ -88,7 +88,6 @@ ipcMain.on('window-control', (event, action) => {
 app.on('will-quit', () => {
     globalShortcut.unregisterAll();
 });
-// 保存设置
 ipcMain.on('save-settings', (event, settings) => {
     store.set('settings', settings);
 });

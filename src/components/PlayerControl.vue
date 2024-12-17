@@ -364,7 +364,13 @@ const getPlaylistAllSongs = async (id) => {
                 window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
                 return;
             }
+            if (Object.keys(response.data.info).length === 0) {
+                break;
+            }
             allSongs = allSongs.concat(response.data.info);
+            if(response.data.info.length < 250){
+                break;
+            }
         }
         addPlaylistToQueue(allSongs);
     } catch (error) {
@@ -400,6 +406,9 @@ const addSongToQueue = async (hash, name, img, author) => {
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
+            if(response.status == 1){
+                currentSong.value.name = t('gai-ge-qu-zan-wu-ban-quan')
+            }
             if (musicQueueStore.queue.length === 0) return;
             currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
             setTimeout(() => {

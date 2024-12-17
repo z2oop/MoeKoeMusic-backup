@@ -31,7 +31,7 @@ export function createWindow() {
         minWidth: 980,
         minHeight: 800,
         frame: false,
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'hidden',
+        titleBarStyle: 'hiddenInset',
         autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.cjs'),

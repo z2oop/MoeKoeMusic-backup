@@ -1,15 +1,9 @@
 <template>
-    <div class="custom-title-bar" v-if="isElectron && !isMac">
-        <div class="window-controls">
-            <div @click="closeWindow" class="control-button close">
-                <i class="fas fa-close"></i> 
-            </div>
-            <div @click="minimizeWindow" class="control-button minimize">
-                <i class="fas fa-minus"></i> 
-            </div>
-            <div @click="maximizeWindow" class="control-button maximize">
-                <i class="fas fa-expand-arrows-alt"></i> 
-            </div>
+    <div class="titlebar">
+        <div class="window-controls" v-if="isElectron && !isMac">
+            <button class="control-button" @click="minimizeWindow" id="minBtn"></button>
+            <button class="control-button" @click="maximizeWindow" id="maxBtn"></button>
+            <button class="control-button" @click="closeWindow" id="closeBtn"></button>
         </div>
     </div>
 </template>
@@ -23,60 +17,89 @@ const maximizeWindow = () => window.electron.ipcRenderer.send('window-control', 
 </script>
 
 <style scoped>
-.custom-title-bar {
-    height: 25px;
-    -webkit-app-region: drag;
-    display: flex;
-    align-items: center;
-    z-index: 10;
-    position: fixed;
-    flex-direction: row;
-    right: 29px;
-    top: 10px;
+
+.titlebar {
+  -webkit-app-region: drag;
+  height: 32px;
+  padding: 0 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 10;
+  position: relative;
 }
 
 .window-controls {
-    display: flex;
-    gap: 8px;
+  -webkit-app-region: no-drag;
+  display: flex;
+  gap: 8px;
+  margin-right: 8px;
 }
 
 .control-button {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    position: relative;
-    cursor: pointer;
-    -webkit-app-region: no-drag; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 8px;
-    color: transparent;
-    transition: color 0.2s ease;
-    font-weight: bold;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  background-size: 10px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
-.close {
-    background-color: #ff5f57;
+#closeBtn {
+  background-color: #ff5f57;
 }
 
-.minimize {
-    background-color: #ffbd2e;
+#minBtn {
+  background-color: #ffbd2e;
 }
 
-.maximize {
-    background-color: #28c940;
+#maxBtn {
+  background-color: #28c940;
 }
 
 .control-button:hover {
-    color: rgb(55, 55, 55); 
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.control-button:hover i {
-    opacity: 1;
+.control-button:hover#closeBtn {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16"><path fill="black" d="M5 5l6 6M5 11l6-6" stroke="black" stroke-width="1.5" stroke-linecap="round"/></svg>');
+}
+.control-button:hover#minBtn {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="black" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2 8a1 1 0 011-1h10a1 1 0 110 2H3a1 1 0 01-1-1z"/></svg>');
 }
 
-i {
-    opacity: 0;
+.control-button:hover#maxBtn {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16"><path fill="none" stroke="black" stroke-width="1.5" d="M3 3 L6 3 L3 6 M3 3 L3 6 M13 3 L10 3 L13 6 M13 3 L13 6 M3 13 L6 13 L3 10 M3 13 L3 10 M13 13 L10 13 L13 10 M13 13 L13 10"/></svg>');
 }
+.control-button:focus {
+  outline: none;
+}
+
+.content {
+  padding: 20px;
+}
+
+.content h1 {
+  margin-bottom: 15px;
+  color: #2f3241;
+}
+
+.content p {
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.titlebar-text {
+  flex-grow: 1;
+  margin-left: 12px;
+  font-size: 13px;
+  color: #333;
+} 
 </style>
