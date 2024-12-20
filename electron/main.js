@@ -41,10 +41,11 @@ app.on('before-quit', () => {
 // 关闭所有窗口
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        app.isQuitting = true;
         app.quit(); // 非 macOS 系统上关闭所有窗口后退出应用
     }
 });
-// 图标被点击 Mac上
+// 图标被点击
 app.on('activate', () => {
     if (mainWindow && !mainWindow.isVisible()) {
         mainWindow.show();

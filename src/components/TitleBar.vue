@@ -26,7 +26,6 @@ const maximizeWindow = () => window.electron.ipcRenderer.send('window-control', 
   justify-content: flex-end;
   align-items: center;
   z-index: 10;
-  position: relative;
 }
 
 .window-controls {
@@ -34,6 +33,7 @@ const maximizeWindow = () => window.electron.ipcRenderer.send('window-control', 
   display: flex;
   gap: 8px;
   margin-right: 8px;
+  position: fixed;
 }
 
 .control-button {
