@@ -17,6 +17,10 @@ export const useMusicQueueStore = defineStore('MusicQueue', {
         getQueue() {
             return this.queue;
         },
+        // 清空指定歌曲
+        removeSong(index) {
+            this.queue.splice(index, 1);
+        },
         // 清空播放队列
         clearQueue() {
             this.queue = [];

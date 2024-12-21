@@ -62,13 +62,15 @@
                             <div class="queue-actions">
                                 <button v-if="currentSong.hash == item.hash"
                                     class="queue-play-btn fas fa-music"></button>
-                                <button v-else class="queue-play-btn" @click="addSongToQueue(
-                                    item.hash,
-                                    item.name,
-                                    item.img,
-                                    item.author
-                                )"><i class="fas fa-play"></i></button>
-
+                                <template v-else>
+                                    <button class="queue-play-btn" @click="addSongToQueue(
+                                        item.hash,
+                                        item.name,
+                                        item.img,
+                                        item.author
+                                    )"><i class="fas fa-play"></i></button>
+                                    <i class="fas fa-times close-store" @click="musicQueueStore.queue.splice(index, 1);$event.target.closest('li').classList.add('marked-as-deleted');"></i>
+                                </template>
                             </div>
                         </li>
                     </template>
@@ -1130,5 +1132,13 @@ const handleClickOutside = (event) => {
 
 .queue-item.playing .queue-artist {
     color: var(--primary-color);
+}
+
+.queue-item.marked-as-deleted {
+    text-decoration: line-through;
+    color: #888;
+    transition: all 0.5s ease;
+    opacity: 0.5;
+    pointer-events: none;
 }
 </style>
