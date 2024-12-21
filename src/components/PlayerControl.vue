@@ -166,6 +166,7 @@ const SongTips = ref(t('zan-wu-ge-ci'));
 const lyricsBackground = ref('on');
 let currentLineIndex = 0;
 const queueScroller = ref(null);
+const timeoutId = ref(null);
 onMounted(() => {
     const savedVolume = localStorage.getItem('player_volume');
     if (savedVolume !== null) volume.value = parseFloat(savedVolume);
@@ -181,6 +182,10 @@ onMounted(() => {
     if (isElectron()) {
         window.electron.ipcRenderer.on('play-previous-track', playPrevious);
         window.electron.ipcRenderer.on('play-next-track', playNext);
+    }
+
+    if (localStorage.getItem('settings')) {
+        lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
@@ -212,6 +217,7 @@ const playSong = (song) => {
     audio.play();
     playing.value = true;
     localStorage.setItem('current_song', JSON.stringify(currentSong.value));
+    getLyrics(currentSong.value.hash)
 };
 
 
@@ -398,6 +404,7 @@ const addPlaylistToQueue = async (info) => {
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author) => {
     try {
+        clearTimeout(timeoutId.value);
         currentSong.value.author = author;
         currentSong.value.name = name;
         currentSong.value.img = img;
@@ -406,12 +413,12 @@ const addSongToQueue = async (hash, name, img, author) => {
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
-            if(response.status == 1){
+            if(response.status == 3){
                 currentSong.value.name = t('gai-ge-qu-zan-wu-ban-quan')
             }
             if (musicQueueStore.queue.length === 0) return;
             currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
-            setTimeout(() => {
+            timeoutId.value = setTimeout(() => {
                 playNext();
             }, 3000);
             return;
@@ -449,7 +456,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-di-zhi-shi-bai');
         if (musicQueueStore.queue.length === 0) return;
         currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
-        setTimeout(() => {
+        timeoutId.value = setTimeout(() => {
             playNext();
         }, 3000);
     }
@@ -493,24 +500,21 @@ const toggleQueue = async () => {
 };
 
 const toggleLyrics = async () => {
-    if (localStorage.getItem('settings')) {
-        lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
-    }
     showLyrics.value = !showLyrics.value;
     SongTips.value = t('huo-qu-ge-ci-zhong');
-    if (showLyrics.value && currentSong.value) {
-        try {
-            if (lyricsData.value.length != 0) return;
-            getLyrics(currentSong.value.hash)
-        } catch (error) {
-            SongTips.value = t('huo-qu-ge-ci-shi-bai');
-            console.error('获取歌词失败:', error);
-        }
+    if (!currentSong.value) return;
+    try {
+        if (lyricsData.value.length != 0) return;
+        getLyrics(currentSong.value.hash)
+    } catch (error) {
+        SongTips.value = t('huo-qu-ge-ci-shi-bai');
+        console.error('获取歌词失败:', error);
     }
 };
 
 // 请求歌词
 const getLyrics = async (hash) => {
+    if (!showLyrics.value) return;
     const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
     if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
         SongTips.value = t('zan-wu-ge-ci');
