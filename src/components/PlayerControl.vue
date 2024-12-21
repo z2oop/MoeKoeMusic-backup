@@ -29,7 +29,7 @@
                 <button class="extra-btn" @click="toggleQueue"><i class="fas fa-list"></i></button>
 
                 <!-- 音量控制 -->
-                <div class="volume-control">
+                <div class="volume-control" @wheel="handleVolumeScroll">
                     <i :class="isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up'" @click="toggleMute"></i>
                     <div class="volume-slider" @mousedown="onDragStart">
                         <div class="volume-progress" :style="{ width: volume + '%' }"></div>
@@ -632,6 +632,12 @@ const handleClickOutside = (event) => {
     if (queuePopup && !queuePopup.contains(event.target) && !event.target.closest('.extra-btn')) {
         showQueue.value = false;
     }
+};
+const handleVolumeScroll = (event) => {
+    event.preventDefault();
+    const delta = Math.sign(event.deltaY) * -1; 
+    volume.value = Math.min(Math.max(volume.value + delta * 10, 0), 100);
+    changeVolume();
 };
 </script>
 
