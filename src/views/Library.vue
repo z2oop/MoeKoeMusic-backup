@@ -15,10 +15,10 @@
             <div class="song-list">
                 <ul>
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
-                        @click="playSong($getQuality(null, song), (song.album_name ? song.album_name : song.name), $getCover(song.image, 480), song.author_name)">
+                        @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.author_name)">
                         <img :src="$getCover(song.image, 120)" alt="album cover" class="album-cover" />
                         <div class="song-info">
-                            <p class="album-name">{{ song.album_name ? song.album_name : song.name }}</p>
+                            <p class="album-name">{{ song.name.split(' - ')[1] || song.name }}</p>
                             <p class="singer-name">{{ song.singername }}</p>
                         </div>
                     </li>
@@ -91,11 +91,8 @@ const collectedPlaylists = ref([]);
 const followedArtists = ref([]);
 const listenHistory = ref([]);
 const userVip = ref({});
-// 分类标签和选中状态
 const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-guan-zhu-de-ge-shou')]);
-const selectedCategory = ref(0); // 默认选中第一个
-
-// 分类标签切换
+const selectedCategory = ref(0);
 const selectCategory = (index) => {
     selectedCategory.value = index;
 };
@@ -122,13 +119,6 @@ const getUserDetails = () => {
     getfollow()
     // 获取用户听歌历史
     getlisten()
-
-    if (canRequestVip()) {
-        // 自动领取VIP
-        get('/youth/vip')
-        // 刷新token
-        // get(`/login/token?token=${user.value.token}&userid=${user.value.userid}`);
-    }
 }
 const getVipInfo = async () => {
     try{
@@ -161,24 +151,11 @@ const getfollow = async () => {
     }
 }
 const getplaylist = async () => {
-    const playlistResponse = await get('/user/playlist');
+    const playlistResponse = await get('/user/playlist?pagesize=100');
     if (playlistResponse.status === 1) {
-        userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username === user.value.nickname);
+        userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username === user.value.nickname || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
         collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username !== user.value.nickname);
     }
-}
-const canRequestVip = () => {
-    const lastRequestTime = localStorage.getItem('lastVipRequestTime');
-    if (lastRequestTime) {
-        const now = new Date().getTime();
-        const elapsedTime = now - parseInt(lastRequestTime);
-        const threeHours = 3 * 60 * 60 * 1000;
-        if (elapsedTime < threeHours) {
-            return false;
-        }
-    }
-    localStorage.setItem('lastVipRequestTime', new Date().getTime().toString());
-    return true;
 }
 </script>
 

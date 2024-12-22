@@ -14,11 +14,11 @@
                 <div class="artist">{{ currentSong?.author || "MoeJue" }}</div>
             </div>
             <div class="controls">
-                <button class="control-btn" @click="playPrevious"><i class="fas fa-step-backward"></i></button>
+                <button class="control-btn" @click="playSongFromQueue('previous')"><i class="fas fa-step-backward"></i></button>
                 <button class="control-btn" @click="togglePlayPause">
                     <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
                 </button>
-                <button class="control-btn" @click="playNext"><i class="fas fa-step-forward"></i></button>
+                <button class="control-btn" @click="playSongFromQueue('next')"><i class="fas fa-step-forward"></i></button>
             </div>
             <div class="extra-controls">
                 <button class="extra-btn" @click="toggleRandom"><i
@@ -112,11 +112,11 @@
                                 :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
                                 :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
 
-                        <button class="control-btn" @click="playPrevious"><i class="fas fa-step-backward"></i></button>
+                        <button class="control-btn" @click="playSongFromQueue('previous')"><i class="fas fa-step-backward"></i></button>
                         <button class="control-btn" @click="togglePlayPause">
                             <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
                         </button>
-                        <button class="control-btn" @click="playNext"><i class="fas fa-step-forward"></i></button>
+                        <button class="control-btn" @click="playSongFromQueue('next')"><i class="fas fa-step-forward"></i></button>
 
                         <button class="control-btn" @click="toggleLoop"><i
                                 :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
@@ -182,8 +182,8 @@ onMounted(() => {
     if (current_song) currentSong.value = JSON.parse(current_song);
 
     if (isElectron()) {
-        window.electron.ipcRenderer.on('play-previous-track', playPrevious);
-        window.electron.ipcRenderer.on('play-next-track', playNext);
+        window.electron.ipcRenderer.on('play-previous-track', playSongFromQueue('previous'));
+        window.electron.ipcRenderer.on('play-next-track', playSongFromQueue('next'));
     }
 
     if (localStorage.getItem('settings')) {
@@ -220,59 +220,42 @@ const playSong = (song) => {
     playing.value = true;
     localStorage.setItem('current_song', JSON.stringify(currentSong.value));
     getLyrics(currentSong.value.hash)
+    if (canRequestVip()) {
+        // 自动领取VIP
+        get('/youth/vip')
+    }
 };
 
-
-// 播放上一首
-const playPrevious = () => {
+// 从队列中播放歌曲
+const playSongFromQueue = (direction) => {
     if (musicQueueStore.queue.length === 0) {
         window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-    let previousIndex;
-    if (currentIndex == -1) {
-        previousIndex = 0;
-    } else if (isRandom.value) {
-        previousIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
-    } else {
-        previousIndex = currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1;
-    }
-    addSongToQueue(
-        musicQueueStore.queue[previousIndex].hash,
-        musicQueueStore.queue[previousIndex].name,
-        musicQueueStore.queue[previousIndex].img,
-        musicQueueStore.queue[previousIndex].author
-    );
-};
+    let targetIndex;
 
-// 播放下一首
-const playNext = () => {
-    if (musicQueueStore.queue.length === 0) {
-        window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
-        return;
-    }
-    const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-    let nextIndex;
     if (currentIndex == -1) {
-        nextIndex = 0;
+        targetIndex = 0;
     } else if (isRandom.value) {
-        nextIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
+        targetIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
     } else {
-        nextIndex = (currentIndex + 1) % musicQueueStore.queue.length;
+        targetIndex = direction === 'previous' 
+            ? (currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1) 
+            : (currentIndex + 1) % musicQueueStore.queue.length;
     }
     addSongToQueue(
-        musicQueueStore.queue[nextIndex].hash,
-        musicQueueStore.queue[nextIndex].name,
-        musicQueueStore.queue[nextIndex].img,
-        musicQueueStore.queue[nextIndex].author
+        musicQueueStore.queue[targetIndex].hash,
+        musicQueueStore.queue[targetIndex].name,
+        musicQueueStore.queue[targetIndex].img,
+        musicQueueStore.queue[targetIndex].author
     );
 };
 
 // 切换播放/暂停
 const togglePlayPause = () => {
     if (!currentSong.value.hash) {
-        playNext();
+        playSongFromQueue('next');
         return;
     } else if (!audio.src) {
         addSongToQueue(
@@ -313,7 +296,7 @@ const toggleMute = () => {
     if (isMuted.value) {
         volume.value = 0;
     } else {
-        volume.value = audio.volume * 100; // 恢复之前的音量
+        volume.value = audio.volume * 100;
     }
     localStorage.setItem('player_volume', volume.value);
 };
@@ -322,42 +305,42 @@ const setVolumeOnClick = (event) => {
     const slider = event.target.closest('.volume-slider');
     if (slider) {
         const sliderWidth = slider.offsetWidth;
-        const offsetX = event.offsetX; // 点击位置相对于进度条的偏移
-        volume.value = Math.round((offsetX / sliderWidth) * 100); // 计算音量百分比
-        changeVolume(); // 调用音量更新函数
+        const offsetX = event.offsetX;
+        volume.value = Math.round((offsetX / sliderWidth) * 100);
+        changeVolume(); 
     }
 };
 // 开始拖拽时触发，初始化拖拽并实时更新音量
 const onDragStart = (event) => {
-    sliderElement = event.target.closest('.volume-slider'); // 获取音量滑块的 DOM 元素
+    sliderElement = event.target.closest('.volume-slider');
     if (sliderElement) {
         isDragging.value = true;
-        setVolumeOnClick(event); // 在拖拽开始时立即设置音量
-        document.addEventListener('mousemove', onDrag); // 监听鼠标移动事件
-        document.addEventListener('mouseup', onDragEnd); // 监听鼠标松开事件
+        setVolumeOnClick(event); 
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', onDragEnd);
     }
 };
 // 拖拽过程中的音量更新
 const onDrag = (event) => {
     if (isDragging.value && sliderElement) {
         const sliderWidth = sliderElement.offsetWidth;
-        const rect = sliderElement.getBoundingClientRect(); // 获取进度条的位置信息
-        const offsetX = event.clientX - rect.left; // 鼠标当前位置相对于进度条的偏移
-        const newVolume = Math.max(0, Math.min(100, Math.round((offsetX / sliderWidth) * 100))); // 计算新的音量值
-        volume.value = newVolume; // 更新音量
-        changeVolume(); // 更新音量逻辑
+        const rect = sliderElement.getBoundingClientRect();
+        const offsetX = event.clientX - rect.left; 
+        const newVolume = Math.max(0, Math.min(100, Math.round((offsetX / sliderWidth) * 100))); 
+        volume.value = newVolume;
+        changeVolume();
     }
 };
 const onDragEnd = () => {
     isDragging.value = false;
-    sliderElement = null; // 清除保存的 DOM 引用
-    document.removeEventListener('mousemove', onDrag); // 停止监听鼠标移动事件
-    document.removeEventListener('mouseup', onDragEnd); // 停止监听鼠标松开事件
+    sliderElement = null; 
+    document.removeEventListener('mousemove', onDrag); 
+    document.removeEventListener('mouseup', onDragEnd);
 };
 // 音量调节
 const changeVolume = () => {
     audio.volume = volume.value / 100;
-    localStorage.setItem('player_volume', volume.value); // 保存音量
+    localStorage.setItem('player_volume', volume.value);
     isMuted.value = volume.value === 0;
 };
 
@@ -421,7 +404,7 @@ const addSongToQueue = async (hash, name, img, author) => {
             if (musicQueueStore.queue.length === 0) return;
             currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
             timeoutId.value = setTimeout(() => {
-                playNext();
+                playSongFromQueue('next');
             }, 3000);
             return;
         }
@@ -459,7 +442,7 @@ const addSongToQueue = async (hash, name, img, author) => {
         if (musicQueueStore.queue.length === 0) return;
         currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
         timeoutId.value = setTimeout(() => {
-            playNext();
+            playSongFromQueue('next');
         }, 3000);
     }
 };
@@ -510,7 +493,6 @@ const toggleLyrics = async () => {
         getLyrics(currentSong.value.hash)
     } catch (error) {
         SongTips.value = t('huo-qu-ge-ci-shi-bai');
-        console.error('获取歌词失败:', error);
     }
 };
 
@@ -639,6 +621,19 @@ const handleVolumeScroll = (event) => {
     volume.value = Math.min(Math.max(volume.value + delta * 10, 0), 100);
     changeVolume();
 };
+const canRequestVip = () => {
+    const lastRequestTime = localStorage.getItem('lastVipRequestTime');
+    if (lastRequestTime) {
+        const now = new Date().getTime();
+        const elapsedTime = now - parseInt(lastRequestTime);
+        const threeHours = 3 * 60 * 60 * 1000;
+        if (elapsedTime < threeHours) {
+            return false;
+        }
+    }
+    localStorage.setItem('lastVipRequestTime', new Date().getTime().toString());
+    return true;
+}
 </script>
 
 
