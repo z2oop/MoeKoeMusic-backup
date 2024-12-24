@@ -48,18 +48,18 @@
 
 ## Todo List
 - [ ] 📺  支持MV播放
-- [ ] 🌚 Light/Dark Mode  自動切換
+- [x] 🌚 Light/Dark Mode  自動切換
 - [ ] 👆  支持Touch Bar
 - [ ] 🖥️  支持PWA，可在Chrome/Edge裏點擊地址欄右邊的 ➕  安裝到電腦
 - [ ] 🟥  支持Last.fm Scrobble
 - [ ] 🎧  支持Mpris
-- [ ] ⌨️  自定義快速鍵和全域快速鍵
+- [x] ⌨️  全域快速鍵
 - [x] 🤟  多語言支持
 - [ ] 📻  案頭歌詞
 - [ ] ⚙️  系統架構優化
 - [ ] 🎶  歌曲、歌單/收藏、取消
 
-更新日誌請查看[releases](https://github.com/iAJue/MoeKoeMusic/releases)
+更新日誌請查看[Commits](https://github.com/iAJue/MoeKoeMusic/commits/main/)
 
 ## 📦 ️安裝
 

@@ -48,18 +48,18 @@ I said on my personal introduction page that I particularly enjoy listening to m
 
 ## Todo List
 - [ ]  📺  Support MV playback
-- [ ]  🌚 Light/Dark Mode  Automatic switching
+- [x]  🌚 Light/Dark Mode  Automatic switching
 - [ ]  👆  Support Touch Bar
 - [ ]  🖥️  Support PWA, you can click on the right side of the address bar in Chrome/Edge ➕  Install to computer
 - [ ]  🟥  Supports Last.fm Scrobble
 - [ ]  🎧  Support Mpris
-- [ ]  ⌨️  Custom shortcut keys and global shortcut keys
+- [x]  ⌨️   Global shortcut keys
 - [x]  🤟  Multi language support
 - [ ]  📻  Desktop Lyrics
 - [ ]  ⚙️  System architecture optimization
 - [ ]  🎶  Songs, playlists/favorites, cancellation
 
-Please check the  for the update log [releases](https://github.com/iAJue/MoeKoeMusic/releases )
+Please check the  for the update log [Commits](https://github.com/iAJue/MoeKoeMusic/commits/main/)
 
 ##  📦 Installation
 

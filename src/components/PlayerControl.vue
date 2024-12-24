@@ -3,7 +3,6 @@
         <div class="progress-bar">
             <div class="progress" :style="{ width: progressWidth + '%' }"></div>
         </div>
-
         <div class="player-bar">
             <div class="album-art" @click="toggleLyrics">
                 <img v-if="currentSong.img" :src="currentSong.img" alt="Album Art" />
@@ -14,20 +13,25 @@
                 <div class="artist">{{ currentSong?.author || "MoeJue" }}</div>
             </div>
             <div class="controls">
-                <button class="control-btn" @click="playSongFromQueue('previous')"><i class="fas fa-step-backward"></i></button>
+                <button class="control-btn" @click="playSongFromQueue('previous')">
+                    <i class="fas fa-step-backward"></i>
+                </button>
                 <button class="control-btn" @click="togglePlayPause">
                     <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
                 </button>
-                <button class="control-btn" @click="playSongFromQueue('next')"><i class="fas fa-step-forward"></i></button>
+                <button class="control-btn" @click="playSongFromQueue('next')">
+                    <i class="fas fa-step-forward"></i>
+                </button>
             </div>
             <div class="extra-controls">
-                <button class="extra-btn" @click="toggleRandom"><i
-                        :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
-                        :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
-                <button class="extra-btn" @click="toggleLoop"><i :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
-                        :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan')"></i></button>
+                <button class="extra-btn" @click="togglePlaybackMode">
+                    <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon" :title="currentPlaybackMode.title"></i>
+                    <span v-else class="loop-icon" :title="currentPlaybackMode.title">
+                        <i class="fas fa-repeat"></i>
+                        <sup>1</sup>
+                    </span>
+                </button>
                 <button class="extra-btn" @click="toggleQueue"><i class="fas fa-list"></i></button>
-
                 <!-- 音量控制 -->
                 <div class="volume-control" @wheel="handleVolumeScroll">
                     <i :class="isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up'" @click="toggleMute"></i>
@@ -108,19 +112,22 @@
                     </div>
 
                     <div class="player-controls">
-                        <button class="control-btn" @click="toggleRandom"><i
-                                :class="isRandom ? 'fas fa-random' : 'fas fa-reorder'"
-                                :title="isRandom ? $t('sui-ji-bo-fang') : $t('shun-xu-bo-fang')"></i></button>
-
-                        <button class="control-btn" @click="playSongFromQueue('previous')"><i class="fas fa-step-backward"></i></button>
+                        <button class="control-btn" @click="playSongFromQueue('previous')">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
                         <button class="control-btn" @click="togglePlayPause">
                             <i :class="playing ? 'fas fa-pause' : 'fas fa-play'"></i>
                         </button>
-                        <button class="control-btn" @click="playSongFromQueue('next')"><i class="fas fa-step-forward"></i></button>
-
-                        <button class="control-btn" @click="toggleLoop"><i
-                                :class="isLoop ? 'fas fa-repeat' : 'fas fa-refresh'"
-                                :title="isLoop ? $t('dan-qu-xun-huan') : $t('lie-biao-xun-huan')"></i></button>
+                        <button class="control-btn" @click="playSongFromQueue('next')">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                        <button class="control-btn" @click="togglePlaybackMode">
+                            <i v-if="currentPlaybackMode.mode !== 'loop_one'" :class="currentPlaybackMode.icon" :title="currentPlaybackMode.title"></i>
+                            <span v-else class="loop-icon" :title="currentPlaybackMode.title">
+                                <i class="fas fa-repeat"></i>
+                                <sup>1</sup>
+                            </span>
+                        </button>
                     </div>
                 </div>
                 <div id="lyrics-container">
@@ -142,10 +149,10 @@
 
 <script setup>
 import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue';
-import { RecycleScroller } from 'vue3-virtual-scroller'; // 使用 RecycleScroller
-import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; // 引入样式
-import { get } from '../utils/request'; // 引入请求函数
-import { useMusicQueueStore } from '../stores/musicQueue'; // 引入播放队列的 store
+import { RecycleScroller } from 'vue3-virtual-scroller';
+import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; 
+import { get } from '../utils/request'; 
+import { useMusicQueueStore } from '../stores/musicQueue'; 
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
@@ -153,8 +160,6 @@ const isDragging = ref(false);
 const showQueue = ref(false);
 const currentSong = ref({ name: '', author: '', img: '', url: '', hash: '' }); // 当前播放的音乐信息
 const playing = ref(false); // 是否正在播放
-const isRandom = ref(true); // 是否随机播放
-const isLoop = ref(false); // 是否单曲循环
 const isMuted = ref(false); // 是否静音
 const volume = ref(66); // 音量初始值为 100
 const audio = new Audio(); // 创建音频对象
@@ -169,17 +174,28 @@ const lyricsBackground = ref('on');
 let currentLineIndex = 0;
 const queueScroller = ref(null);
 const timeoutId = ref(null);
+const playbackModes = ref([
+    { icon: 'fas fa-random', title: t('sui-ji-bo-fang') },
+    { icon: 'fas fa-refresh', title: t('lie-biao-xun-huan') },
+    { icon: '', title: t('dan-qu-xun-huan') } 
+]);
+const currentPlaybackModeIndex = ref(0);
+const currentPlaybackMode = computed(() => playbackModes.value[currentPlaybackModeIndex.value]);
+// 切换随机/顺序/单曲播放
+const togglePlaybackMode = () => {
+    currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
+    audio.loop = currentPlaybackModeIndex.value == 2;
+    localStorage.setItem('player_playback_mode', currentPlaybackModeIndex.value);
+};
 onMounted(() => {
     const savedVolume = localStorage.getItem('player_volume');
     if (savedVolume !== null) volume.value = parseFloat(savedVolume);
-    const savedRandom = localStorage.getItem('player_random');
-    const savedLoop = localStorage.getItem('player_loop');
-    isRandom.value = savedRandom === 'true' || savedRandom === null;
-    isLoop.value = savedLoop === 'true';
     isMuted.value = volume.value === 0;
     audio.volume = volume.value / 100;
     const current_song = localStorage.getItem('current_song');
     if (current_song) currentSong.value = JSON.parse(current_song);
+    currentPlaybackModeIndex.value = localStorage.getItem('player_playback_mode') || 1;
+    audio.loop = currentPlaybackModeIndex.value == 2;
 
     if (isElectron()) {
         window.electron.ipcRenderer.on('play-previous-track', playSongFromQueue('previous'));
@@ -237,7 +253,7 @@ const playSongFromQueue = (direction) => {
 
     if (currentIndex == -1) {
         targetIndex = 0;
-    } else if (isRandom.value) {
+    } else if (currentPlaybackModeIndex.value == 0) {
         targetIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
     } else {
         targetIndex = direction === 'previous' 
@@ -274,19 +290,6 @@ const togglePlayPause = () => {
         audio.play();
         playing.value = true;
     }
-};
-
-// 切换随机播放
-const toggleRandom = () => {
-    isRandom.value = !isRandom.value;
-    localStorage.setItem('player_random', isRandom.value);
-};
-
-// 切换单曲循环
-const toggleLoop = () => {
-    isLoop.value = !isLoop.value;
-    audio.loop = isLoop.value;
-    localStorage.setItem('player_loop', isLoop.value);
 };
 
 // 切换静音
@@ -449,19 +452,8 @@ const addSongToQueue = async (hash, name, img, author) => {
 
 // 音乐播放结束后自动播放下一首
 audio.addEventListener('ended', () => {
-    const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-    let nextSong;
-
-    if (isRandom.value) {
-        const randomIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
-        nextSong = musicQueueStore.queue[randomIndex];
-    } else if (isLoop.value) {
-        nextSong = currentSong.value;
-    } else {
-        const nextIndex = (currentIndex + 1) % musicQueueStore.queue.length;
-        nextSong = musicQueueStore.queue[nextIndex];
-    }
-    addSongToQueue(nextSong.hash, nextSong.name, nextSong.img, nextSong.author);
+    if (currentPlaybackModeIndex.value == 2) return;
+    playSongFromQueue('next');
 });
 audio.addEventListener('pause', () => {
     playing.value = false;
@@ -1141,5 +1133,14 @@ const canRequestVip = () => {
     transition: all 0.5s ease;
     opacity: 0.5;
     pointer-events: none;
+}
+.loop-icon {
+    position: relative;
+    display: inline-block;
+}
+
+.loop-icon sup {
+    position: absolute;
+    font-size: 0.6em;
 }
 </style>

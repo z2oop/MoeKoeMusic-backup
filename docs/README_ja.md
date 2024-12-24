@@ -48,18 +48,18 @@
 
 ## Todo List
 - [ ] 📺 MV再生をサポート
-- [ ] 🌚 Light/Dark Mode 自動切り替え
+- [x] 🌚 Light/Dark Mode 自動切り替え
 - [ ] 👆 Touch Bar対応
 - [ ] 🖥️ PWA対応、Chrome/Edgeでアドレスバー右の➕ コンピュータにインストール
 - [ ] 🟥 Last.fm Scrobbleをサポート
 - [ ] 🎧 Mprisのサポート
-- [ ] ⌨️ ショートカットとグローバルショートカットのカスタマイズ
+- [x] ⌨️ ショートカットとグローバルショートカットのカスタマイズ
 - [x] 🤟 多言語サポート
 - [ ] 📻 デスクトップ歌詞
 - [ ] ⚙️ システムアーキテクチャの最適化
 - [ ] 🎶 曲、歌/コレクション、キャンセル
 
-更新ログは[releases](https://github.com/iAJue/MoeKoeMusic/releases)
+更新ログは[Commits](https://github.com/iAJue/MoeKoeMusic/commits/main/)
 
 ## 📦️インストール
 
