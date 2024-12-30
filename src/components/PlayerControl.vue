@@ -198,8 +198,8 @@ onMounted(() => {
     audio.loop = currentPlaybackModeIndex.value == 2;
 
     if (isElectron()) {
-        window.electron.ipcRenderer.on('play-previous-track', playSongFromQueue('previous'));
-        window.electron.ipcRenderer.on('play-next-track', playSongFromQueue('next'));
+        window.electron.ipcRenderer.on('play-previous-track', () => playSongFromQueue('previous'));
+        window.electron.ipcRenderer.on('play-next-track', () => playSongFromQueue('next'));
     }
 
     if (localStorage.getItem('settings')) {

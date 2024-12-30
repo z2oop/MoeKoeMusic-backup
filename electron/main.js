@@ -8,9 +8,7 @@ const store = new Store();
 app.on('ready', () => {
     startApiServer().then(() => {
         mainWindow = createWindow();
-        mainWindow.webContents.on('did-finish-load', () => {
-            createTray(mainWindow);
-        });
+        createTray(mainWindow);
         playStartupSound();
         registerShortcut();
     }).catch((error) => {
