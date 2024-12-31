@@ -54,7 +54,7 @@
                     </h3>
                 </div>
 
-                <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="500"
+                <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="200"
                     :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" ref="queueScroller"
                     class="queue-list">
                     <template #default="{ item, index }">
@@ -196,15 +196,10 @@ onMounted(() => {
     if (current_song) currentSong.value = JSON.parse(current_song);
     currentPlaybackModeIndex.value = localStorage.getItem('player_playback_mode') || 1;
     audio.loop = currentPlaybackModeIndex.value == 2;
-
-    if (isElectron()) {
-        window.electron.ipcRenderer.on('play-previous-track', () => playSongFromQueue('previous'));
-        window.electron.ipcRenderer.on('play-next-track', () => playSongFromQueue('next'));
-    }
-
     if (localStorage.getItem('settings')) {
         lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
+    handleShortcut();
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -351,20 +346,16 @@ const changeVolume = () => {
 const getPlaylistAllSongs = async (id) => {
     try {
         let allSongs = [];
-        for (let page = 1; page <= 2; page++) {
-            const url = `/playlist/track/all?id=${id}&pagesize=250&page=${page}`;
+        for (let page = 1; page <= 4; page++) {
+            const url = `/playlist/track/all?id=${id}&pagesize=300&page=${page}`;
             const response = await get(url);
             if (response.status !== 1) {
                 window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
                 return;
             }
-            if (Object.keys(response.data.info).length === 0) {
-                break;
-            }
+            if (Object.keys(response.data.info).length === 0) break;
             allSongs = allSongs.concat(response.data.info);
-            if(response.data.info.length < 250){
-                break;
-            }
+            if(response.data.info.length < 300) break;
         }
         addPlaylistToQueue(allSongs);
     } catch (error) {
@@ -596,6 +587,9 @@ onUnmounted(() => {
     if (isElectron()) {
         window.electron.ipcRenderer.removeAllListeners('play-previous-track');
         window.electron.ipcRenderer.removeAllListeners('play-next-track');
+        window.electron.ipcRenderer.removeAllListeners('volume-up');
+        window.electron.ipcRenderer.removeAllListeners('volume-down');
+        window.electron.ipcRenderer.removeAllListeners('toggle-play-pause');
     }
 });
 const isElectron = () => {
@@ -625,6 +619,24 @@ const canRequestVip = () => {
     }
     localStorage.setItem('lastVipRequestTime', new Date().getTime().toString());
     return true;
+}
+
+const handleShortcut = (event) => {
+    if (isElectron()) {
+        window.electron.ipcRenderer.on('play-previous-track', () => playSongFromQueue('previous'));
+        window.electron.ipcRenderer.on('play-next-track', () => playSongFromQueue('next'));
+        window.electron.ipcRenderer.on('volume-up', () => {
+            volume.value = Math.min(volume.value + 10, 100);
+            changeVolume();
+        });
+        window.electron.ipcRenderer.on('volume-down', () => {
+            volume.value = Math.max(volume.value - 10, 0);
+            changeVolume();
+        });
+        window.electron.ipcRenderer.on('toggle-play-pause', () => {
+            togglePlayPause();
+        });
+    }
 }
 </script>
 

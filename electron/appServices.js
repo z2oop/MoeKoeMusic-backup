@@ -245,6 +245,18 @@ export function registerShortcut() {
     globalShortcut.register('Alt+CommandOrControl+Right', () => {
         mainWindow.webContents.send('play-next-track');
     });
+    globalShortcut.register('Alt+CommandOrControl+Up', () => {
+        mainWindow.webContents.send('volume-up');
+    });
+    globalShortcut.register('Alt+CommandOrControl+Down', () => {
+        mainWindow.webContents.send('volume-down');
+    });
+    globalShortcut.register('MediaPlayPause', () => {
+        mainWindow.webContents.send('toggle-play-pause');
+    });
+    globalShortcut.register('Alt+CommandOrControl+Space', () => {
+        mainWindow.webContents.send('toggle-play-pause'); 
+    });
 }
 // 播放启动问候语
 export function playStartupSound() {
