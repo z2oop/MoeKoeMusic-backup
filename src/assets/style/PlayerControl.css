@@ -136,7 +136,8 @@
     background-color: #ddd;
     position: relative;
     border-radius: 5px;
-    overflow: hidden;
+    overflow: visible;
+    cursor: pointer;
 }
 
 .progress {
@@ -145,6 +146,35 @@
     background-color: var(--primary-color);
     position: absolute;
     transition: width 0.2s ease;
+}
+
+.progress-handle {
+    width: 12px;
+    height: 12px;
+    background-color: #fff;
+    border: 2px solid var(--primary-color);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 2;
+    cursor: grab;
+    pointer-events: auto;
+}
+.progress-bar:active .progress-handle {
+    transform: translate(-50%, -50%) scale(1.2);
+    cursor: grabbing;
+}
+.progress-handle.dragging,
+.progress-bar:hover .progress-handle {
+    opacity: 1;
+}
+
+.progress-bar:hover .progress {
+    background-color: var(--primary-color);
+    opacity: 0.8;
 }
 
 .extra-controls {
@@ -487,4 +517,67 @@
 .loop-icon sup {
     position: absolute;
     font-size: 0.6em;
+}
+
+/* 全屏歌词界面的进度条样式 */
+.lyrics-screen .progress-bar {
+    flex-grow: 1;
+    height: 2px;
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    margin: 0 10px;
+    position: relative;
+    overflow: visible;
+}
+
+.lyrics-screen .progress-bar:hover .progress {
+    opacity: 0.8;
+}
+
+.progress-handle.dragging {
+    opacity: 1;
+}
+
+.time-tooltip {
+    position: absolute;
+    top: -25px;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* 歌词界面的时间提示样式 */
+.lyrics-screen .time-tooltip {
+    background-color: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+}
+
+/* 高潮点的样式 */
+.climax-point {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #fff;
+    border-radius: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* 普通界面的高潮点样式 */
+.player-container .climax-point {
+    background-color: var(--primary-color);
+    box-shadow: 0 0 4px var(--primary-color);
+}
+
+/* 歌词界面的高潮点样式 */
+.lyrics-screen .climax-point {
+    background-color: #ff69b4;
+    box-shadow: 0 0 4px #ff69b4;
 }

@@ -1,7 +1,22 @@
 <template>
     <div class="player-container">
-        <div class="progress-bar">
+        <div class="progress-bar" 
+            @mousedown="onProgressDragStart"
+            @click="updateProgressFromEvent"
+            @mousemove="updateTimeTooltip"
+            @mouseleave="hideTimeTooltip">
             <div class="progress" :style="{ width: progressWidth + '%' }"></div>
+            <div class="progress-handle" :style="{ left: progressWidth + '%' }"></div>
+            <div v-for="(point, index) in climaxPoints" 
+                 :key="index"
+                 class="climax-point"
+                 :style="{ left: point.position + '%' }">
+            </div>
+            <div v-if="showTimeTooltip" 
+                 class="time-tooltip" 
+                 :style="{ left: tooltipPosition + 'px' }">
+                {{ tooltipTime }}
+            </div>
         </div>
         <div class="player-bar">
             <div class="album-art" @click="toggleLyrics">
@@ -105,8 +120,23 @@
                     <!-- 播放进度条 -->
                     <div class="progress-bar-container">
                         <span class="current-time">{{ formattedCurrentTime }}</span>
-                        <div class="progress-bar">
+                        <div class="progress-bar" 
+                            @mousedown="onProgressDragStart"
+                            @click="updateProgressFromEvent"
+                            @mousemove="updateTimeTooltip"
+                            @mouseleave="hideTimeTooltip">
                             <div class="progress" :style="{ width: progressWidth + '%' }"></div>
+                            <div class="progress-handle" :style="{ left: progressWidth + '%' }"></div>
+                            <div v-for="(point, index) in climaxPoints" 
+                                 :key="index"
+                                 class="climax-point"
+                                 :style="{ left: point.position + '%' }">
+                            </div>
+                            <div v-if="showTimeTooltip" 
+                                 class="time-tooltip" 
+                                 :style="{ left: tooltipPosition + 'px' }">
+                                {{ tooltipTime }}
+                            </div>
                         </div>
                         <span class="duration">{{ formattedDuration }}</span>
                     </div>
@@ -181,6 +211,9 @@ const playbackModes = ref([
 ]);
 const currentPlaybackModeIndex = ref(0);
 const currentPlaybackMode = computed(() => playbackModes.value[currentPlaybackModeIndex.value]);
+const isProgressDragging = ref(false);
+const isDraggingHandle = ref(false);
+const climaxPoints = ref([]);
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
@@ -232,9 +265,22 @@ const playSong = (song) => {
     localStorage.setItem('current_song', JSON.stringify(currentSong.value));
     getLyrics(currentSong.value.hash)
     if (canRequestVip()) {
-        // 自动领取VIP
         get('/youth/vip')
     }
+    getMusicHighlights(currentSong.value.hash)
+};
+
+// 获取音乐高潮
+const getMusicHighlights = async (hash) => {
+    const response = await get(`/song/climax?hash=${hash}`);
+    if (response.status !== 1) {
+        climaxPoints.value = [];
+        return;
+    }
+    climaxPoints.value = response.data.map(point => ({
+        position: (parseInt(point.start_time) / 1000 / audio.duration) * 100,
+        duration: parseInt(point.timelength) / 1000
+    }));
 };
 
 // 从队列中播放歌曲
@@ -564,7 +610,9 @@ const highlightCurrentChar = (currentTime) => {
 // 节流处理
 const throttledHighlight = throttle(() => {
     currentTime.value = audio.currentTime; // 实时更新当前时间
-    progressWidth.value = (currentTime.value / audio.duration) * 100; // 更新进度条
+    if (!isProgressDragging.value) {  // 只在非拖动状态更新进度条
+        progressWidth.value = (currentTime.value / audio.duration) * 100;
+    }
     if (audio && showLyrics.value && lyricsData.value) {
         highlightCurrentChar(audio.currentTime);
     }
@@ -638,6 +686,109 @@ const handleShortcut = (event) => {
         });
     }
 }
+
+// 修改进度条拖动
+const onProgressDragStart = (event) => {
+    event.preventDefault();
+    
+    const currentProgressBar = event.target.closest('.progress-bar');
+    if (!currentProgressBar) return;
+    
+    // 检查是否点击在小圆点上
+    const handle = event.target.closest('.progress-handle');
+    if (!handle) {
+        if (!audio.duration) return;
+        const rect = currentProgressBar.getBoundingClientRect();
+        const offsetX = Math.max(0, Math.min(event.clientX - rect.left, currentProgressBar.offsetWidth));
+        const percentage = (offsetX / currentProgressBar.offsetWidth) * 100;
+        progressWidth.value = Math.max(0, Math.min(percentage, 100));
+    }
+    
+    isProgressDragging.value = true;
+    isDraggingHandle.value = true;
+    
+    activeProgressBar.value = currentProgressBar;
+    
+    document.addEventListener('mousemove', onProgressDrag);
+    document.addEventListener('mouseup', onProgressDragEnd);
+};
+
+// 添加一个 ref 来保存当前活动的进度条元素
+const activeProgressBar = ref(null);
+
+const onProgressDrag = (event) => {
+    event.preventDefault();
+    if (isProgressDragging.value && activeProgressBar.value) {
+        const rect = activeProgressBar.value.getBoundingClientRect();
+        const offsetX = Math.max(0, Math.min(event.clientX - rect.left, activeProgressBar.value.offsetWidth));
+        const percentage = (offsetX / activeProgressBar.value.offsetWidth) * 100;
+        progressWidth.value = Math.max(0, Math.min(percentage, 100));
+        
+        // 更新时间提示
+        tooltipPosition.value = offsetX;
+        const time = (percentage / 100) * audio.duration;
+        tooltipTime.value = formatTime(time);
+    }
+};
+
+const onProgressDragEnd = (event) => {
+    if (isProgressDragging.value && activeProgressBar.value) {
+        const rect = activeProgressBar.value.getBoundingClientRect();
+        const offsetX = Math.max(0, Math.min(event.clientX - rect.left, activeProgressBar.value.offsetWidth));
+        const percentage = (offsetX / activeProgressBar.value.offsetWidth) * 100;
+        const newTime = (percentage / 100) * audio.duration;
+        
+        audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
+    }
+    isProgressDragging.value = false;
+    isDraggingHandle.value = false;
+    showTimeTooltip.value = false;
+    activeProgressBar.value = null; 
+    document.removeEventListener('mousemove', onProgressDrag);
+    document.removeEventListener('mouseup', onProgressDragEnd);
+};
+
+// 修改点击进度条的处理方法
+const updateProgressFromEvent = (event) => {
+    if (isProgressDragging.value) return; // 如果正在拖动则不处理点击
+    
+    const progressBar = event.target.closest('.progress-bar');
+    if (!progressBar || !audio.duration) return;
+    
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = Math.max(0, Math.min(event.clientX - rect.left, progressBar.offsetWidth));
+    const percentage = (offsetX / progressBar.offsetWidth) * 100;
+    const newTime = (percentage / 100) * audio.duration;
+    
+    audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
+    progressWidth.value = percentage;
+};
+
+// 在进度条模板中添加时间提示
+const showTimeTooltip = ref(false);
+const tooltipPosition = ref(0);
+const tooltipTime = ref('0:00');
+
+const updateTimeTooltip = (event) => {
+    const progressBar = event.target.closest('.progress-bar');
+    if (!progressBar || !audio.duration) return;
+    
+    const rect = progressBar.getBoundingClientRect();
+    const offsetX = Math.max(0, Math.min(event.clientX - rect.left, progressBar.offsetWidth));
+    
+    tooltipPosition.value = offsetX;
+    const percentage = (offsetX / progressBar.offsetWidth);
+    const time = percentage * audio.duration;
+    tooltipTime.value = formatTime(time);
+    
+    showTimeTooltip.value = true;
+};
+
+const hideTimeTooltip = () => {
+    if (!isProgressDragging.value) {
+        showTimeTooltip.value = false;
+    }
+};
 </script>
 
 

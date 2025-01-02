@@ -1,6 +1,6 @@
 {
   "name": "moekoemusic",
-  "version": "1.0.0",
+  "version": "1.1.9",
   "main": "electron/main.js",
   "scripts": {
     "install-all": "npm install && cd api && npm install",
@@ -69,6 +69,21 @@
           ]
         }
       ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": true,
+      "installerIcon": "build/icons/icon.ico",
+      "uninstallerIcon": "build/icons/icon.ico",
+      "installerHeaderIcon": "build/icons/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MoeKoe Music",
+      "include": "build/installer.nsh",
+      "license": "build/license.txt",
+      "language": "2052",
+      "warningsAsErrors": true
     },
     "mac": {
       "icon": "build/icons/icon.icns",
