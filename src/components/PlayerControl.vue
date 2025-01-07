@@ -256,18 +256,37 @@ const easterEggImage = computed(() => {
 });
 const easterEggClass = computed(() => easterEggImage.value?.class || '');
 // 播放音乐
-const playSong = (song) => {
-    currentSong.value = structuredClone(song);
-    lyricsData.value = [];
-    audio.src = song.url;
-    audio.play();
-    playing.value = true;
-    localStorage.setItem('current_song', JSON.stringify(currentSong.value));
-    getLyrics(currentSong.value.hash)
-    if (canRequestVip()) {
-        get('/youth/vip')
+const playSong = async (song) => {
+    try {
+        currentSong.value = structuredClone(song);
+        lyricsData.value = [];
+        audio.src = song.url;
+        try {
+            await audio.play();
+            playing.value = true;
+        } catch (playError) {
+            console.warn('播放被中断，尝试重新播放:', playError);
+            setTimeout(async () => {
+                try {
+                    await audio.play();
+                    playing.value = true;
+                } catch (retryError) {
+                    window.$modal.alert(t('bo-fang-shi-bai'));
+                    playing.value = false;
+                }
+            }, 100);
+        }
+
+        localStorage.setItem('current_song', JSON.stringify(currentSong.value));
+        getLyrics(currentSong.value.hash);
+        if (canRequestVip()) {
+            get('/youth/vip');
+        }
+        getMusicHighlights(currentSong.value.hash);
+    } catch (error) {
+        console.error('播放音乐时发生错误:', error);
+        playing.value = false;
     }
-    getMusicHighlights(currentSong.value.hash)
 };
 
 // 获取音乐高潮
@@ -731,6 +750,36 @@ const onProgressDrag = (event) => {
     }
 };
 
+// 重置歌词高亮
+const resetLyricsHighlight = (currentTimeInSeconds) => {
+    if (!lyricsData.value) return;
+    
+    // 重置所有字符的高亮状态
+    lyricsData.value.forEach((lineData, lineIndex) => {
+        lineData.characters.forEach(charData => {
+            charData.highlighted = (currentTimeInSeconds * 1000 >= charData.startTime);
+        });
+        
+        // 找到当前应该显示的行
+        const isCurrentLine = lineData.characters.some(char => 
+            currentTimeInSeconds * 1000 >= char.startTime && 
+            currentTimeInSeconds * 1000 <= char.endTime
+        );
+        
+        if (isCurrentLine) {
+            currentLineIndex = lineIndex;
+            const lyricsContainer = document.getElementById('lyrics-container');
+            if (!lyricsContainer) return;
+            const containerHeight = lyricsContainer.offsetHeight;
+            const lineElement = document.querySelectorAll('.line')[lineIndex];
+            if (lineElement) {
+                const lineHeight = lineElement.offsetHeight;
+                scrollAmount.value = -lineElement.offsetTop + (containerHeight / 2) - (lineHeight / 2);
+            }
+        }
+    });
+};
+
 const onProgressDragEnd = (event) => {
     if (isProgressDragging.value && activeProgressBar.value) {
         const rect = activeProgressBar.value.getBoundingClientRect();
@@ -739,6 +788,7 @@ const onProgressDragEnd = (event) => {
         const newTime = (percentage / 100) * audio.duration;
         
         audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
+        resetLyricsHighlight(audio.currentTime);
     }
     isProgressDragging.value = false;
     isDraggingHandle.value = false;
@@ -762,6 +812,7 @@ const updateProgressFromEvent = (event) => {
     
     audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
     progressWidth.value = percentage;
+    resetLyricsHighlight(audio.currentTime);
 };
 
 // 在进度条模板中添加时间提示
