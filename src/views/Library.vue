@@ -16,7 +16,7 @@
                 <ul>
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
                         @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.author_name)">
-                        <img :src="$getCover(song.image, 120)" alt="album cover" class="album-cover" />
+                        <img :src="song.image ? $getCover(song.image, 120) : './assets/images/ico.png'" alt="cover" class="album-cover" />
                         <div class="song-info">
                             <p class="album-name">{{ song.name.split(' - ')[1] || song.name }}</p>
                             <p class="singer-name">{{ song.singername }}</p>
@@ -36,34 +36,21 @@
 
         <!-- 音乐卡片网格（显示歌单或关注的歌手） -->
         <div class="music-grid">
-            <div v-if="selectedCategory === 0" class="music-card" v-for="(playlist, index) in userPlaylists"
-                :key="index">
-                <router-link :to="{
-                    path: '/PlaylistDetail',
-                    query: { global_collection_id: playlist.list_create_gid }
-                }">
-                    <img :src="playlist.pic ? $getCover(playlist.pic, 480) : './assets/images/live.png'"
-                        alt="playlist cover" class="album-image" />
-                    <div class="album-info">
-                        <h3>{{ playlist.name }}</h3>
-                        <p>{{ playlist.count }} <span>{{ $t('shou-ge') }}</span></p>
-                    </div>
-                </router-link>
-            </div>
-            <div v-if="selectedCategory === 1" class="music-card" v-for="(playlist, index) in collectedPlaylists"
-                :key="index">
-                <router-link :to="{
-                    path: '/PlaylistDetail',
-                    query: { global_collection_id: playlist.list_create_gid }
-                }">
-                    <img :src="$getCover(playlist.pic, 480)" alt="playlist cover" class="album-image" />
-                    <div class="album-info">
-                        <h3>{{ playlist.name }}</h3>
-                        <p>{{ playlist.count }} <span>{{ $t('shou-ge') }}</span></p>
-                    </div>
-                </router-link>
-            </div>
-            <div v-if="selectedCategory === 2" class="music-card" v-for="(artist, index) in followedArtists"
+            <template v-if="selectedCategory === 0 || selectedCategory === 1 || selectedCategory === 2">
+                <div class="music-card" v-for="(item, index) in (selectedCategory === 0 ? userPlaylists : selectedCategory === 1 ? collectedPlaylists : collectedAlbums)" :key="index">
+                    <router-link :to="{
+                        path: '/PlaylistDetail',
+                        query: { global_collection_id: item.list_create_gid || item.global_collection_id }
+                    }">
+                        <img :src="item.pic ? $getCover(item.pic, 480) : './assets/images/live.png'" class="album-image" />
+                        <div class="album-info">
+                            <h3>{{ item.name }}</h3>
+                            <p>{{ item.count }} <span>{{ $t('shou-ge') }}</span></p>
+                        </div>
+                    </router-link>
+                </div>
+            </template>
+            <div v-if="selectedCategory === 3" class="music-card" v-for="(artist, index) in followedArtists"
                 :key="index">
 
                 <img :src="artist.pic" alt="artist avatar" class="album-image" />
@@ -88,10 +75,11 @@ const MoeAuth = MoeAuthStore();
 const user = ref({});
 const userPlaylists = ref([]);
 const collectedPlaylists = ref([]);
+const collectedAlbums = ref([]);
 const followedArtists = ref([]);
 const listenHistory = ref([]);
 const userVip = ref({});
-const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-guan-zhu-de-ge-shou')]);
+const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou')]);
 const selectedCategory = ref(0);
 const selectCategory = (index) => {
     selectedCategory.value = index;
@@ -153,8 +141,9 @@ const getfollow = async () => {
 const getplaylist = async () => {
     const playlistResponse = await get('/user/playlist?pagesize=100');
     if (playlistResponse.status === 1) {
-        userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username === user.value.nickname || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
-        collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username !== user.value.nickname);
+        userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
+        collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
+        collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
     }
 }
 </script>
