@@ -74,33 +74,52 @@ export function createWindow() {
             mainWindow.hide();
         }
     });
-    // createLyricsWindow()
+    createLyricsWindow();
     return mainWindow;
 }
 
 let lyricsWindow;
 
 function createLyricsWindow() {
+    const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+    const windowWidth = 400;
+    const windowHeight = 100;
+    
     lyricsWindow = new BrowserWindow({
-        width: 400,
-        height: 100,
-        alwaysOnTop: true, // 置顶
-        frame: false, // 无边框
-        transparent: true, // 背景透明
-        resizable: false, // 禁止调整大小
-        skipTaskbar: true, // 不显示在任务栏
+        width: windowWidth,
+        height: windowHeight,
+        x: Math.floor((screenWidth - windowWidth) / 2),  // 水平居中
+        y: screenHeight - windowHeight - 20,  // 距离底部20像素
+        alwaysOnTop: true,
+        frame: false,
+        transparent: true,
+        resizable: false,
+        skipTaskbar: true,
+        hasShadow: false,
         webPreferences: {
-            nodeIntegration: true, // 允许 Node.js 集成
-            contextIsolation: false, // 允许与渲染进程共享上下文
+            preload: path.join(__dirname, 'preload.cjs'),  // 使用相同的preload脚本
+            contextIsolation: true,
+            nodeIntegration: false,
+            sandbox: false,
+            webSecurity: true
         }
     });
+    // lyricsWindow.setIgnoreMouseEvents(true, { forward: true });
 
-    // 加载桌面歌词的 HTML 文件
-    //   lyricsWindow.loadFile('lyrics.html');
+    if (isDev) {
+        lyricsWindow.loadURL('http://localhost:8080/#/lyrics');
+        lyricsWindow.webContents.openDevTools();
+    } else {
+        lyricsWindow.loadFile(path.join(__dirname, '../dist/index.html'), {
+            hash: 'lyrics'
+        });
+    }
 
-    lyricsWindow.loadURL(`http://127.0.0.1:8080/#/lyrics`);
-    // 可选：设置窗口置顶级别为屏幕最前面
+    // 设置窗口置顶级别
     lyricsWindow.setAlwaysOnTop(true, 'screen-saver');
+    
+    // 允许窗口透明
+    lyricsWindow.setBackgroundColor('#00000000');
 }
 
 // 创建托盘图标及菜单

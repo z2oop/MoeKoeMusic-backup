@@ -30,7 +30,7 @@ jobs:
           MINOR=$(echo $VERSION | awk -F. '{print $2}')
           PATCH=$(echo $VERSION | awk -F. '{print $3}')
           PATCH=$((PATCH + 1))
-          if [ "$PATCH" -gt 10 ]; then
+          if [ "$PATCH" -gt 9 ]; then
             PATCH=0
             MINOR=$((MINOR + 1))
           fi
@@ -63,7 +63,7 @@ jobs:
 
       - name: Rename Windows artifact
         run: |
-          mv "./dist_electron/MoeKoe Music Setup 1.1.9.exe" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
+          mv "./dist_electron/MoeKoe Music Setup.exe" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
 
       - name: Upload Windows artifact to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -101,8 +101,8 @@ jobs:
 
       - name: Rename macOS artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.1.9-arm64.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
-          mv "./dist_electron/MoeKoe Music-1.1.9-arm64-mac.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
+          mv "./dist_electron/MoeKoe Music-arm64.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
+          mv "./dist_electron/MoeKoe Music-arm64-mac.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
       
       - name: List files after renaming
         run: ls -al ./dist_electron
@@ -145,8 +145,8 @@ jobs:
 
       - name: Rename Linux artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music-1.1.9.AppImage" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
-          mv "./dist_electron/moekoemusic_1.1.9_amd64.deb" "./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
+          mv "./dist_electron/MoeKoe Music.AppImage" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
+          mv "./dist_electron/moekoemusic_amd64.deb" "./moekoemusic_${{ needs.increment-version.outputs.version }}_amd64.deb"
 
       - name: Upload Linux artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
