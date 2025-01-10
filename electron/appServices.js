@@ -75,6 +75,7 @@ export function createWindow() {
         }
     });
     createLyricsWindow();
+    mainWindow.lyricsWindow = lyricsWindow;
     return mainWindow;
 }
 

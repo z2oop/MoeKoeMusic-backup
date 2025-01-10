@@ -90,3 +90,17 @@ app.on('will-quit', () => {
 ipcMain.on('save-settings', (event, settings) => {
     store.set('settings', settings);
 });
+
+ipcMain.on('update-current-time', (event, time) => {
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (lyricsWindow) {
+        lyricsWindow.webContents.send('update-current-time', time);
+    }
+});
+
+ipcMain.on('lyrics-data', (event, lyricsData) => {
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (lyricsWindow) {
+        lyricsWindow.webContents.send('lyrics-data', lyricsData);
+    }
+});

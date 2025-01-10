@@ -25,7 +25,13 @@
                 </div>
             </div>
             <div class="lyrics-content">
-                {{ currentLyric }}
+                <span v-if="currentLyric">
+                    <span v-for="(char, index) in currentLyric.characters" :key="index" class="highlight-char" :style="{
+                        backgroundPosition: `${(1 - char.progress) * 100}% 0`
+                    }">
+                        {{ char.char }}
+                    </span>
+                </span>
             </div>
         </div>
     </div>
@@ -34,9 +40,50 @@
 <script setup>
 import { ref } from 'vue'
 
-const currentLyric = ref('暂无歌词')
+const currentLyric = ref({ characters: [] })
 const isPlaying = ref(false)
 const isLocked = ref(false)
+const parsedLyrics = ref([])
+
+// 更新逐字歌词的进度
+const updateCurrentLyric = (time) => {
+    if (!parsedLyrics.value || parsedLyrics.value.length === 0) {
+        currentLyric.value = { characters: [] };
+        return;
+    }
+
+    const currentTimeMs = time * 1000; 
+
+    for (const line of parsedLyrics.value) {
+        const lineStartTime = line.characters[0]?.startTime || 0;
+        const lineEndTime = line.characters[line.characters.length - 1]?.endTime || 0;
+
+        if (currentTimeMs >= lineStartTime && currentTimeMs < lineEndTime) {
+            const updatedCharacters = line.characters.map(char => {
+                const charProgress = Math.min(
+                    Math.max((currentTimeMs - char.startTime) / (char.endTime - char.startTime), 0),
+                    1
+                );
+                return { ...char, progress: charProgress };
+            });
+            currentLyric.value = { ...line, characters: updatedCharacters };
+            break;
+        }
+    }
+};
+
+window.electron.ipcRenderer.on('update-current-time', (time) => {
+    updateCurrentLyric(time)
+});
+
+window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
+    if (!newLyrics || newLyrics.length === 0) {
+        currentLyric.value = { characters: [] }
+        parsedLyrics.value = []
+    } else {
+        parsedLyrics.value = newLyrics
+    }
+});
 
 const previousSong = () => {
     emit('previous-song')
@@ -65,7 +112,7 @@ const emit = defineEmits(['previous-song', 'next-song', 'toggle-play', 'toggle-l
 <style>
 body,
 html {
-    background-color: rgba(0, 0, 0, 0);
+    background-color: rgba(0, 0, 0, 0) !important;
 }
 </style>
 
@@ -91,15 +138,6 @@ html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-}
-
-.lyrics-content {
-    color: white;
-    font-size: 24px;
-    text-align: center;
-    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-    padding: 10px;
-    z-index: 1;
 }
 
 .controls-overlay {
@@ -192,4 +230,27 @@ html {
 .lyrics-container:hover .locked-controls .lock-button {
     opacity: 1;
 }
+
+.lyrics-content {
+    font-size: 32px;
+    text-align: center;
+    z-index: 1;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.highlight-char {
+    color: transparent;
+    background: linear-gradient(to right, #FF69B4 50%, #878787 50%);
+    background-size: 200% 100%;
+    background-position: 100% 0px;
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: background-position 0.6s ease;
+}
+
 </style>

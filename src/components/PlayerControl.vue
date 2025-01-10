@@ -280,7 +280,11 @@ const playSong = async (song) => {
         localStorage.setItem('current_song', JSON.stringify(currentSong.value));
         getLyrics(currentSong.value.hash);
         if (canRequestVip()) {
-            get('/youth/vip');
+            try {
+                await get('/youth/vip');
+            } catch (error) {
+                console.error('领取VIP失败:', error);
+            }
         }
         getMusicHighlights(currentSong.value.hash);
     } catch (error) {
@@ -582,6 +586,7 @@ const parseLyrics = (text) => {
         })
         .filter((line) => line);
     lyricsData.value = parsedLyrics;
+    window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
 };
 const centerFirstLine = () => {
     const lyricsContainer = document.getElementById('lyrics-container');
@@ -634,6 +639,7 @@ const throttledHighlight = throttle(() => {
     }
     if (audio && showLyrics.value && lyricsData.value) {
         highlightCurrentChar(audio.currentTime);
+        window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
     }
 }, 200);
 // 启动监听
