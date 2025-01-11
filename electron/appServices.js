@@ -74,14 +74,17 @@ export function createWindow() {
             mainWindow.hide();
         }
     });
-    createLyricsWindow();
-    mainWindow.lyricsWindow = lyricsWindow;
+    
+    const savedConfig = store.get('settings');
+    if(savedConfig.desktopLyrics === 'on'){
+        createLyricsWindow();
+    }
     return mainWindow;
 }
 
 let lyricsWindow;
 
-function createLyricsWindow() {
+export function createLyricsWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
     const windowWidth = 400;
     const windowHeight = 100;
@@ -106,7 +109,7 @@ function createLyricsWindow() {
         }
     });
     // lyricsWindow.setIgnoreMouseEvents(true, { forward: true });
-
+    mainWindow.lyricsWindow = lyricsWindow;
     if (isDev) {
         lyricsWindow.loadURL('http://localhost:8080/#/lyrics');
         lyricsWindow.webContents.openDevTools();

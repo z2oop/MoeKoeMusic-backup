@@ -25,25 +25,33 @@
                 </div>
             </div>
             <div class="lyrics-content">
-                <span v-if="currentLyric">
+                <span v-if="currentLyric && currentLyric.characters.length > 0">
                     <span v-for="(char, index) in currentLyric.characters" :key="index" class="highlight-char" :style="{
                         backgroundPosition: `${(1 - char.progress) * 100}% 0`
                     }">
                         {{ char.char }}
                     </span>
                 </span>
+                <span v-else>暂无歌词</span>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
+import { ref, onMounted } from 'vue'
 const currentLyric = ref({ characters: [] })
 const isPlaying = ref(false)
 const isLocked = ref(false)
 const parsedLyrics = ref([])
+
+onMounted(() => {
+    const savedConfig = JSON.parse(localStorage.getItem('settings'));
+    const lyricsFontSize = savedConfig.lyricsFontSize || '32px';
+    document.querySelector('.lyrics-content').style.fontSize = lyricsFontSize;
+})
+
+
 
 // 更新逐字歌词的进度
 const updateCurrentLyric = (time) => {
@@ -72,6 +80,10 @@ const updateCurrentLyric = (time) => {
     }
 };
 
+window.electron.ipcRenderer.on('lyrics-font-size', (fontSize) => {
+    document.querySelector('.lyrics-content').style.fontSize = fontSize;
+});
+
 window.electron.ipcRenderer.on('update-current-time', (time) => {
     updateCurrentLyric(time)
 });
@@ -86,16 +98,16 @@ window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
 });
 
 const previousSong = () => {
-    emit('previous-song')
+    window.electron.ipcRenderer.send('desktop-lyrics-action', 'previous-song');
 }
 
 const nextSong = () => {
-    emit('next-song')
+    window.electron.ipcRenderer.send('desktop-lyrics-action', 'next-song');
 }
 
 const togglePlay = () => {
     isPlaying.value = !isPlaying.value
-    emit('toggle-play')
+    window.electron.ipcRenderer.send('desktop-lyrics-action', 'toggle-play');
 }
 
 const toggleLock = () => {
@@ -103,10 +115,9 @@ const toggleLock = () => {
 }
 
 const closeLyrics = () => {
-    emit('close-lyrics')
+    window.electron.ipcRenderer.send('desktop-lyrics-action', 'close-lyrics');
 }
 
-const emit = defineEmits(['previous-song', 'next-song', 'toggle-play', 'toggle-lock', 'close-lyrics'])
 </script>
 
 <style>
@@ -232,7 +243,6 @@ html {
 }
 
 .lyrics-content {
-    font-size: 32px;
     text-align: center;
     z-index: 1;
     font-weight: bold;

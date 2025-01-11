@@ -48,14 +48,14 @@
                 </div>
             </div>
 
-            <div class="setting-item">
+            <div class="setting-item" @click="openSelection('desktopLyrics')">
                 <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }}</span>
                 <div class="setting-control">
                     <span>{{ selectedSettings.desktopLyrics.displayText }}</span>
                 </div>
             </div>
 
-            <div class="setting-item">
+            <div class="setting-item" @click="openSelection('lyricsFontSize')">
                 <span>{{ $t('ge-ci-zi-ti-da-xiao') }}</span>
                 <div class="setting-control">
                     <span>{{ selectedSettings.lyricsFontSize.displayText }}</span>
@@ -152,9 +152,9 @@ const selectionTypeMap = {
     lyricsFontSize: {
         title: t('ge-ci-zi-ti-da-xiao'),
         options: [
-            { displayText: t('xiao'), value: 'small' },
-            { displayText: t('zhong'), value: 'medium' },
-            { displayText: t('da'), value: 'large' }
+            { displayText: t('xiao'), value: '24px' },
+            { displayText: t('zhong'), value: '32px' },
+            { displayText: t('da'), value: '40px' }
         ]
     },
     greetings: {
@@ -182,16 +182,36 @@ const selectOption = (option) => {
     }else if( selectionType.value === 'quality' && !MoeAuth.isAuthenticated) {
         window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
         return
+    }else if(selectionType.value === 'desktopLyrics'){
+        const action = selectedSettings.value.desktopLyrics.value === 'on' ? 'display-lyrics' : 'close-lyrics';
+        if(isElectron()){
+            window.electron.ipcRenderer.send('desktop-lyrics-action', action);
+        }else{
+            window.$modal.alert('非客户端环境，无法启用');
+            return;
+        }
+    }else if(selectionType.value === 'lyricsFontSize'){
+        if(isElectron()){
+            window.electron.ipcRenderer.send('lyrics-font-size', selectedSettings.value.lyricsFontSize.value);
+        }else{
+            window.$modal.alert('非客户端环境，无法启用');
+            return;
+        }
     }
     saveSettings();
     closeSelection();
 };
+
+const isElectron = () => {
+    return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
+};
+
 const saveSettings = () => {
     const settingsToSave = Object.fromEntries(
         Object.entries(selectedSettings.value).map(([key, setting]) => [key, setting.value])
     );
     localStorage.setItem('settings', JSON.stringify(settingsToSave));
-    window.electron && window.electron.ipcRenderer.send('save-settings',settingsToSave);
+    isElectron() && window.electron.ipcRenderer.send('save-settings',settingsToSave);
 };
 
 const closeSelection = () => {

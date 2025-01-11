@@ -1,5 +1,5 @@
 import { app, ipcMain, globalShortcut, dialog } from 'electron';
-import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound } from './appServices.js';
+import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound, createLyricsWindow } from './appServices.js';
 import Store from 'electron-store';
 
 let mainWindow = null;
@@ -104,3 +104,35 @@ ipcMain.on('lyrics-data', (event, lyricsData) => {
         lyricsWindow.webContents.send('lyrics-data', lyricsData);
     }
 });
+
+ipcMain.on('lyrics-font-size', (event, fontSize) => {
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (lyricsWindow) {
+        lyricsWindow.webContents.send('lyrics-font-size', fontSize);
+    }
+});
+
+// 监听桌面歌词操作
+ipcMain.on('desktop-lyrics-action', (event, action) => {
+    switch (action) {
+        case 'previous-song':
+            mainWindow.webContents.send('play-previous-track');
+            break;
+        case 'next-song':
+            mainWindow.webContents.send('play-next-track');
+            break;
+        case 'toggle-play':
+            mainWindow.webContents.send('toggle-play-pause');
+            break;
+        case 'close-lyrics':
+            const lyricsWindow = mainWindow.lyricsWindow;
+            if (lyricsWindow) {
+                lyricsWindow.close();
+            }
+            break;
+        case 'display-lyrics':
+            createLyricsWindow();
+            break;
+    }
+});
+

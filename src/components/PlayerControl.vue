@@ -183,7 +183,9 @@ import { RecycleScroller } from 'vue3-virtual-scroller';
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; 
 import { get } from '../utils/request'; 
 import { useMusicQueueStore } from '../stores/musicQueue'; 
+import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
+const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
 const isDragging = ref(false);
@@ -279,7 +281,7 @@ const playSong = async (song) => {
 
         localStorage.setItem('current_song', JSON.stringify(currentSong.value));
         getLyrics(currentSong.value.hash);
-        if (canRequestVip()) {
+        if (MoeAuth.isAuthenticated && canRequestVip()) {
             try {
                 await get('/youth/vip');
             } catch (error) {
@@ -550,7 +552,8 @@ const toggleLyrics = async () => {
 
 // 请求歌词
 const getLyrics = async (hash) => {
-    if (!showLyrics.value) return;
+    const savedConfig = JSON.parse(localStorage.getItem('settings'));
+    if (!showLyrics.value &&  savedConfig.desktopLyrics === 'off') return;
     const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
     if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
         SongTips.value = t('zan-wu-ge-ci');
@@ -586,7 +589,10 @@ const parseLyrics = (text) => {
         })
         .filter((line) => line);
     lyricsData.value = parsedLyrics;
-    window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
+    const savedConfig = JSON.parse(localStorage.getItem('settings'));
+    if(isElectron() && savedConfig.desktopLyrics === 'on'){
+        window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
+    }
 };
 const centerFirstLine = () => {
     const lyricsContainer = document.getElementById('lyrics-container');
@@ -637,9 +643,16 @@ const throttledHighlight = throttle(() => {
     if (!isProgressDragging.value) {  // 只在非拖动状态更新进度条
         progressWidth.value = (currentTime.value / audio.duration) * 100;
     }
-    if (audio && showLyrics.value && lyricsData.value) {
-        highlightCurrentChar(audio.currentTime);
-        window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
+    const savedConfig = JSON.parse(localStorage.getItem('settings'));
+    if (audio && lyricsData.value) {
+        if(showLyrics.value){
+            highlightCurrentChar(audio.currentTime);
+        }
+        if(isElectron() && savedConfig.desktopLyrics === 'on'){
+            window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
+        }
+    }else if(isElectron() && savedConfig.desktopLyrics === 'on'){
+        getLyrics(currentSong.value.hash)
     }
 }, 200);
 // 启动监听
