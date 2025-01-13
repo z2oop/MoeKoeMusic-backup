@@ -4,13 +4,13 @@
         <div class="controls-overlay">
             <div class="controls-wrapper" :class="{ 'locked-controls': isLocked }">
                 <template v-if="!isLocked">
-                    <button @click="previousSong">
+                    <button @click="sendAction('previous-song')">
                         <i class="fas fa-step-backward"></i>
                     </button>
                     <button @click="togglePlay">
                         <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
                     </button>
-                    <button @click="nextSong">
+                    <button @click="sendAction('next-song')">
                         <i class="fas fa-step-forward"></i>
                     </button>
                 </template>
@@ -18,7 +18,7 @@
                     <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
                 </button>
                 <template v-if="!isLocked">
-                    <button @click="closeLyrics">
+                    <button @click="sendAction('close-lyrics')">
                         <i class="fas fa-times"></i>
                     </button>
                 </template>
@@ -146,27 +146,18 @@ window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
         nextLyric.value = parsedLyrics.value[1] || { characters: [] }
     }
 });
-
-const previousSong = () => {
-    window.electron.ipcRenderer.send('desktop-lyrics-action', 'previous-song');
-}
-
-const nextSong = () => {
-    window.electron.ipcRenderer.send('desktop-lyrics-action', 'next-song');
+const sendAction = (action) => {
+    window.electron.ipcRenderer.send('desktop-lyrics-action', action);
 }
 
 const togglePlay = () => {
     isPlaying.value = !isPlaying.value
-    window.electron.ipcRenderer.send('desktop-lyrics-action', 'toggle-play');
+    sendAction('toggle-play');
 }
 
 const toggleLock = () => {
     isLocked.value = !isLocked.value
     localStorage.setItem('lyrics-lock', isLocked.value)
-}
-
-const closeLyrics = () => {
-    window.electron.ipcRenderer.send('desktop-lyrics-action', 'close-lyrics');
 }
 
 </script>
@@ -245,9 +236,7 @@ html {
 }
 
 .lyrics-content {
-    display: flex;
     width: 100%;
-    justify-content: space-between;
 }
 .lyrics-content:hover {
     cursor: move;
@@ -255,11 +244,12 @@ html {
 
 .lyrics-top-left {
     font-weight: bold;
+    text-align: left;
 }
 
 .lyrics-bottom-right {
     font-weight: bold;
-    margin-top: 42px;
+    text-align: right;
 }
 
 
