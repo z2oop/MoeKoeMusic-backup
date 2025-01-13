@@ -86,14 +86,14 @@ let lyricsWindow;
 
 export function createLyricsWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
-    const windowWidth = 400;
-    const windowHeight = 100;
+    const windowWidth = 800;
+    const windowHeight = 150;
     
     lyricsWindow = new BrowserWindow({
         width: windowWidth,
         height: windowHeight,
-        x: Math.floor((screenWidth - windowWidth) / 2),  // 水平居中
-        y: screenHeight - windowHeight - 20,  // 距离底部20像素
+        x: Math.floor((screenWidth - windowWidth) / 2), 
+        y: screenHeight - windowHeight, 
         alwaysOnTop: true,
         frame: false,
         transparent: true,
@@ -101,14 +101,13 @@ export function createLyricsWindow() {
         skipTaskbar: true,
         hasShadow: false,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.cjs'),  // 使用相同的preload脚本
+            preload: path.join(__dirname, 'preload.cjs'), 
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: false,
             webSecurity: true
         }
     });
-    // lyricsWindow.setIgnoreMouseEvents(true, { forward: true });
     mainWindow.lyricsWindow = lyricsWindow;
     if (isDev) {
         lyricsWindow.loadURL('http://localhost:8080/#/lyrics');

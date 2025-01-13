@@ -1,32 +1,44 @@
 <template>
-    <div class="lyrics-container" :class="{ 'draggable': !isLocked }">
-        <div class="lyrics-wrapper">
-            <div class="controls-overlay" :class="{ 'locked-state': isLocked }">
-                <div class="controls-wrapper" :class="{ 'locked-controls': isLocked }">
-                    <template v-if="!isLocked">
-                        <button @click="previousSong">
-                            <i class="fas fa-step-backward"></i>
-                        </button>
-                        <button @click="togglePlay">
-                            <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
-                        </button>
-                        <button @click="nextSong">
-                            <i class="fas fa-step-forward"></i>
-                        </button>
-                    </template>
-                    <button @click="toggleLock" class="lock-button">
-                        <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
+    <div class="lyrics-container">
+        <!-- 控制栏 -->
+        <div class="controls-overlay">
+            <div class="controls-wrapper" :class="{ 'locked-controls': isLocked }">
+                <template v-if="!isLocked">
+                    <button @click="previousSong">
+                        <i class="fas fa-step-backward"></i>
                     </button>
-                    <template v-if="!isLocked">
-                        <button @click="closeLyrics">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </template>
-                </div>
+                    <button @click="togglePlay">
+                        <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+                    </button>
+                    <button @click="nextSong">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </template>
+                <button @click="toggleLock" class="lock-button">
+                    <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
+                </button>
+                <template v-if="!isLocked">
+                    <button @click="closeLyrics">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </template>
             </div>
-            <div class="lyrics-content">
+        </div>
+        <!-- 歌词内容 -->
+        <div class="lyrics-content">
+            <div class="lyrics-top-left">
                 <span v-if="currentLyric && currentLyric.characters.length > 0">
                     <span v-for="(char, index) in currentLyric.characters" :key="index" class="highlight-char" :style="{
+                        backgroundPosition: `${(1 - char.progress) * 100}% 0`
+                    }">
+                        {{ char.char }}
+                    </span>
+                </span>
+                <span v-else>暂无歌词</span>
+            </div>
+            <div class="lyrics-bottom-right">
+                <span v-if="nextLyric && nextLyric.characters.length > 0">
+                    <span v-for="(char, index) in nextLyric.characters" :key="index" class="highlight-char" :style="{
                         backgroundPosition: `${(1 - char.progress) * 100}% 0`
                     }">
                         {{ char.char }}
@@ -39,30 +51,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 const currentLyric = ref({ characters: [] })
+const nextLyric = ref({ characters: [] })
 const isPlaying = ref(false)
 const isLocked = ref(false)
 const parsedLyrics = ref([])
-
+let currentIndex = ref(0)
+let controlsOverlay = null;
 onMounted(() => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
     const lyricsFontSize = savedConfig.lyricsFontSize || '32px';
     document.querySelector('.lyrics-content').style.fontSize = lyricsFontSize;
+    isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
+    setWindowIgnoreMouseEvents(true);
+
+    // 添加鼠标移动事件监听
+    controlsOverlay = document.querySelector('.controls-overlay');
+    controlsOverlay.addEventListener('mousemove', ()=>setWindowIgnoreMouseEvents(false));
+    controlsOverlay.addEventListener('mouseleave', ()=>setWindowIgnoreMouseEvents(true));
 })
-
-
-
+const setWindowIgnoreMouseEvents = (ignore) => {
+    window.electron.ipcRenderer.send('set-ignore-mouse-events', ignore);
+};
+// 窗口关闭取消监听
+onBeforeUnmount(() => {
+    controlsOverlay.removeEventListener('mousemove', handleMouseMove);
+    controlsOverlay.removeEventListener('mouseleave', handleMouseLeave);
+})
 // 更新逐字歌词的进度
 const updateCurrentLyric = (time) => {
     if (!parsedLyrics.value || parsedLyrics.value.length === 0) {
         currentLyric.value = { characters: [] };
+        nextLyric.value = { characters: [] };
         return;
     }
 
-    const currentTimeMs = time * 1000; 
+    const currentTimeMs = time * 1000;
 
-    for (const line of parsedLyrics.value) {
+    for (let i = currentIndex.value; i < parsedLyrics.value.length; i++) {
+        const line = parsedLyrics.value[i];
         const lineStartTime = line.characters[0]?.startTime || 0;
         const lineEndTime = line.characters[line.characters.length - 1]?.endTime || 0;
 
@@ -74,7 +102,24 @@ const updateCurrentLyric = (time) => {
                 );
                 return { ...char, progress: charProgress };
             });
-            currentLyric.value = { ...line, characters: updatedCharacters };
+
+            if (i === currentIndex.value) {
+                currentLyric.value = { ...line, characters: updatedCharacters };
+            } else {
+                nextLyric.value = { ...line, characters: updatedCharacters };
+            }
+
+            // 检查当前行是否播放完毕
+            if (updatedCharacters.every(char => char.progress === 1) && i === currentIndex.value) {
+                // 当前行播放完毕，切换到下一行
+                currentIndex.value++;
+                currentLyric.value = nextLyric.value;
+                if (currentIndex.value + 1 < parsedLyrics.value.length) {
+                    nextLyric.value = parsedLyrics.value[currentIndex.value + 1];
+                } else {
+                    nextLyric.value = { characters: [] };
+                }
+            }
             break;
         }
     }
@@ -89,11 +134,16 @@ window.electron.ipcRenderer.on('update-current-time', (time) => {
 });
 
 window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
+    console.log(newLyrics)
     if (!newLyrics || newLyrics.length === 0) {
         currentLyric.value = { characters: [] }
+        nextLyric.value = { characters: [] }
         parsedLyrics.value = []
     } else {
         parsedLyrics.value = newLyrics
+        currentIndex.value = 0
+        currentLyric.value = parsedLyrics.value[0] || { characters: [] }
+        nextLyric.value = parsedLyrics.value[1] || { characters: [] }
     }
 });
 
@@ -112,6 +162,7 @@ const togglePlay = () => {
 
 const toggleLock = () => {
     isLocked.value = !isLocked.value
+    localStorage.setItem('lyrics-lock', isLocked.value)
 }
 
 const closeLyrics = () => {
@@ -129,48 +180,23 @@ html {
 
 <style scoped>
 .lyrics-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
     backdrop-filter: blur(8px);
     border-radius: 8px;
     user-select: none;
-}
-
-.draggable {
-    -webkit-app-region: drag;
-}
-
-.lyrics-wrapper {
-    position: relative;
-    width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    cursor: inherit;
 }
 
 .controls-overlay {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    right: 0;
-    padding: 10px;
     opacity: 0;
     transition: opacity 0.3s ease;
-    z-index: 2;
+    margin-top: 10px;
 }
 
-.lyrics-container:hover .controls-overlay {
-    opacity: 1;
-}
-
-.controls-overlay.locked-state {
-    opacity: 0;
-}
-
-.lyrics-container:hover .controls-overlay.locked-state {
+.controls-overlay:hover {
     opacity: 1;
 }
 
@@ -179,18 +205,12 @@ html {
     gap: 15px;
     justify-content: center;
     background: rgba(0, 0, 0, 0.5);
-    padding: 8px;
+    padding: 6px;
     border-radius: 20px;
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
+    width: 430px;
 }
-
-.controls-wrapper.locked-controls {
-    background: none;
-    backdrop-filter: none;
-    padding: 0;
-}
-
 
 .lock-button {
     position: relative;
@@ -201,19 +221,13 @@ html {
     font-size: 13px !important;
 }
 
-/* 锁定状态下的按钮样式 */
-.locked-controls .lock-button {
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    opacity: 0;
-}
-
-.locked-controls .lock-button:hover {
-    background: rgba(0, 0, 0, 0.7);
+.controls-wrapper.locked-controls {
+    background: none;
+    padding: 0;
+    width: auto;
 }
 
 .controls-wrapper button {
-    -webkit-app-region: no-drag;
     background: transparent;
     border: none;
     color: white;
@@ -226,32 +240,28 @@ html {
     justify-content: center;
 }
 
-.locked-controls .lock-button:hover {
-    opacity: 1;
-}
-
-.controls-wrapper button:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
 .controls-wrapper i {
     font-size: 16px;
 }
 
-.lyrics-container:hover .locked-controls .lock-button {
-    opacity: 1;
+.lyrics-content {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+.lyrics-content:hover {
+    cursor: move;
 }
 
-.lyrics-content {
-    text-align: center;
-    z-index: 1;
+.lyrics-top-left {
     font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    white-space: nowrap;
 }
+
+.lyrics-bottom-right {
+    font-weight: bold;
+    margin-top: 42px;
+}
+
 
 .highlight-char {
     color: transparent;
@@ -262,5 +272,4 @@ html {
     background-clip: text;
     transition: background-position 0.6s ease;
 }
-
 </style>

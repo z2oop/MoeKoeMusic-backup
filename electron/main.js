@@ -136,3 +136,9 @@ ipcMain.on('desktop-lyrics-action', (event, action) => {
     }
 });
 
+ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (lyricsWindow) {
+        lyricsWindow.setIgnoreMouseEvents(ignore, { forward: true });
+    }
+});
