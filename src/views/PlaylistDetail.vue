@@ -169,6 +169,7 @@ const prevPage = () => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: break-spaces;
+    overflow-y: auto;
 }
 
 .playlist-actions {

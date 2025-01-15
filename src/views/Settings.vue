@@ -49,7 +49,7 @@
             </div>
 
             <div class="setting-item" @click="openSelection('desktopLyrics')">
-                <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }}</span>
+                <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }} (实验性功能)</span>
                 <div class="setting-control">
                     <span>{{ selectedSettings.desktopLyrics.displayText }}</span>
                 </div>

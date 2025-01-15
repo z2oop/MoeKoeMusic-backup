@@ -50,7 +50,7 @@
                     </router-link>
                 </div>
             </template>
-            <div v-if="selectedCategory === 3" class="music-card" v-for="(artist, index) in followedArtists"
+            <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card" v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : collectedFriends)"
                 :key="index">
 
                 <img :src="artist.pic" alt="artist avatar" class="album-image" />
@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <el-empty v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0)" :description="t('zhe-li-shi-mo-du-mei-you')" />
+        <el-empty v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0) || (selectedCategory == 3 && collectedFriends.length === 0) || (selectedCategory == 4 && collectedFriends.length === 0)" :description="t('zhe-li-shi-mo-du-mei-you')" />
     </div>
 </template>
 
@@ -76,10 +76,11 @@ const user = ref({});
 const userPlaylists = ref([]);
 const collectedPlaylists = ref([]);
 const collectedAlbums = ref([]);
+const collectedFriends = ref([]);
 const followedArtists = ref([]);
 const listenHistory = ref([]);
 const userVip = ref({});
-const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou')]);
+const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou'), t('wo-guan-zhu-de-hao-you')]);
 const selectedCategory = ref(0);
 const selectCategory = (index) => {
     selectedCategory.value = index;
@@ -132,10 +133,12 @@ const getlisten = async () => {
 const getfollow = async () => {
     const followResponse = await get('/user/follow');
     if (followResponse.status === 1) {
-        followedArtists.value = followResponse.data.lists.map(artist => ({
+        const artists = followResponse.data.lists.map(artist => ({
             ...artist,
             pic: artist.pic.replace('/100/', '/480/')
         }));
+        collectedFriends.value = artists.filter(artist => artist.userid !== 0);
+        followedArtists.value = artists.filter(artist => artist.userid === 0);
     }
 }
 const getplaylist = async () => {

@@ -25,130 +25,186 @@
             </div>
         </div>
         <!-- 歌词内容 -->
-        <div class="lyrics-content">
-            <div class="lyrics-top-left">
-                <span v-if="currentLyric && currentLyric.characters.length > 0">
-                    <span v-for="(char, index) in currentLyric.characters" :key="index" class="highlight-char" :style="{
-                        backgroundPosition: `${(1 - char.progress) * 100}% 0`
-                    }">
-                        {{ char.char }}
-                    </span>
-                </span>
-                <span v-else>暂无歌词</span>
-            </div>
-            <div class="lyrics-bottom-right">
-                <span v-if="nextLyric && nextLyric.characters.length > 0">
-                    <span v-for="(char, index) in nextLyric.characters" :key="index" class="highlight-char" :style="{
-                        backgroundPosition: `${(1 - char.progress) * 100}% 0`
-                    }">
-                        {{ char.char }}
-                    </span>
-                </span>
-                <span v-else>暂无歌词</span>
-            </div>
-        </div>
+        <div class="lyrics-container" id="lyricsContainer">暂无歌词</div>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-const currentLyric = ref({ characters: [] })
-const nextLyric = ref({ characters: [] })
 const isPlaying = ref(false)
 const isLocked = ref(false)
-const parsedLyrics = ref([])
-let currentIndex = ref(0)
 let controlsOverlay = null;
+const handleMouseMove = () => setWindowIgnoreMouseEvents(false);
+const handleMouseLeave = () => setWindowIgnoreMouseEvents(true);
+// 存储状态的对象
+const state = {
+    lyricsContainer: null,
+    lyrics: [],
+    currentTime: 0,
+    duration: 0,
+    currentLineIndex: 0,
+    displayedLines: [0, 1]
+};
+
 onMounted(() => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
     const lyricsFontSize = savedConfig.lyricsFontSize || '32px';
-    document.querySelector('.lyrics-content').style.fontSize = lyricsFontSize;
+    document.querySelector('.lyrics-container').style.fontSize = lyricsFontSize;
     isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
     setWindowIgnoreMouseEvents(true);
-
-    // 添加鼠标移动事件监听
     controlsOverlay = document.querySelector('.controls-overlay');
-    controlsOverlay.addEventListener('mousemove', ()=>setWindowIgnoreMouseEvents(false));
-    controlsOverlay.addEventListener('mouseleave', ()=>setWindowIgnoreMouseEvents(true));
+    controlsOverlay.addEventListener('mousemove', handleMouseMove);
+    controlsOverlay.addEventListener('mouseleave', handleMouseLeave);
 })
-const setWindowIgnoreMouseEvents = (ignore) => {
-    window.electron.ipcRenderer.send('set-ignore-mouse-events', ignore);
-};
-// 窗口关闭取消监听
-onBeforeUnmount(() => {
-    controlsOverlay.removeEventListener('mousemove', handleMouseMove);
-    controlsOverlay.removeEventListener('mouseleave', handleMouseLeave);
-})
-// 更新逐字歌词的进度
-const updateCurrentLyric = (time) => {
-    if (!parsedLyrics.value || parsedLyrics.value.length === 0) {
-        currentLyric.value = { characters: [] };
-        nextLyric.value = { characters: [] };
-        return;
+
+// 设置歌词数据
+function setLyrics(lyricsData) {
+    state.lyrics = lyricsData;
+    state.duration = Math.max(...state.lyrics.flatMap(line =>
+        line.characters.map(char => char.endTime / 1000)
+    ));
+    renderLyrics();
+}
+
+// 渲染歌词
+function renderLyrics() {
+    state.lyricsContainer.innerHTML = '';
+    const currentLine = document.createElement('div');
+    currentLine.className = 'lyrics-line current';
+    const nextLine = document.createElement('div');
+    nextLine.className = 'lyrics-line next';
+
+    updateLineContent(currentLine, state.lyrics[0]);
+    if (state.lyrics.length > 1) {
+        updateLineContent(nextLine, state.lyrics[1]);
     }
 
-    const currentTimeMs = time * 1000;
+    state.lyricsContainer.appendChild(currentLine);
+    state.lyricsContainer.appendChild(nextLine);
+}
 
-    for (let i = currentIndex.value; i < parsedLyrics.value.length; i++) {
-        const line = parsedLyrics.value[i];
-        const lineStartTime = line.characters[0]?.startTime || 0;
-        const lineEndTime = line.characters[line.characters.length - 1]?.endTime || 0;
+// 更新行内容
+function updateLineContent(lineElement, lyricLine) {
+    lineElement.innerHTML = '';
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'lyrics-content';
 
-        if (currentTimeMs >= lineStartTime && currentTimeMs < lineEndTime) {
-            const updatedCharacters = line.characters.map(char => {
-                const charProgress = Math.min(
-                    Math.max((currentTimeMs - char.startTime) / (char.endTime - char.startTime), 0),
-                    1
-                );
-                return { ...char, progress: charProgress };
-            });
+    lyricLine.characters.forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char.char;
+        span.className = 'character';
+        span.dataset.startTime = char.startTime / 1000;
+        span.dataset.endTime = char.endTime / 1000;
+        contentDiv.appendChild(span);
+    });
 
-            if (i === currentIndex.value) {
-                currentLyric.value = { ...line, characters: updatedCharacters };
-            } else {
-                nextLyric.value = { ...line, characters: updatedCharacters };
-            }
+    lineElement.appendChild(contentDiv);
+}
 
-            // 检查当前行是否播放完毕
-            if (updatedCharacters.every(char => char.progress === 1) && i === currentIndex.value) {
-                // 当前行播放完毕，切换到下一行
-                currentIndex.value++;
-                currentLyric.value = nextLyric.value;
-                if (currentIndex.value + 1 < parsedLyrics.value.length) {
-                    nextLyric.value = parsedLyrics.value[currentIndex.value + 1];
-                } else {
-                    nextLyric.value = { characters: [] };
-                }
+// 更新高亮
+function updateHighlight() {
+    const allChars = document.querySelectorAll('.character');
+    const currentTime = state.currentTime * 1000;
+    let currentChar = null;
+
+    for (let i = 0; i < state.lyrics.length; i++) {
+        const line = state.lyrics[i];
+        const lineStartTime = line.characters[0].startTime;
+        const lineEndTime = line.characters[line.characters.length - 1].endTime;
+
+        if (currentTime >= lineStartTime && currentTime <= lineEndTime) {
+            if (state.currentLineIndex !== i) {
+                state.currentLineIndex = i;
+                updateDisplayedLines();
             }
             break;
         }
     }
-};
+
+    allChars.forEach(char => {
+        const startTime = parseFloat(char.dataset.startTime);
+        const endTime = parseFloat(char.dataset.endTime);
+        const progress = (state.currentTime - startTime) / (endTime - startTime);
+
+        if (state.currentTime < startTime) {
+            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 0%, #999 0%)`;
+        } else if (state.currentTime >= endTime) {
+            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 100%, #999 100%)`;
+        } else {
+            const fillPercent = Math.max(0, Math.min(100, progress * 100));
+            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 ${fillPercent}%, #999 ${fillPercent}%)`;
+            currentChar = char;
+        }
+    });
+
+    // 处理滚动
+    if (currentChar) {
+        const line = currentChar.closest('.lyrics-line');
+        const content = currentChar.closest('.lyrics-content');
+        const charRect = currentChar.getBoundingClientRect();
+        const lineRect = line.getBoundingClientRect();
+
+        const contentWidth = content.offsetWidth;
+        const lineWidth = line.offsetWidth;
+
+        if (contentWidth > lineWidth) {
+            const charLeft = charRect.left - lineRect.left;
+            const targetPosition = lineWidth * 0.3;
+            const scrollAmount = -(charLeft - targetPosition);
+
+            const maxScroll = 0;
+            const minScroll = -(contentWidth - lineWidth);
+            const finalScroll = Math.min(maxScroll, Math.max(minScroll, scrollAmount));
+
+            content.style.transform = `translateX(${finalScroll}px)`;
+        }
+    }
+}
+
+// 更新显示的行
+function updateDisplayedLines() {
+    const currentLine = document.querySelector('.lyrics-line.current');
+    const nextLine = document.querySelector('.lyrics-line.next');
+
+    if (state.currentLineIndex > state.displayedLines[1]) {
+        const oldContent = currentLine.querySelector('.lyrics-content');
+        if (oldContent) {
+            oldContent.style.transform = 'translateX(0)';
+        }
+
+        state.displayedLines = [state.currentLineIndex, state.currentLineIndex + 1];
+
+        if (state.currentLineIndex < state.lyrics.length) {
+            updateLineContent(currentLine, state.lyrics[state.currentLineIndex]);
+        }
+        if (state.currentLineIndex + 1 < state.lyrics.length) {
+            updateLineContent(nextLine, state.lyrics[state.currentLineIndex + 1]);
+        }
+    }
+}
+
+window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
+    state.lyricsContainer = state.lyricsContainer ? state.lyricsContainer : document.getElementById('lyricsContainer');
+    setLyrics(newLyrics);
+});
+
+
+window.electron.ipcRenderer.on('update-current-time', (time) => {
+    state.currentTime = time;
+    updateHighlight();
+});
 
 window.electron.ipcRenderer.on('lyrics-font-size', (fontSize) => {
     document.querySelector('.lyrics-content').style.fontSize = fontSize;
 });
 
-window.electron.ipcRenderer.on('update-current-time', (time) => {
-    updateCurrentLyric(time)
-});
-
-window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
-    console.log(newLyrics)
-    if (!newLyrics || newLyrics.length === 0) {
-        currentLyric.value = { characters: [] }
-        nextLyric.value = { characters: [] }
-        parsedLyrics.value = []
-    } else {
-        parsedLyrics.value = newLyrics
-        currentIndex.value = 0
-        currentLyric.value = parsedLyrics.value[0] || { characters: [] }
-        nextLyric.value = parsedLyrics.value[1] || { characters: [] }
-    }
-});
 const sendAction = (action) => {
     window.electron.ipcRenderer.send('desktop-lyrics-action', action);
 }
+
+const setWindowIgnoreMouseEvents = (ignore) => {
+    window.electron.ipcRenderer.send('set-ignore-mouse-events', ignore);
+};
 
 const togglePlay = () => {
     isPlaying.value = !isPlaying.value
@@ -160,6 +216,10 @@ const toggleLock = () => {
     localStorage.setItem('lyrics-lock', isLocked.value)
 }
 
+onBeforeUnmount(() => {
+    controlsOverlay.removeEventListener('mousemove', handleMouseMove);
+    controlsOverlay.removeEventListener('mouseleave', handleMouseLeave);
+})
 </script>
 
 <style>
@@ -167,9 +227,18 @@ body,
 html {
     background-color: rgba(0, 0, 0, 0) !important;
 }
-</style>
 
-<style scoped>
+.character {
+    display: inline-block;
+    color: transparent;
+    position: relative;
+    margin: 0 2px;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    font-weight: bold;
+}
+
 .lyrics-container {
     backdrop-filter: blur(8px);
     border-radius: 8px;
@@ -179,6 +248,7 @@ html {
     justify-content: center;
     align-items: center;
     cursor: inherit;
+    width: 100%;
 }
 
 .controls-overlay {
@@ -235,31 +305,22 @@ html {
     font-size: 16px;
 }
 
-.lyrics-content {
-    width: 100%;
-}
-.lyrics-content:hover {
-    cursor: move;
+.lyrics-line {
+    overflow: hidden;
+    position: relative;
 }
 
-.lyrics-top-left {
-    font-weight: bold;
+.lyrics-line.current {
     text-align: left;
 }
 
-.lyrics-bottom-right {
-    font-weight: bold;
+.lyrics-line.next {
     text-align: right;
 }
 
-
-.highlight-char {
-    color: transparent;
-    background: linear-gradient(to right, #FF69B4 50%, #878787 50%);
-    background-size: 200% 100%;
-    background-position: 100% 0px;
-    -webkit-background-clip: text;
-    background-clip: text;
-    transition: background-position 0.6s ease;
+.lyrics-content {
+    display: inline-block;
+    white-space: nowrap;
+    transition: transform 0.3s ease-out;
 }
 </style>
