@@ -77,7 +77,6 @@
     </div>
 </template>
 
-
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -93,7 +92,7 @@ const selectedSettings = ref({
     quality: { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
     lyricsBackground: { displayText: t('da-kai'), value: 'on' },
     desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
-    lyricsFontSize: { displayText: t('zhong'), value: 'medium' },
+    lyricsFontSize: { displayText: t('zhong'), value: '32px' },
     greetings: { displayText: t('kai-qi'), value: 'on' }
 });
 

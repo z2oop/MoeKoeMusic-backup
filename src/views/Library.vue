@@ -133,6 +133,7 @@ const getlisten = async () => {
 const getfollow = async () => {
     const followResponse = await get('/user/follow');
     if (followResponse.status === 1) {
+        if(!followResponse.data.lists || followResponse.data.lists.length == 0) return;
         const artists = followResponse.data.lists.map(artist => ({
             ...artist,
             pic: artist.pic.replace('/100/', '/480/')

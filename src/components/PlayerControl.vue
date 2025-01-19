@@ -452,14 +452,14 @@ const addPlaylistToQueue = async (info) => {
 };
 
 // 添加歌曲到队列并播放的方法
-const addSongToQueue = async (hash, name, img, author) => {
+const addSongToQueue = async (hash, name, img, author, free = true) => {
     try {
         clearTimeout(timeoutId.value);
         currentSong.value.author = author;
         currentSong.value.name = name;
         currentSong.value.img = img;
         currentSong.value.hash = hash;
-        const url = `/song/url?hash=${hash}&free_part=1`;
+        const url = `/song/url?hash=${hash}${free ? '&free_part=1' : ''}`;
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
@@ -473,6 +473,12 @@ const addSongToQueue = async (hash, name, img, author) => {
             }, 3000);
             return;
         }
+
+        if(response.extName == 'mp4'){
+            addSongToQueue(hash, name, img, author, false);
+            return;
+        }
+
         const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
 
         if (existingSongIndex === -1) {
