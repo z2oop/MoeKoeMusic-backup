@@ -12,8 +12,8 @@
                             class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
                     <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i
                             class="fas fa-heart"></i></button>
-                    <button class="more-btn" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i
-                            class="fas fa-ellipsis-h"></i></button>
+                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i
+                            class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
         </div>
@@ -50,7 +50,11 @@ import ContextMenu from '../components/ContextMenu.vue';
 import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
+import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
+const { t } = useI18n();
 const MoeAuth = MoeAuthStore();
+const router = useRouter();
 const route = useRoute();
 const tracks = ref([]);
 const currentPage = ref(1);
@@ -66,6 +70,15 @@ const getPlaylistAllSongs = (id) => {
 }
 const toggleFavorite = (id) => {
     
+}
+const deletePlaylist = async (id) => {
+    const result = await window.$modal.confirm(t('que-ren-shan-chu-ge-dan'));
+    if (result) {
+        const response = await get('/playlist/del', { listid: id });
+        if (response.status == 1) {
+            router.replace('/library');
+        }
+    }
 }
 const props = defineProps({
     playerControl: Object

@@ -5,10 +5,10 @@
             <h2 class="section-title">{{ user.nickname }}<span>{{ $t('de-yin-le-ku') }}</span></h2>
             <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level"
                 :src="`./assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
-                :title="`${ $t('gai-nian-ban') } ${userVip[0].vip_end_time}`" /> 
+                :title="`${$t('gai-nian-ban')} ${userVip[0].vip_end_time}`" />
             <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
                 :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
-                :title="`${ $t('chang-ting-ban') } ${userVip[1].vip_end_time}`" />
+                :title="`${$t('chang-ting-ban')} ${userVip[1].vip_end_time}`" />
         </div>
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
@@ -16,7 +16,8 @@
                 <ul>
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
                         @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.singername)">
-                        <img :src="song.image ? $getCover(song.image, 120) : './assets/images/ico.png'" alt="cover" class="album-cover" />
+                        <img :src="song.image ? $getCover(song.image, 120) : './assets/images/ico.png'" alt="cover"
+                            class="album-cover" />
                         <div class="song-info">
                             <p class="album-name">{{ song.name.split(' - ')[1] || song.name }}</p>
                             <p class="singer-name">{{ song.singername }}</p>
@@ -37,12 +38,15 @@
         <!-- 音乐卡片网格（显示歌单或关注的歌手） -->
         <div class="music-grid">
             <template v-if="selectedCategory === 0 || selectedCategory === 1 || selectedCategory === 2">
-                <div class="music-card" v-for="(item, index) in (selectedCategory === 0 ? userPlaylists : selectedCategory === 1 ? collectedPlaylists : collectedAlbums)" :key="index">
+                <div class="music-card"
+                    v-for="(item, index) in (selectedCategory === 0 ? userPlaylists : selectedCategory === 1 ? collectedPlaylists : collectedAlbums)"
+                    :key="index">
                     <router-link :to="{
                         path: '/PlaylistDetail',
                         query: { global_collection_id: item.list_create_gid || item.global_collection_id }
                     }">
-                        <img :src="item.pic ? $getCover(item.pic, 480) : './assets/images/live.png'" class="album-image" />
+                        <img :src="item.pic ? $getCover(item.pic, 480) : './assets/images/live.png'"
+                            class="album-image" />
                         <div class="album-info">
                             <h3>{{ item.name }}</h3>
                             <p>{{ item.count }} <span>{{ $t('shou-ge') }}</span></p>
@@ -58,8 +62,8 @@
                     </div>
                 </div>
             </template>
-            <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card" v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : collectedFriends)"
-                :key="index">
+            <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card"
+                v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : collectedFriends)" :key="index">
 
                 <img :src="artist.pic" alt="artist avatar" class="album-image" />
                 <div class="album-info">
@@ -67,7 +71,9 @@
                 </div>
             </div>
         </div>
-        <el-empty v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0) || (selectedCategory == 3 && collectedFriends.length === 0) || (selectedCategory == 4 && collectedFriends.length === 0)" :description="t('zhe-li-shi-mo-du-mei-you')" />
+        <el-empty
+            v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0) || (selectedCategory == 3 && collectedFriends.length === 0) || (selectedCategory == 4 && collectedFriends.length === 0)"
+            :description="t('zhe-li-shi-mo-du-mei-you')" />
     </div>
 </template>
 
@@ -120,12 +126,12 @@ const getUserDetails = () => {
     selectedCategory.value = parseInt(router.currentRoute.value.query.category || 0);
 }
 const getVipInfo = async () => {
-    try{
+    try {
         const VipInfoResponse = await get('/user/vip/detail');
         if (VipInfoResponse.status === 1) {
             userVip.value = VipInfoResponse.data.busi_vip
             getUserDetails();
-        } 
+        }
     } catch (error) {
         window.$modal.alert(t('deng-lu-shi-xiao-qing-zhong-xin-deng-lu'));
         router.push('/login');
@@ -143,7 +149,7 @@ const getlisten = async () => {
 const getfollow = async () => {
     const followResponse = await get('/user/follow');
     if (followResponse.status === 1) {
-        if(!followResponse.data.lists || followResponse.data.lists.length == 0) return;
+        if (!followResponse.data.lists || followResponse.data.lists.length == 0) return;
         const artists = followResponse.data.lists.map(artist => ({
             ...artist,
             pic: artist.pic.replace('/100/', '/480/')
@@ -164,7 +170,7 @@ const createPlaylist = async () => {
     const result = await window.$modal.prompt(t('qing-shu-ru-xin-de-ge-dan-ming-cheng'), '');
     if (result) {
         try {
-            const playlistResponse = await get('/playlist/add?name=' + result + '&list_create_userid=' + user.value.userid);
+            const playlistResponse = await get('/playlist/add', { name: result, list_create_userid: user.value.userid });
             if (playlistResponse.status === 1) {
                 window.$modal.alert(t('chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin'));
             }
@@ -357,6 +363,7 @@ const createPlaylist = async () => {
     font-size: 12px;
     color: #666;
 }
+
 .create-playlist-button {
     width: 100%;
     height: 68%;
@@ -368,6 +375,7 @@ const createPlaylist = async () => {
     border: 1px solid var(--secondary-color);
     cursor: pointer;
 }
+
 .create-playlist-button i {
     font-size: 30px;
 }
