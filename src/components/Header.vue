@@ -78,7 +78,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
 const MoeAuth = MoeAuthStore();
-const searchQuery = ref(''); // 搜索关键字
+const searchQuery = ref('');
 const isDisclaimerVisible = ref(false);
 const router = useRouter();
 const route = useRoute();

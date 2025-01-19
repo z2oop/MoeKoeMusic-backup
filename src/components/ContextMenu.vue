@@ -13,6 +13,7 @@
                 </ul>
             </li>
             <li v-if="MoeAuth.isAuthenticated && listId && contextSong.userid === MoeAuth.UserInfo.userid" @click="cancel()">取消收藏</li>
+            <li v-if="MoeAuth.isAuthenticated" @click="addToNext(contextSong)">添加到下一首</li>
         </ul>
     </div>
 </template>
@@ -94,6 +95,22 @@ const cancel = async () => {
         })
     }
 };
+
+const props = defineProps({
+    playerControl: Object
+});
+
+const addToNext = async (song) => {
+    const songNameParts = song.OriSongName.split(' - ');
+    props.playerControl.addToNext(song.FileHash, songNameParts[0], song.cover, songNameParts[1], song.timeLength);
+    ElMessage.success({
+        message:  i18n.global.t('tian-jia-cheng-gong'),
+        duration: 2000
+    })
+    hideContextMenu();
+};
+
+
 
 const hideSubMenu = () => {
     showSubMenu.value = false;

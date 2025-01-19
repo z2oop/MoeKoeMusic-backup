@@ -40,7 +40,7 @@
                 <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
             </div>
         </div>
-        <ContextMenu ref="contextMenuRef" />
+        <ContextMenu ref="contextMenuRef" :playerControl="playerControl" />
     </div>
 </template>
 
@@ -83,7 +83,9 @@ const showContextMenu = (event, song) => {
             OriSongName: song.name, 
             FileHash: song.hash, 
             fileid: song.fileid,
-            userid: detail.value.list_create_userid
+            userid: detail.value.list_create_userid,
+            timeLength: song.timelen,
+            cover: song.cover,
         }, detail.value.listid);
     }
 };

@@ -216,6 +216,7 @@ const currentPlaybackMode = computed(() => playbackModes.value[currentPlaybackMo
 const isProgressDragging = ref(false);
 const isDraggingHandle = ref(false);
 const climaxPoints = ref([]);
+const NextSong = ref([]);
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
@@ -314,6 +315,15 @@ const playSongFromQueue = (direction) => {
         window.$modal.alert(t('ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba'));
         return;
     }
+
+    if(direction == 'next'){
+        if(NextSong.value.length > 0){
+            addSongToQueue(NextSong.value[0].hash, NextSong.value[0].name, NextSong.value[0].img, NextSong.value[0].author, NextSong.value[0].timeLength);
+            NextSong.value.shift();
+            return;
+        }
+    }
+
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     let targetIndex;
 
@@ -600,6 +610,17 @@ const parseLyrics = (text) => {
         window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
     }
 };
+// 添加到下一首 
+const addToNext = async (hash, name, img, author, timeLength) => {
+    NextSong.value.push({
+        id: musicQueueStore.queue.length + 1,
+        hash: hash,
+        name: name,
+        img: img,
+        author: author,
+        timeLength: timeLength,
+    });
+};
 const centerFirstLine = () => {
     const lyricsContainer = document.getElementById('lyrics-container');
     if (!lyricsContainer) return;
@@ -667,7 +688,8 @@ audio.addEventListener('timeupdate', throttledHighlight);
 
 defineExpose({
     addSongToQueue,
-    getPlaylistAllSongs
+    getPlaylistAllSongs,
+    addToNext
 });
 
 onMounted(() => {

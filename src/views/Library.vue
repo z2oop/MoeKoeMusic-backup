@@ -84,6 +84,7 @@ const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan
 const selectedCategory = ref(0);
 const selectCategory = (index) => {
     selectedCategory.value = index;
+    router.replace({ path: '/library', query: { category: index } });
 };
 
 const playSong = (hash, name, img, author) => {
@@ -108,6 +109,7 @@ const getUserDetails = () => {
     getfollow()
     // 获取用户听歌历史
     getlisten()
+    selectedCategory.value = parseInt(router.currentRoute.value.query.category || 0);
 }
 const getVipInfo = async () => {
     try{
