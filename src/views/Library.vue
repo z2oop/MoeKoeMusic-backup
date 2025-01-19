@@ -49,6 +49,14 @@
                         </div>
                     </router-link>
                 </div>
+                <div v-if="selectedCategory === 0" class="music-card" @click="createPlaylist">
+                    <div class="create-playlist-button">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="album-info">
+                        <h3>{{ $t('chuang-jian-ge-dan') }}</h3>
+                    </div>
+                </div>
             </template>
             <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card" v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : collectedFriends)"
                 :key="index">
@@ -150,6 +158,19 @@ const getplaylist = async () => {
         userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
         collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
         collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
+    }
+}
+const createPlaylist = async () => {
+    const result = await window.$modal.prompt(t('qing-shu-ru-xin-de-ge-dan-ming-cheng'), '');
+    if (result) {
+        try {
+            const playlistResponse = await get('/playlist/add?name=' + result + '&list_create_userid=' + user.value.userid);
+            if (playlistResponse.status === 1) {
+                window.$modal.alert(t('chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin'));
+            }
+        } catch (error) {
+            window.$modal.alert(t('chuang-jian-shi-bai'));
+        }
     }
 }
 </script>
@@ -335,5 +356,19 @@ const getplaylist = async () => {
 .singer-name {
     font-size: 12px;
     color: #666;
+}
+.create-playlist-button {
+    width: 100%;
+    height: 68%;
+    color: var(--primary-color);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--secondary-color);
+    cursor: pointer;
+}
+.create-playlist-button i {
+    font-size: 30px;
 }
 </style>

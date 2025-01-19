@@ -138,5 +138,9 @@
   "wo-shou-cang-de-zhuan-ji": "My collected albums",
   "bo-fang-shi-bai": "Playback failed",
   "wo-guan-zhu-de-hao-you": "Friends I follow",
-  "tian-jia-cheng-gong": "Added successfully"
+  "tian-jia-cheng-gong": "Added successfully",
+  "chuang-jian-ge-dan": "Create playlist",
+  "qing-shu-ru-xin-de-ge-dan-ming-cheng": "Please enter a new playlist name",
+  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "Created successfully, waiting for cache update",
+  "chuang-jian-shi-bai": "Creation failed"
 }

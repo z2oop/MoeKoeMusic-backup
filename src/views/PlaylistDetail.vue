@@ -65,7 +65,7 @@ const getPlaylistAllSongs = (id) => {
     props.playerControl.getPlaylistAllSongs(id);
 }
 const toggleFavorite = (id) => {
-
+    
 }
 const props = defineProps({
     playerControl: Object

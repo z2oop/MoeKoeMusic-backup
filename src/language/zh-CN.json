@@ -138,5 +138,9 @@
   "wo-shou-cang-de-zhuan-ji": "我收藏的专辑",
   "bo-fang-shi-bai": "播放失败",
   "wo-guan-zhu-de-hao-you": "我关注的好友",
-  "tian-jia-cheng-gong": "添加成功"
+  "tian-jia-cheng-gong": "添加成功",
+  "chuang-jian-ge-dan": "创建歌单",
+  "qing-shu-ru-xin-de-ge-dan-ming-cheng": "请输入新的歌单名称",
+  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "创建成功，等待缓存更新",
+  "chuang-jian-shi-bai": "创建失败"
 }
