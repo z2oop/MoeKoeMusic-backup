@@ -13,6 +13,15 @@
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
             <div class="song-list">
+                <div v-if="isLoading" class="skeleton-loader">
+                    <div v-for="n in 16" :key="n" class="skeleton-item">
+                        <div class="skeleton-cover"></div>
+                        <div class="skeleton-info">
+                            <div class="skeleton-line"></div>
+                            <div class="skeleton-line short"></div>
+                        </div>
+                    </div>
+                </div>
                 <ul v-if="listenHistory.length > 0">
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
                         @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.singername)">
@@ -54,7 +63,7 @@
                         </div>
                     </router-link>
                 </div>
-                <div v-if="selectedCategory === 0" class="music-card" @click="createPlaylist">
+                <div v-if="selectedCategory === 0 && !isLoading" class="music-card" @click="createPlaylist">
                     <div class="create-playlist-button">
                         <i class="fas fa-plus"></i>
                         <img :src="`./assets/images/ti111mg.png`" alt="cover">
@@ -102,6 +111,7 @@ const listenHistory = ref([]); // 听歌历史
 const userVip = ref({});
 const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou'), t('wo-guan-zhu-de-hao-you')]);
 const selectedCategory = ref(0);
+const isLoading = ref(true); 
 const selectCategory = (index) => {
     selectedCategory.value = index;
     router.replace({ path: '/library', query: { category: index } });
@@ -119,16 +129,18 @@ onMounted(() => {
     if (MoeAuth.isAuthenticated) {
         user.value = MoeAuth.UserInfo;
         // 获取用户vip信息
-        getVipInfo()
+        getVipInfo();
     }
 });
 const getUserDetails = () => {
+    // 获取用户听歌历史
+    getlisten().finally(() => {
+        isLoading.value = false; 
+    })
     // 获取用户创建和收藏的歌单
     getplaylist()
     // 获取用户关注的歌手
     getfollow()
-    // 获取用户听歌历史
-    getlisten()
     selectedCategory.value = parseInt(router.currentRoute.value.query.category || 0);
 }
 const getVipInfo = async () => {
@@ -391,5 +403,46 @@ const createPlaylist = async () => {
 
 .create-playlist-button i {
     font-size: 30px;
+}
+
+.skeleton-loader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.skeleton-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 250px;
+    border-radius: 10px;
+    padding-left: 10px;
+    background-color: #f0f0f0;
+    height: 68px;
+}
+
+.skeleton-cover {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: #e0e0e0;
+}
+
+.skeleton-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 190px;
+}
+
+.skeleton-line {
+    height: 10px;
+    background-color: #e0e0e0;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    width: 150px;
 }
 </style>

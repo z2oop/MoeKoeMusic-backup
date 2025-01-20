@@ -8,7 +8,17 @@
             </button>
         </div>
 
-        <div class="music-grid">
+        <div v-if="isLoading" class="skeleton-grid">
+            <div class="skeleton-card" v-for="n in 10" :key="n">
+                <div class="skeleton-image"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-title"></div>
+                    <div class="skeleton-text"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div v-else class="music-grid">
             <div class="music-card" v-for="(playlist, index) in playlistList" :key="index">
                 <router-link :to="{
                     path: '/PlaylistDetail',
@@ -28,12 +38,12 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { get } from '../utils/request';
-
 const tabs = ref([]);
 const selectedTab = ref(0);
 const tag_id = ref(0);
-
 const playlistList = ref([]);
+const isLoading = ref(true);
+
 onMounted(() => {
     tags();
 });
@@ -54,6 +64,7 @@ const playlist = async () => {
     if (response.status == 1) {
         playlistList.value = response.data.special_list
     }
+    isLoading.value = false;
 }
 const selectTab = (index) => {
     selectedTab.value = index;
@@ -136,5 +147,48 @@ const selectTab = (index) => {
     text-overflow: ellipsis;
     max-height: 50px;
     line-height: 25px;
+}
+
+.skeleton-grid {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+}
+
+.skeleton-card {
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 10px;
+    width: 200px;
+    text-align: center;
+    height: 250px;
+}
+
+.skeleton-image {
+    width: 100%;
+    height: 200px;
+    background-color: #e0e0e0;
+    border-radius: 8px;
+}
+
+.skeleton-info {
+    margin-top: 10px;
+}
+
+.skeleton-title {
+    width: 60%;
+    height: 16px;
+    background-color: #e0e0e0;
+    margin: 10px auto;
+    border-radius: 4px;
+}
+
+.skeleton-text {
+    width: 80%;
+    height: 12px;
+    background-color: #e0e0e0;
+    margin: 5px auto;
+    border-radius: 4px;
 }
 </style>

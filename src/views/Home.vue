@@ -23,7 +23,16 @@
         </div>
 
         <h2 class="section-title">{{ $t('tui-jian-ge-qu') }}</h2>
-        <div class="song-list">
+        <div v-if="isLoading" class="skeleton-loader">
+            <div v-for="n in 16" :key="n" class="skeleton-item">
+                <div class="skeleton-cover"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-line"></div>
+                    <div class="skeleton-line short"></div>
+                </div>
+            </div>
+        </div>
+        <div v-else class="song-list">
             <div class="song-item" v-for="(song, index) in songs" :key="index" @click="playSong($getQuality(null, song), song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)" @contextmenu.prevent="showContextMenu($event, song)">
                 <img :src="$getCover(song.sizable_cover, 64)" :alt="song.ori_audio_name" class="song-cover">
                 <div class="song-info">
@@ -57,6 +66,7 @@ import { get } from '../utils/request';
 import ContextMenu from '../components/ContextMenu.vue';
 const songs = ref([]);
 const special_list = ref([]);
+const loading = ref(true);
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
 };
@@ -71,7 +81,7 @@ const props = defineProps({
 });
 onMounted(() => {
     recommend();
-    playlist()
+    playlist();
 });
 
 const recommend = async () => {
@@ -79,6 +89,7 @@ const recommend = async () => {
     if (response.status == 1) {
         songs.value = response.data.song_list;
     }
+    loading.value = false;
 }
 
 const playlist = async () => {
@@ -87,7 +98,6 @@ const playlist = async () => {
         special_list.value = response.data.special_list;
     }
 }
-
 
 </script>
 
@@ -126,8 +136,6 @@ const playlist = async () => {
     border-radius: 15px;
 }
 
-
-
 .play-icon {
     font-size: 30px;
     color: white;
@@ -139,9 +147,6 @@ const playlist = async () => {
     align-items: center;
 }
 
-
-
-/* 歌曲列表部分 */
 .song-list {
     display: flex;
     flex-wrap: wrap;
@@ -192,7 +197,6 @@ const playlist = async () => {
     white-space: nowrap;
 }
 
-/* 推荐歌曲部分 */
 .playlist-grid {
     display: flex;
     gap: 35px;
@@ -243,4 +247,46 @@ const playlist = async () => {
     max-height: 50px;
     line-height: 25px;
 }
+
+.skeleton-loader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.skeleton-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 250px;
+    border-radius: 10px;
+    padding-left: 10px;
+    background-color: #f0f0f0;
+    height: 68px;
+}
+
+.skeleton-cover {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: #e0e0e0;
+}
+
+.skeleton-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 190px;
+}
+
+.skeleton-line {
+    height: 10px;
+    background-color: #e0e0e0;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    width: 150px;
+}
+
 </style>
