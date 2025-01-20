@@ -83,7 +83,7 @@ const toggleFavorite = async (id) => {
 const deletePlaylist = async (id) => {
     const result = await window.$modal.confirm(t('que-ren-shan-chu-ge-dan'));
     if (result) {
-        await get('/playlist/del', { listid: id, type: 1 });
+        await get('/playlist/del', { listid: id });
         router.replace('/library');
     }
 }

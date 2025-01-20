@@ -236,6 +236,10 @@ onMounted(() => {
         lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
     handleShortcut();
+    if(current_song && localStorage.getItem('player_progress')) {
+        audio.currentTime = localStorage.getItem('player_progress');
+        progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
+    }
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -681,6 +685,7 @@ const throttledHighlight = throttle(() => {
     }else if(isElectron() && savedConfig.desktopLyrics === 'on'){
         getLyrics(currentSong.value.hash)
     }
+    localStorage.setItem('player_progress', audio.currentTime);
 }, 200);
 // 启动监听
 audio.addEventListener('timeupdate', throttledHighlight);
