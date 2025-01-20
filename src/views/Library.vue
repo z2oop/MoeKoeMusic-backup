@@ -13,7 +13,7 @@
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
             <div class="song-list">
-                <ul>
+                <ul v-if="listenHistory.length > 0">
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
                         @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.singername)">
                         <img :src="song.image ? $getCover(song.image, 120) : './assets/images/ico.png'" alt="cover"
@@ -24,6 +24,7 @@
                         </div>
                     </li>
                 </ul>
+                <el-empty v-else :description="t('zhe-li-shi-mo-du-mei-you')" />
             </div>
         </div>
 
@@ -43,7 +44,7 @@
                     :key="index">
                     <router-link :to="{
                         path: '/PlaylistDetail',
-                        query: { global_collection_id: item.list_create_gid || item.global_collection_id, from_profile: true }
+                        query: { global_collection_id: item.list_create_gid || item.global_collection_id, listid: item.listid}
                     }">
                         <img :src="item.pic ? $getCover(item.pic, 480) : './assets/images/live.png'"
                             class="album-image" />
@@ -56,6 +57,7 @@
                 <div v-if="selectedCategory === 0" class="music-card" @click="createPlaylist">
                     <div class="create-playlist-button">
                         <i class="fas fa-plus"></i>
+                        <img :src="`./assets/images/ti111mg.png`" alt="cover">
                     </div>
                     <div class="album-info">
                         <h3>{{ $t('chuang-jian-ge-dan') }}</h3>
@@ -71,8 +73,12 @@
                 </div>
             </div>
         </div>
-        <el-empty
-            v-if="(selectedCategory == 0 && userPlaylists.length === 0) || (selectedCategory == 1 && collectedPlaylists.length === 0) || (selectedCategory == 2 && followedArtists.length === 0) || (selectedCategory == 3 && collectedFriends.length === 0) || (selectedCategory == 4 && collectedFriends.length === 0)"
+        <el-empty v-if="
+        (selectedCategory == 0 && userPlaylists.length === 0) || 
+        (selectedCategory == 1 && collectedPlaylists.length === 0) || 
+        (selectedCategory == 2 && collectedAlbums.length === 0) || 
+        (selectedCategory == 3 && followedArtists.length === 0) || 
+        (selectedCategory == 4 && collectedFriends.length === 0)"
             :description="t('zhe-li-shi-mo-du-mei-you')" />
     </div>
 </template>
@@ -87,12 +93,12 @@ const { t } = useI18n();
 const router = useRouter();
 const MoeAuth = MoeAuthStore();
 const user = ref({});
-const userPlaylists = ref([]);
-const collectedPlaylists = ref([]);
-const collectedAlbums = ref([]);
-const collectedFriends = ref([]);
-const followedArtists = ref([]);
-const listenHistory = ref([]);
+const userPlaylists = ref([]); // 创建的歌单
+const collectedPlaylists = ref([]); // 收藏的歌单
+const collectedAlbums = ref([]); // 收藏的专辑
+const collectedFriends = ref([]); // 好友
+const followedArtists = ref([]); // 关注的歌手
+const listenHistory = ref([]); // 听歌历史
 const userVip = ref({});
 const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou'), t('wo-guan-zhu-de-hao-you')]);
 const selectedCategory = ref(0);
@@ -374,6 +380,13 @@ const createPlaylist = async () => {
     justify-content: center;
     border: 1px solid var(--secondary-color);
     cursor: pointer;
+    position: relative;
+}
+
+.create-playlist-button img {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
 }
 
 .create-playlist-button i {

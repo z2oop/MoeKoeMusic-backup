@@ -10,9 +10,9 @@
                 <div class="playlist-actions">
                     <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i
                             class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
-                    <button class="fav-btn" v-if="detail.list_create_userid != MoeAuth.UserInfo?.userid" @click="toggleFavorite(detail.list_create_gid)"><i
+                    <button class="fav-btn" v-if="detail.list_create_userid != MoeAuth.UserInfo?.userid && !route.query.listid" @click="toggleFavorite(detail.list_create_gid)"><i
                             class="fas fa-heart"></i></button>
-                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.from_profile"><i
+                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.listid"><i
                             class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
@@ -80,11 +80,11 @@ const toggleFavorite = async (id) => {
         window.$modal.alert(t('shou-cang-shi-bai'));
     }
 }
-const deletePlaylist = async (id) => {
+const deletePlaylist = async () => {
     const result = await window.$modal.confirm(t('que-ren-shan-chu-ge-dan'));
     if (result) {
-        await get('/playlist/del', { listid: id });
-        router.replace('/library');
+        await get('/playlist/del', { listid: route.query.listid });
+        router.back();
     }
 }
 const props = defineProps({
@@ -270,6 +270,8 @@ const prevPage = () => {
 
 .track-duration {
     margin-left: 10px;
+    width: 111px;
+    text-align: right;
 }
 
 .pagination {
