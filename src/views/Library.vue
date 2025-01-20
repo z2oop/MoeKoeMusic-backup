@@ -43,7 +43,7 @@
                     :key="index">
                     <router-link :to="{
                         path: '/PlaylistDetail',
-                        query: { global_collection_id: item.list_create_gid || item.global_collection_id }
+                        query: { global_collection_id: item.list_create_gid || item.global_collection_id, from_profile: true }
                     }">
                         <img :src="item.pic ? $getCover(item.pic, 480) : './assets/images/live.png'"
                             class="album-image" />

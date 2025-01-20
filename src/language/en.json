@@ -143,5 +143,7 @@
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "Please enter a new playlist name",
   "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "Created successfully, waiting for cache update",
   "chuang-jian-shi-bai": "Creation failed",
-  "que-ren-shan-chu-ge-dan": "Confirm to delete the playlist?"
+  "que-ren-shan-chu-ge-dan": "Confirm to delete the playlist?",
+  "shou-cang-shi-bai": "Collection failed",
+  "shou-cang-cheng-gong": "Collection successful"
 }

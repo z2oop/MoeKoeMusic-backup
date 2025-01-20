@@ -10,9 +10,9 @@
                 <div class="playlist-actions">
                     <button class="play-btn" @click="getPlaylistAllSongs(detail.global_collection_id)"><i
                             class="fas fa-play"></i> {{ $t('bo-fang') }}</button>
-                    <button class="fav-btn" @click="toggleFavorite(detail.global_collection_id)"><i
+                    <button class="fav-btn" v-if="detail.list_create_userid != MoeAuth.UserInfo?.userid" @click="toggleFavorite(detail.list_create_gid)"><i
                             class="fas fa-heart"></i></button>
-                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid"><i
+                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.from_profile"><i
                             class="fas fa-trash-alt"></i></button>
                 </div>
             </div>
@@ -47,7 +47,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import ContextMenu from '../components/ContextMenu.vue';
-import { get } from '../utils/request';
+import { get,post } from '../utils/request';
 import { useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
@@ -68,16 +68,23 @@ const playSong = (hash, name, img, author) => {
 const getPlaylistAllSongs = (id) => {
     props.playerControl.getPlaylistAllSongs(id);
 }
-const toggleFavorite = (id) => {
-    
+const toggleFavorite = async (id) => {
+    if(!MoeAuth.isAuthenticated){
+        window.$modal.alert(t('qing-xian-deng-lu'));
+        return;
+    }
+    try {
+        await get('/playlist/add', { name: detail.value.name, list_create_userid: MoeAuth.UserInfo.userid, type: 1,list_create_gid:id });
+        window.$modal.alert(t('shou-cang-cheng-gong'));
+    } catch (error) {
+        window.$modal.alert(t('shou-cang-shi-bai'));
+    }
 }
 const deletePlaylist = async (id) => {
     const result = await window.$modal.confirm(t('que-ren-shan-chu-ge-dan'));
     if (result) {
-        const response = await get('/playlist/del', { listid: id });
-        if (response.status == 1) {
-            router.replace('/library');
-        }
+        await get('/playlist/del', { listid: id, type: 1 });
+        router.replace('/library');
     }
 }
 const props = defineProps({
@@ -214,7 +221,13 @@ const prevPage = () => {
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
+    border: 1px solid var(--color-primary);
 }
+
+.fav-btn i{
+    color: var(--color-primary);
+}
+
 
 .track-list {
     margin-top: 20px;

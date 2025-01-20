@@ -143,5 +143,7 @@
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "새 재생목록 이름을 입력하세요.",
   "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "성공적으로 생성되었으며 캐시 업데이트를 기다리는 중입니다.",
   "chuang-jian-shi-bai": "생성 실패",
-  "que-ren-shan-chu-ge-dan": "재생목록을 삭제하시겠습니까?"
+  "que-ren-shan-chu-ge-dan": "재생목록을 삭제하시겠습니까?",
+  "shou-cang-shi-bai": "수집 실패",
+  "shou-cang-cheng-gong": "수집 성공"
 }
