@@ -573,7 +573,7 @@ const toggleLyrics = async () => {
 // 请求歌词
 const getLyrics = async (hash) => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if (!showLyrics.value &&  savedConfig.desktopLyrics === 'off') return;
+    if (!showLyrics.value &&  savedConfig?.desktopLyrics === 'off') return;
     const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
     if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
         SongTips.value = t('zan-wu-ge-ci');
@@ -610,7 +610,7 @@ const parseLyrics = (text) => {
         .filter((line) => line);
     lyricsData.value = parsedLyrics;
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if(isElectron() && savedConfig.desktopLyrics === 'on'){
+    if(isElectron() && savedConfig?.desktopLyrics === 'on'){
         window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
     }
 };
@@ -679,10 +679,10 @@ const throttledHighlight = throttle(() => {
         if(showLyrics.value){
             highlightCurrentChar(audio.currentTime);
         }
-        if(isElectron() && savedConfig.desktopLyrics === 'on'){
+        if(isElectron() && savedConfig?.desktopLyrics === 'on'){
             window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
         }
-    }else if(isElectron() && savedConfig.desktopLyrics === 'on'){
+    }else if(isElectron() && savedConfig?.desktopLyrics === 'on'){
         getLyrics(currentSong.value.hash)
     }
     localStorage.setItem('player_progress', audio.currentTime);

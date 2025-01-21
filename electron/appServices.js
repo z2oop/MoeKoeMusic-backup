@@ -76,7 +76,7 @@ export function createWindow() {
     });
     
     const savedConfig = store.get('settings');
-    if(savedConfig.desktopLyrics === 'on'){
+    if(savedConfig?.desktopLyrics === 'on'){
         createLyricsWindow();
     }
     return mainWindow;

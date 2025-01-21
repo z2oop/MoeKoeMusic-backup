@@ -7,11 +7,28 @@ const store = new Store();
 
 app.on('ready', () => {
     startApiServer().then(() => {
-        mainWindow = createWindow();
-        createTray(mainWindow);
-        playStartupSound();
-        registerShortcut();
+        try {
+            mainWindow = createWindow();
+            createTray(mainWindow);
+            playStartupSound();
+            registerShortcut();
+        } catch (error) {
+            console.log('初始化应用时发生错误:', error);
+            createTray(null);
+            dialog.showMessageBox({
+                type: 'error',
+                title: '错误',
+                message: '初始化应用时发生错误。',
+                buttons: ['确定']
+            }).then(result => {
+                if (result.response === 0) {
+                    app.isQuitting = true;
+                    app.quit();
+                }
+            });
+        }
     }).catch((error) => {
+        console.log('API 服务启动失败:', error);
         createTray(null);
         dialog.showMessageBox({
             type: 'error',

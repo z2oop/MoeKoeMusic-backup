@@ -66,7 +66,7 @@ import { get } from '../utils/request';
 import ContextMenu from '../components/ContextMenu.vue';
 const songs = ref([]);
 const special_list = ref([]);
-const loading = ref(true);
+const isLoading = ref(true);
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
 };
@@ -89,7 +89,7 @@ const recommend = async () => {
     if (response.status == 1) {
         songs.value = response.data.song_list;
     }
-    loading.value = false;
+    isLoading.value = false;
 }
 
 const playlist = async () => {

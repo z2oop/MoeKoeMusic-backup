@@ -48,7 +48,7 @@ const state = {
 
 onMounted(() => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    const lyricsFontSize = savedConfig.lyricsFontSize || '32px';
+    const lyricsFontSize = savedConfig?.lyricsFontSize || '32px';
     document.querySelector('.lyrics-container').style.fontSize = lyricsFontSize;
     isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
     setWindowIgnoreMouseEvents(true);
