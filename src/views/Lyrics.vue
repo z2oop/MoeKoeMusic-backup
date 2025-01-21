@@ -225,7 +225,7 @@ onBeforeUnmount(() => {
 <style>
 body,
 html {
-    background-color: rgba(0, 0, 0, 0) !important;
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .character {

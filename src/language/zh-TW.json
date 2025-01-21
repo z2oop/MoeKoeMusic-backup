@@ -10,14 +10,14 @@
   "ge-ci-zi-ti-da-xiao": "歌詞字體大小",
   "guan-bi": "關閉",
   "kai-qi": "開啟",
-  "nan-nan-lan": "男男藍",
+  "nan-nan-lan": "薄荷綠",
   "pu-tong-yin-zhi": "普通音質 - 128Kbps",
   "qi-dong-wen-hou-yu": "啟動問候語",
   "qian-se": "淺色",
   "shao-nv-fen": "少女粉",
   "shen-se": "深色",
   "sheng-yin": "聲音",
-  "tou-ding-lv": "頭頂綠",
+  "tou-ding-lv": "天空藍",
   "wai-guan": "外觀",
   "xian-shi-ge-ci-bei-jing": "顯示歌詞背景",
   "xian-shi-zhuo-mian-ge-ci": "顯示桌面歌詞",
@@ -145,5 +145,6 @@
   "chuang-jian-shi-bai": "創建失敗",
   "que-ren-shan-chu-ge-dan": "確認刪除歌單？",
   "shou-cang-shi-bai": "收藏失敗",
-  "shou-cang-cheng-gong": "收藏成功"
+  "shou-cang-cheng-gong": "收藏成功",
+  "wo-guan-zhu-de-yi-ren": "我關注的音樂人"
 }

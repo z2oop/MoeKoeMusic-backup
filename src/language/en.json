@@ -10,14 +10,14 @@
   "ge-ci-zi-ti-da-xiao": "Lyrics font size",
   "guan-bi": "closure",
   "kai-qi": "turn on",
-  "nan-nan-lan": "male male blue",
+  "nan-nan-lan": "mint green",
   "pu-tong-yin-zhi": "Normal sound quality - 128Kbps",
   "qi-dong-wen-hou-yu": "Start greeting",
   "qian-se": "light color",
   "shao-nv-fen": "girly pink",
   "shen-se": "Dark",
   "sheng-yin": "sound",
-  "tou-ding-lv": "Green head",
+  "tou-ding-lv": "sky blue",
   "wai-guan": "Appearance",
   "xian-shi-ge-ci-bei-jing": "Show lyrics background",
   "xian-shi-zhuo-mian-ge-ci": "Show desktop lyrics",
@@ -145,5 +145,6 @@
   "chuang-jian-shi-bai": "Creation failed",
   "que-ren-shan-chu-ge-dan": "Confirm to delete the playlist?",
   "shou-cang-shi-bai": "Collection failed",
-  "shou-cang-cheng-gong": "Collection successful"
+  "shou-cang-cheng-gong": "Collection successful",
+  "wo-guan-zhu-de-yi-ren": "Musicians I follow"
 }

@@ -10,14 +10,14 @@
   "ge-ci-zi-ti-da-xiao": "가사 글꼴 크기",
   "guan-bi": "폐쇄",
   "kai-qi": "켜다",
-  "nan-nan-lan": "남성 남성 파란색",
+  "nan-nan-lan": "민트 그린",
   "pu-tong-yin-zhi": "일반 음질 - 128Kbps",
   "qi-dong-wen-hou-yu": "인사말 시작",
   "qian-se": "연한 색",
   "shao-nv-fen": "만나고 핑크",
   "shen-se": "어두운",
   "sheng-yin": "소리",
-  "tou-ding-lv": "녹색 머리",
+  "tou-ding-lv": "하늘색",
   "wai-guan": "모습",
   "xian-shi-ge-ci-bei-jing": "가사 배경 표시",
   "xian-shi-zhuo-mian-ge-ci": "데스크톱 가사 표시",
@@ -145,5 +145,6 @@
   "chuang-jian-shi-bai": "생성 실패",
   "que-ren-shan-chu-ge-dan": "재생목록을 삭제하시겠습니까?",
   "shou-cang-shi-bai": "수집 실패",
-  "shou-cang-cheng-gong": "수집 성공"
+  "shou-cang-cheng-gong": "수집 성공",
+  "wo-guan-zhu-de-yi-ren": "내가 팔로우하는 음악가"
 }

@@ -63,19 +63,17 @@
                         </div>
                     </router-link>
                 </div>
-                <div v-if="selectedCategory === 0 && !isLoading" class="music-card" @click="createPlaylist">
-                    <div class="create-playlist-button">
-                        <i class="fas fa-plus"></i>
-                        <img :src="`./assets/images/ti111mg.png`" alt="cover">
-                    </div>
+                <div v-if="selectedCategory === 0 && !isLoading" class="music-card create-playlist-button" @click="createPlaylist">
+                    <i class="fas fa-plus"></i>
+                    <img :src="`./assets/images/ti111mg.png`" class="album-image" />
                     <div class="album-info">
                         <h3>{{ $t('chuang-jian-ge-dan') }}</h3>
+                        <p></p>
                     </div>
                 </div>
             </template>
-            <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card"
-                v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : collectedFriends)" :key="index">
-
+            <div v-if="selectedCategory === 3 || selectedCategory === 4 || selectedCategory === 5" class="music-card"
+                v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : selectedCategory === 4 ? collectedFriends : selectedCategory === 5 ? followedArtist : [])" :key="index">
                 <img :src="artist.pic" alt="artist avatar" class="album-image" />
                 <div class="album-info">
                     <h3>{{ artist.nickname }}</h3>
@@ -87,7 +85,8 @@
         (selectedCategory == 1 && collectedPlaylists.length === 0) || 
         (selectedCategory == 2 && collectedAlbums.length === 0) || 
         (selectedCategory == 3 && followedArtists.length === 0) || 
-        (selectedCategory == 4 && collectedFriends.length === 0)"
+        (selectedCategory == 4 && collectedFriends.length === 0) || 
+        (selectedCategory == 5 && followedArtist.length === 0)"
             :description="t('zhe-li-shi-mo-du-mei-you')" />
     </div>
 </template>
@@ -108,8 +107,9 @@ const collectedAlbums = ref([]); // 收藏的专辑
 const collectedFriends = ref([]); // 好友
 const followedArtists = ref([]); // 关注的歌手
 const listenHistory = ref([]); // 听歌历史
+const followedArtist = ref([]); // 关注的艺人
 const userVip = ref({});
-const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou'), t('wo-guan-zhu-de-hao-you')]);
+const categories = ref([t('wo-chuang-jian-de-ge-dan'), t('wo-shou-cang-de-ge-dan'), t('wo-shou-cang-de-zhuan-ji'), t('wo-guan-zhu-de-ge-shou'), t('wo-guan-zhu-de-hao-you'), t('wo-guan-zhu-de-yi-ren')]);
 const selectedCategory = ref(0);
 const isLoading = ref(true); 
 const selectCategory = (index) => {
@@ -167,13 +167,14 @@ const getlisten = async () => {
 const getfollow = async () => {
     const followResponse = await get('/user/follow');
     if (followResponse.status === 1) {
-        if (!followResponse.data.lists || followResponse.data.lists.length == 0) return;
+        if (followResponse.data.total == 0) return;
         const artists = followResponse.data.lists.map(artist => ({
             ...artist,
             pic: artist.pic.replace('/100/', '/480/')
         }));
-        collectedFriends.value = artists.filter(artist => artist.userid !== 0);
-        followedArtists.value = artists.filter(artist => artist.userid === 0);
+        collectedFriends.value = artists.filter(artist => !artist.singerid);
+        followedArtists.value = artists.filter(artist => artist.userid == 0);
+        followedArtist.value = artists.filter(artist => artist.source == 7 && artist.userid !== 0);
     }
 }
 const getplaylist = async () => {
@@ -382,29 +383,6 @@ const createPlaylist = async () => {
     color: #666;
 }
 
-.create-playlist-button {
-    width: 100%;
-    height: 68%;
-    color: var(--primary-color);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--secondary-color);
-    cursor: pointer;
-    position: relative;
-}
-
-.create-playlist-button img {
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
-}
-
-.create-playlist-button i {
-    font-size: 30px;
-}
-
 .skeleton-loader {
     display: flex;
     flex-wrap: wrap;
@@ -444,5 +422,19 @@ const createPlaylist = async () => {
     margin-bottom: 5px;
     border-radius: 5px;
     width: 150px;
+}
+
+.create-playlist-button {
+    color: var(--primary-color);
+    border-radius: 10px;
+    cursor: pointer;
+    position: relative;
+}
+
+.create-playlist-button i {
+    font-size: 30px;
+    position: absolute;
+    top: 32%;
+    left: 29%;
 }
 </style>

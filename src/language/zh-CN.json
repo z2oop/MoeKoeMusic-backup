@@ -22,8 +22,8 @@
   "kai-qi": "开启",
   "xuan-ze-yu-yan": "选择语言",
   "xuan-ze-zhu-se-tiao": "选择主色调",
-  "nan-nan-lan": "男男蓝",
-  "tou-ding-lv": "头顶绿",
+  "nan-nan-lan": "薄荷绿",
+  "tou-ding-lv": "天空蓝",
   "xuan-ze-wai-guan": "选择外观",
   "zi-dong": "自动",
   "shen-se": "深色",
@@ -145,5 +145,6 @@
   "chuang-jian-shi-bai": "创建失败",
   "que-ren-shan-chu-ge-dan": "确认删除歌单？",
   "shou-cang-cheng-gong": "收藏成功",
-  "shou-cang-shi-bai": "收藏失败"
+  "shou-cang-shi-bai": "收藏失败",
+  "wo-guan-zhu-de-yi-ren": "我关注的音乐人"
 }
