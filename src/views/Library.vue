@@ -68,7 +68,7 @@
                     <img :src="`./assets/images/ti111mg.png`" class="album-image" />
                     <div class="album-info">
                         <h3>{{ $t('chuang-jian-ge-dan') }}</h3>
-                        <p></p>
+                        <p>(*╹▽╹*)</p>
                     </div>
                 </div>
             </template>

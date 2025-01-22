@@ -8,7 +8,6 @@ html.dark body {
     background-color: #121212;
 }
 
-/* 设置页面 */
 html.dark .settings-page {
     background-color: #121212;
 }
@@ -27,7 +26,6 @@ html.dark .setting-control {
     color: #e1e1e1;
 }
 
-/* 模态框 */
 html.dark .modal {
     background: rgba(0, 0, 0);
 }
@@ -324,7 +322,7 @@ html.dark .extra-controls .extra-btn {
     border: none!important;
 }
 
-html.dark .search-bar input {
+html.dark .search-bar input, html.dark .search-input {
     background-color: #2a2a2a !important;
     color: #e1e1e1 !important;
     border: 1px solid #373434 !important;
@@ -385,3 +383,18 @@ html.dark .search-results li{
 html.dark .search-results li:hover{
     background-color: #2a2a2a;
 }
+
+html.dark .skeleton-grid .skeleton-card {
+    background-color: #1d1d1d;
+}
+html.dark .skeleton-grid .skeleton-title, html.dark .skeleton-grid .skeleton-text, html.dark .skeleton-grid .skeleton-image {
+    background-color: #2a2a2a;
+}
+
+html.dark .skeleton-loader .skeleton-item {
+    background-color: #1d1d1d;
+}
+html.dark .skeleton-loader .skeleton-cover, html.dark .skeleton-loader .skeleton-line {
+    background-color: #2a2a2a;
+}
+

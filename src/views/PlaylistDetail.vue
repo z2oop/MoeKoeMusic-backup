@@ -19,7 +19,10 @@
         </div>
 
         <div class="track-list">
-            <h2 class="track-list-title"><span>{{ $t('ge-qu-lie-biao') }}</span> ( {{ detail.count }} )</h2>
+            <div class="track-list-header">
+                <h2 class="track-list-title"><span>{{ $t('ge-qu-lie-biao') }}</span> ( {{ detail.count }} )</h2>
+                <input type="text" v-model="searchQuery" @keyup.enter="searchTracks" placeholder="搜索歌曲..." class="search-input" />
+            </div>
             <ul>
                 <li v-for="(track, index) in tracks" :key="index"
                     @click="playSong($getQuality(track.relate_goods), track.name, $getCover(track.cover, 480), track.name)"
@@ -47,7 +50,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import ContextMenu from '../components/ContextMenu.vue';
-import { get,post } from '../utils/request';
+import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
@@ -221,7 +224,7 @@ const prevPage = () => {
     padding: 10px;
     border-radius: 5px;
     cursor: pointer;
-    border: 1px solid var(--color-primary);
+    border:1px solid var(--secondary-color);
 }
 
 .fav-btn i{
@@ -231,6 +234,21 @@ const prevPage = () => {
 
 .track-list {
     margin-top: 20px;
+}
+
+.track-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.search-input {
+    width: 250px; 
+    padding: 8px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 20px;
+    box-sizing: border-box;
 }
 
 .track-list-title {
