@@ -314,7 +314,7 @@
 .progress {
     width: 50%;
     height: 100%;
-    background-color: #ff69b4;
+    background-color: var(--primary-color);
     border-radius: 5px;
 }
 
