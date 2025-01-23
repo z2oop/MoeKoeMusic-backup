@@ -70,6 +70,7 @@ main {
     margin: 0 auto;
     margin-bottom: 150px;
     padding-top: 80px;
+    padding-bottom: 150px;
 }
 
 a {

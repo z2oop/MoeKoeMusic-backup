@@ -178,7 +178,10 @@ const getfollow = async () => {
     }
 }
 const getplaylist = async () => {
-    const playlistResponse = await get('/user/playlist?pagesize=100');
+    const playlistResponse = await get('/user/playlist',{
+        pagesize:100,
+        t: localStorage.getItem('t')
+    });
     if (playlistResponse.status === 1) {
         userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
         collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
@@ -191,7 +194,8 @@ const createPlaylist = async () => {
         try {
             const playlistResponse = await get('/playlist/add', { name: result, list_create_userid: user.value.userid });
             if (playlistResponse.status === 1) {
-                window.$modal.alert(t('chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin'));
+                localStorage.setItem('t', Date.now());
+                getplaylist()
             }
         } catch (error) {
             window.$modal.alert(t('chuang-jian-shi-bai'));

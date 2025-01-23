@@ -14,9 +14,21 @@
                     <button class="fav-btn" v-if="detail.list_create_userid != MoeAuth.UserInfo?.userid && !route.query.listid" @click="toggleFavorite(detail.list_create_gid)">
                         <i class="fas fa-heart"></i>
                     </button>
-                    <button class="more-btn" @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.listid">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                    <div class="more-btn-container">
+                        <button class="more-btn" @click="toggleDropdown">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div v-if="isDropdownVisible" class="dropdown-menu">
+                            <ul>
+                                <li @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.listid">
+                                    <i class="fas fa-trash-alt"></i>
+                                </li>
+                                <li @click="sharePlaylist">
+                                    <i class="fas fa-share-alt"></i>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller';
 import ContextMenu from '../components/ContextMenu.vue';
 import { get } from '../utils/request';
@@ -69,6 +81,7 @@ const detail = ref([]);
 const searchQuery = ref('');
 const contextMenuRef = ref(null);
 const recycleScrollerRef = ref(null);
+const isDropdownVisible = ref(false);
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
 };
@@ -79,15 +92,18 @@ const toggleFavorite = async (id) => {
     }
     try {
         await get('/playlist/add', { name: detail.value.name, list_create_userid: MoeAuth.UserInfo.userid, type: 1,list_create_gid:id });
+        localStorage.setItem('t', Date.now());
         window.$modal.alert(t('shou-cang-cheng-gong'));
     } catch (error) {
         window.$modal.alert(t('shou-cang-shi-bai'));
     }
 }
 const deletePlaylist = async () => {
+    isDropdownVisible.value = false;
     const result = await window.$modal.confirm(t('que-ren-shan-chu-ge-dan'));
     if (result) {
         await get('/playlist/del', { listid: route.query.listid });
+        localStorage.setItem('t', Date.now());
         router.back();
     }
 }
@@ -96,11 +112,25 @@ const props = defineProps({
 });
 onMounted(() => {
     getdetail();
+    document.addEventListener('click', handleClickOutside);
 });
 
-watch(currentPage, () => {
-    getTracks();
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleClickOutside);
 });
+
+const handleClickOutside = (event) => {
+    const dropdown = document.querySelector('.dropdown-menu');
+    const moreBtn = document.querySelector('.more-btn');
+    if (dropdown && !dropdown.contains(event.target) && !moreBtn.contains(event.target)) {
+        isDropdownVisible.value = false;
+    }
+};
+
+watch(() => route.query.global_collection_id, () => {
+    getdetail();
+});
+
 const showContextMenu = (event, song) => {
     if (contextMenuRef.value) {
         contextMenuRef.value.openContextMenu(event, { 
@@ -128,20 +158,24 @@ const searchTracks = () => {
 const getTracks = async () => {
     let allTracks = [];
     let currentPage = 1;
-
-    const firstPageResponse = await get('/playlist/track/all', {
-        id: route.query.global_collection_id,
-        page: currentPage,
-        pagesize: pageSize.value
-    });
-    if (firstPageResponse.status == 1) {
-        allTracks = firstPageResponse.data.info;
-        tracks.value = allTracks;
-        filteredTracks.value = allTracks;
-        currentPage++;
+    try{    
+        const firstPageResponse = await get('/playlist/track/all', {
+            id: route.query.global_collection_id,
+            page: currentPage,
+            pagesize: pageSize.value
+        });
+        if (firstPageResponse.status == 1) {
+            allTracks = firstPageResponse.data.info;
+            tracks.value = allTracks;
+            filteredTracks.value = allTracks;
+            currentPage++;
+        }
+    }catch(error){
+        window.$modal.alert(t('ge-qu-shu-ju-cuo-wu'));
+        return;
     }
-    const totalPages =  Math.ceil(detail.value.count / pageSize.value);
 
+    const totalPages =  Math.ceil(detail.value.count / pageSize.value);
     for(let i = 1; i < totalPages; i++){
         const response = await get('/playlist/track/all', {
             id: route.query.global_collection_id,
@@ -171,6 +205,16 @@ const scrollToItem = () => {
     const currentIndex = filteredTracks.value.findIndex(song => song.hash === props.playerControl.currentSong.hash);
     recycleScrollerRef.value.scrollToItem(currentIndex - 5, { behavior: 'smooth' });
 }
+
+const toggleDropdown = () => {
+    isDropdownVisible.value = !isDropdownVisible.value;
+};
+
+const sharePlaylist = () => {
+    isDropdownVisible.value = false;
+    navigator.clipboard.writeText(route.query.global_collection_id);
+    window.$modal.alert(t('yi-fu-zhi-fen-xiang-ma-qing-zai-moekoe-ke-hu-duan-zhong-fang-wen'));
+};
 
 </script>
 
@@ -362,5 +406,32 @@ const scrollToItem = () => {
     font-size: 16px;
     color: var(--primary-color);
     cursor: pointer;
+}
+.more-btn-container{
+    position: relative;
+} 
+.dropdown-menu {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    top: 50px;
+    z-index: 50;
+}
+
+.dropdown-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-menu li {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown-menu li:hover {
+    background-color: #f0f0f0;
 }
 </style>

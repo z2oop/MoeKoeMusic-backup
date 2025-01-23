@@ -98,7 +98,7 @@
   "shou-ye": "首頁",
   "shun-xu-bo-fang": "順序播放",
   "sou-suo-jie-guo": "搜尋結果",
-  "sou-suo-yin-le-ge-shou-ge-dan": "搜尋音樂、歌手、歌單...",
+  "sou-suo-yin-le-ge-shou-ge-dan": "搜尋音樂、歌手、歌單、分享碼...",
   "sui-ji-bo-fang": "隨機播放",
   "tong-yi": "同意",
   "tong-yi-ji-xu-shi-yong-ben-xiang-mu-nin-ji-jie-shou-yi-shang-tiao-kuan-sheng-ming-nei-rong": "同意繼續使用本項目，您即接受以上條款聲明內容。",
@@ -141,7 +141,6 @@
   "tian-jia-cheng-gong": "添加成功",
   "chuang-jian-ge-dan": "建立歌單",
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "請輸入新的歌單名稱",
-  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "創建成功，等待快取更新",
   "chuang-jian-shi-bai": "創建失敗",
   "que-ren-shan-chu-ge-dan": "確認刪除歌單？",
   "shou-cang-shi-bai": "收藏失敗",
@@ -149,5 +148,7 @@
   "wo-guan-zhu-de-yi-ren": "我關注的音樂人",
   "sou-suo-ge-qu": "搜尋歌曲...",
   "fan-hui-ding-bu": "回到頂部",
-  "dang-qian-bo-fang-ge-qu": "目前播放歌曲"
+  "dang-qian-bo-fang-ge-qu": "目前播放歌曲",
+  "yi-fu-zhi-fen-xiang-ma-qing-zai-moekoe-ke-hu-duan-zhong-fang-wen": "已複製分享碼，請在MoeKoe客戶端中查看",
+  "ge-qu-shu-ju-cuo-wu": "歌單不存在"
 }

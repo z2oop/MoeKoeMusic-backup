@@ -82,7 +82,7 @@
   "shou-ge": "首歌",
   "shou-ye": "首页",
   "yin-le-ku": "音乐库",
-  "sou-suo-yin-le-ge-shou-ge-dan": "搜索音乐、歌手、歌单...",
+  "sou-suo-yin-le-ge-shou-ge-dan": "搜索音乐、歌手、歌单、分享码...",
   "she-zhi": "设置",
   "tui-chu": "退出",
   "deng-lu": "登录",
@@ -141,7 +141,6 @@
   "tian-jia-cheng-gong": "添加成功",
   "chuang-jian-ge-dan": "创建歌单",
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "请输入新的歌单名称",
-  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "创建成功，等待缓存更新",
   "chuang-jian-shi-bai": "创建失败",
   "que-ren-shan-chu-ge-dan": "确认删除歌单？",
   "shou-cang-cheng-gong": "收藏成功",
@@ -149,5 +148,7 @@
   "wo-guan-zhu-de-yi-ren": "我关注的音乐人",
   "sou-suo-ge-qu": "搜索歌曲...",
   "dang-qian-bo-fang-ge-qu": "当前播放歌曲",
-  "fan-hui-ding-bu": "返回顶部"
+  "fan-hui-ding-bu": "返回顶部",
+  "yi-fu-zhi-fen-xiang-ma-qing-zai-moekoe-ke-hu-duan-zhong-fang-wen": "已复制分享码，请在MoeKoe客户端中查看",
+  "ge-qu-shu-ju-cuo-wu": "歌单不存在"
 }

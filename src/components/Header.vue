@@ -130,6 +130,13 @@ const toggleProfile = () => {
 };
 const getSearch = () => {
     if (searchQuery.value.trim() !== '') {
+        if (searchQuery.value.includes('collection_')) {
+            router.push({
+                path: '/PlaylistDetail',
+                query: { global_collection_id: searchQuery.value }
+            });
+            return;
+        }
         router.push({
             path: '/search',
             query: { q: searchQuery.value }

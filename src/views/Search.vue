@@ -1,27 +1,29 @@
 <template>
     <div class="search-page">
-        <div v-if="searchResults.length > 0" class="search-results">
+        <div class="search-results">
             <h2 class="section-title">{{ $t('sou-suo-jie-guo') }}</h2>
-            <ul>
-                <li v-for="(result, index) in searchResults" :key="index" class="result-item"
-                    @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)"
-                    @contextmenu.prevent="showContextMenu($event, result)">
-                    <img :src="$getCover(result.Image, 100)" alt="Cover" />
-                    <div class="result-info">
-                        <p class="result-name">{{ result.SongName }}</p>
-                        <p class="result-type">{{ result.SingerName }}</p>
-                    </div>
-                </li>
-            </ul>
-            <ContextMenu ref="contextMenuRef" />
-            <div class="pagination">
-                <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
-                <span>{{ $t('di') }}</span><span> {{ currentPage }} </span><span>{{ $t('ye') }}</span> <span>/</span>
-                <span>{{ $t('gong') }}</span><span> {{ totalPages }} </span><span>{{ $t('ye') }}</span>
-                <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
-            </div>
+            <template v-if="searchResults.length > 0">
+                <ul>
+                    <li v-for="(result, index) in searchResults" :key="index" class="result-item"
+                        @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)"
+                        @contextmenu.prevent="showContextMenu($event, result)">
+                        <img :src="$getCover(result.Image, 100)" alt="Cover" />
+                        <div class="result-info">
+                            <p class="result-name">{{ result.SongName }}</p>
+                            <p class="result-type">{{ result.SingerName }}</p>
+                        </div>
+                    </li>
+                </ul>
+                <div class="pagination">
+                    <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
+                    <span>{{ $t('di') }}</span><span> {{ currentPage }} </span><span>{{ $t('ye') }}</span> <span>/</span>
+                    <span>{{ $t('gong') }}</span><span> {{ totalPages }} </span><span>{{ $t('ye') }}</span>
+                    <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
+                </div>
+            </template>
         </div>
     </div>
+    <ContextMenu ref="contextMenuRef" />
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue';

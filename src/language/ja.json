@@ -99,7 +99,7 @@
   "shou-ye": "フロントページ",
   "shun-xu-bo-fang": "順番に再生する",
   "sou-suo-jie-guo": "検索結果",
-  "sou-suo-yin-le-ge-shou-ge-dan": "音楽、歌手、プレイリストを検索...",
+  "sou-suo-yin-le-ge-shou-ge-dan": "音楽、歌手、プレイリスト、共有コードを検索...",
   "sui-ji-bo-fang": "シャッフル",
   "tong-yi": "同意する",
   "tong-yi-ji-xu-shi-yong-ben-xiang-mu-nin-ji-jie-shou-yi-shang-tiao-kuan-sheng-ming-nei-rong": "このプロジェクトの使用を継続することに同意すると、上記の規約と声明に同意したことになります。",
@@ -141,7 +141,6 @@
   "tian-jia-cheng-gong": "正常に追加されました",
   "chuang-jian-ge-dan": "プレイリストの作成",
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "新しいプレイリスト名を入力してください",
-  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "正常に作成されました。キャッシュの更新を待っています",
   "chuang-jian-shi-bai": "作成に失敗しました",
   "que-ren-shan-chu-ge-dan": "プレイリストを削除しますか?",
   "shou-cang-shi-bai": "収集に失敗しました",
@@ -149,5 +148,7 @@
   "wo-guan-zhu-de-yi-ren": "私がフォローしているミュージシャン",
   "sou-suo-ge-qu": "曲を検索...",
   "fan-hui-ding-bu": "トップに戻る",
-  "dang-qian-bo-fang-ge-qu": "現在再生中の曲"
+  "dang-qian-bo-fang-ge-qu": "現在再生中の曲",
+  "yi-fu-zhi-fen-xiang-ma-qing-zai-moekoe-ke-hu-duan-zhong-fang-wen": "共有コードがコピーされました。MoeKoe クライアントで表示してください。",
+  "ge-qu-shu-ju-cuo-wu": "プレイリストが存在しません"
 }

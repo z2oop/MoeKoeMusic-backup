@@ -100,7 +100,7 @@
   "shou-ye": "front page",
   "shun-xu-bo-fang": "Play sequentially",
   "sou-suo-jie-guo": "Search results",
-  "sou-suo-yin-le-ge-shou-ge-dan": "Search music, singers, playlists...",
+  "sou-suo-yin-le-ge-shou-ge-dan": "Search music, singers, playlists, sharing codes...",
   "sui-ji-bo-fang": "shuffle",
   "tong-yi": "agree",
   "tong-yi-ji-xu-shi-yong-ben-xiang-mu-nin-ji-jie-shou-yi-shang-tiao-kuan-sheng-ming-nei-rong": "By agreeing to continue using this project, you accept the above terms and statements.",
@@ -141,7 +141,6 @@
   "tian-jia-cheng-gong": "Added successfully",
   "chuang-jian-ge-dan": "Create playlist",
   "qing-shu-ru-xin-de-ge-dan-ming-cheng": "Please enter a new playlist name",
-  "chuang-jian-cheng-gong-deng-dai-huan-cun-geng-xin": "Created successfully, waiting for cache update",
   "chuang-jian-shi-bai": "Creation failed",
   "que-ren-shan-chu-ge-dan": "Confirm to delete the playlist?",
   "shou-cang-shi-bai": "Collection failed",
@@ -149,5 +148,7 @@
   "wo-guan-zhu-de-yi-ren": "Musicians I follow",
   "sou-suo-ge-qu": "Search for songs...",
   "fan-hui-ding-bu": "Back to top",
-  "dang-qian-bo-fang-ge-qu": "Currently playing song"
+  "dang-qian-bo-fang-ge-qu": "Currently playing song",
+  "yi-fu-zhi-fen-xiang-ma-qing-zai-moekoe-ke-hu-duan-zhong-fang-wen": "The sharing code has been copied, please view it in the MoeKoe client",
+  "ge-qu-shu-ju-cuo-wu": "Playlist does not exist"
 }
