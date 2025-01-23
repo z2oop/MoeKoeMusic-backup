@@ -135,6 +135,18 @@ export function createTray(mainWindow) {
 
     const contextMenu = Menu.buildFromTemplate([
         {
+            label: '项目主页',
+            click: () => {
+                shell.openExternal('https://github.com/iAJue/');
+            }
+        },
+        {
+            label: '反馈bug',
+            click: () => {
+                shell.openExternal('https://github.com/iAJue/MoeKoeMusic/issues');
+            }
+        },
+        {
             label: '显示/隐藏', accelerator: 'CmdOrCtrl+Shift+S', click: () => {
                 if (mainWindow) {
                     if (mainWindow.isVisible()) {
