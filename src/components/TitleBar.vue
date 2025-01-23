@@ -53,15 +53,15 @@ const maximizeWindow = () => window.electron.ipcRenderer.send('window-control', 
 }
 
 #closeBtn {
-  background-color: #ff5f57;
+  background-color: #ff5f57!important;
 }
 
 #minBtn {
-  background-color: #ffbd2e;
+  background-color: #ffbd2e!important;
 }
 
 #maxBtn {
-  background-color: #28c940;
+  background-color: #28c940!important;
 }
 
 .control-button:hover {

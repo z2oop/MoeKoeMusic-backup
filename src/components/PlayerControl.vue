@@ -549,11 +549,7 @@ const toggleQueue = async () => {
         await nextTick();
         setTimeout(() => {
             const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-            if (currentIndex !== -1 && queueScroller.value) {
-                const middleOffset = Math.floor(queueScroller.value.$el.clientHeight / 100);
-                const scrollToIndex = Math.max(0, currentIndex - middleOffset);
-                queueScroller.value.scrollToItem(scrollToIndex);
-            }
+            queueScroller.value.scrollToItem(currentIndex - 3);
         }, 100);
     }
 };
@@ -690,11 +686,12 @@ const throttledHighlight = throttle(() => {
 // 启动监听
 audio.addEventListener('timeupdate', throttledHighlight);
 
-
 defineExpose({
     addSongToQueue,
     getPlaylistAllSongs,
-    addToNext
+    addPlaylistToQueue,
+    addToNext,
+    currentSong
 });
 
 onMounted(() => {
