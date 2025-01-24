@@ -264,11 +264,13 @@ const easterEggImage = computed(() => {
 const easterEggClass = computed(() => easterEggImage.value?.class || '');
 // 播放音乐
 const playSong = async (song) => {
+    initSMTC();
     try {
         currentSong.value = structuredClone(song);
         lyricsData.value = [];
         audio.src = song.url;
         try {
+            changeSMTC(currentSong.value);
             await audio.play();
             playing.value = true;
         } catch (playError) {
@@ -888,6 +890,27 @@ const hideTimeTooltip = () => {
     if (!isProgressDragging.value) {
         showTimeTooltip.value = false;
     }
+};
+
+const initSMTC = () => {
+    navigator.mediaSession.setActionHandler('play', togglePlayPause());
+    navigator.mediaSession.setActionHandler('pause', togglePlayPause());
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        playSongFromQueue('previous');
+        });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        playSongFromQueue('next');
+        });
+    navigator.mediaSession.setActionHandler('seekto',(e) => { currentTime.value = e.seekTime; });
+};
+
+const changeSMTC = (song)=>{
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.name,
+    artist: song.author,
+    album: song.album,
+    artwork: [{ src: song.img }]
+  });
 };
 </script>
 
