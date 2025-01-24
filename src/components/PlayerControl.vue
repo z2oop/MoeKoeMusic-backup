@@ -217,6 +217,7 @@ const isProgressDragging = ref(false);
 const isDraggingHandle = ref(false);
 const climaxPoints = ref([]);
 const NextSong = ref([]);
+const initOnce = ref(true);
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
@@ -240,6 +241,7 @@ onMounted(() => {
         audio.currentTime = localStorage.getItem('player_progress');
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
+    initSMTC();
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -265,10 +267,14 @@ const easterEggClass = computed(() => easterEggImage.value?.class || '');
 // 播放音乐
 const playSong = async (song) => {
     try {
+        if (initOnce.value) {
+            initOnce.value = false;
+        }
         currentSong.value = structuredClone(song);
         lyricsData.value = [];
         audio.src = song.url;
         try {
+            changeSMTC(currentSong.value);
             await audio.play();
             playing.value = true;
         } catch (playError) {
@@ -888,6 +894,26 @@ const hideTimeTooltip = () => {
     if (!isProgressDragging.value) {
         showTimeTooltip.value = false;
     }
+};
+
+const initSMTC = () => {
+    navigator.mediaSession.setActionHandler('play', togglePlayPause);
+    navigator.mediaSession.setActionHandler('pause', togglePlayPause);
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+        playSongFromQueue('previous');
+    });
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+        playSongFromQueue('next');
+    });
+};
+
+const changeSMTC = (song)=>{
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: song.name,
+    artist: song.author,
+    album: song.album,
+    artwork: [{ src: song.img }]
+  });
 };
 </script>
 
