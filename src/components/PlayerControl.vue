@@ -241,6 +241,7 @@ onMounted(() => {
         audio.currentTime = localStorage.getItem('player_progress');
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
+    initSMTC();
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -267,8 +268,8 @@ const easterEggClass = computed(() => easterEggImage.value?.class || '');
 const playSong = async (song) => {
     try {
         if (initOnce.value) {
-            initSMTC();
-            initOnce.value = false;}
+            initOnce.value = false;
+        }
         currentSong.value = structuredClone(song);
         lyricsData.value = [];
         audio.src = song.url;
@@ -896,15 +897,14 @@ const hideTimeTooltip = () => {
 };
 
 const initSMTC = () => {
-    navigator.mediaSession.setActionHandler('play', togglePlayPause());
-    navigator.mediaSession.setActionHandler('pause', togglePlayPause());
+    navigator.mediaSession.setActionHandler('play', togglePlayPause);
+    navigator.mediaSession.setActionHandler('pause', togglePlayPause);
     navigator.mediaSession.setActionHandler('previoustrack', () => {
         playSongFromQueue('previous');
-        });
+    });
     navigator.mediaSession.setActionHandler('nexttrack', () => {
         playSongFromQueue('next');
-        });
-    // navigator.mediaSession.setActionHandler('seekto',(e) => { currentTime.value = e.seekTime; });
+    });
 };
 
 const changeSMTC = (song)=>{
