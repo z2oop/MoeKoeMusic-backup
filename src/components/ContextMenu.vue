@@ -113,8 +113,6 @@ const addToNext = async (song) => {
     hideContextMenu();
 };
 
-
-
 const hideSubMenu = () => {
     showSubMenu.value = false;
 };
@@ -125,9 +123,11 @@ const handleClickOutside = (event) => {
 };
 onMounted(() => {
     document.addEventListener('click', handleClickOutside);
+    document.addEventListener('scroll', hideContextMenu);
 });
 onBeforeUnmount(() => {
     document.removeEventListener('click', handleClickOutside);
+    document.removeEventListener('scroll', hideContextMenu);
 });
 
 defineExpose({ openContextMenu }); 
@@ -135,7 +135,7 @@ defineExpose({ openContextMenu });
 
 <style scoped>
 .context-menu {
-    position: absolute;
+    position: fixed;
     background-color: white;
     border: 1px solid #ddd;
     border-radius: 10px;

@@ -16,8 +16,20 @@
                 </ul>
                 <div class="pagination">
                     <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
-                    <span>{{ $t('di') }}</span><span> {{ currentPage }} </span><span>{{ $t('ye') }}</span> <span>/</span>
-                    <span>{{ $t('gong') }}</span><span> {{ totalPages }} </span><span>{{ $t('ye') }}</span>
+                    <div class="page-numbers">
+                        <button 
+                            v-for="pageNum in displayedPageNumbers" 
+                            :key="pageNum"
+                            :class="['page-number', { 
+                                active: pageNum === currentPage,
+                                'ellipsis': pageNum === '...'
+                            }]"
+                            @click="pageNum !== '...' && goToPage(pageNum)"
+                            :disabled="pageNum === '...'"
+                        >
+                            {{ pageNum }}
+                        </button>
+                    </div>
                     <button @click="nextPage" :disabled="currentPage === totalPages">{{ $t('xia-yi-ye') }}</button>
                 </div>
             </template>
@@ -26,7 +38,7 @@
     <ContextMenu ref="contextMenuRef" />
 </template>
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import ContextMenu from '../components/ContextMenu.vue';
 import { get } from '../utils/request';
 import { useRoute } from 'vue-router';
@@ -88,6 +100,50 @@ const prevPage = () => {
         performSearch(); // 执行搜索
     }
 };
+
+const displayedPageNumbers = computed(() => {
+    const delta = 2; // 当前页前后显示的页码数
+    let pages = [];
+    
+    if (totalPages.value <= 7) {
+        // 如果总页数小于等于7，显示所有页码
+        for (let i = 1; i <= totalPages.value; i++) {
+            pages.push(i);
+        }
+    } else {
+        // 始终显示第一页
+        pages.push(1);
+        
+        // 计算中间页码的范围
+        let leftBound = Math.max(2, currentPage.value - delta);
+        let rightBound = Math.min(totalPages.value - 1, currentPage.value + delta);
+
+        // 添加左边的省略号
+        if (leftBound > 2) {
+            pages.push('...');
+        }
+
+        // 添加中间的页码
+        for (let i = leftBound; i <= rightBound; i++) {
+            pages.push(i);
+        }
+
+        // 添加右边的省略号
+        if (rightBound < totalPages.value - 1) {
+            pages.push('...');
+        }
+
+        // 始终显示最后一页
+        pages.push(totalPages.value);
+    }
+    
+    return pages;
+});
+
+const goToPage = (page) => {
+    currentPage.value = page;
+    performSearch();
+};
 </script>
 
 <style scoped>
@@ -148,22 +204,58 @@ const prevPage = () => {
 .pagination {
     display: flex;
     justify-content: center;
+    align-items: center;
     margin: 20px 0;
+    gap: 10px;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+.page-number {
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #333;
+    min-width: 40px;
+    transition: all 0.3s;
+}
+
+.page-number:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.page-number.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 .pagination button {
-    padding: 10px 15px;
-    margin: 0 5px;
+    padding: 8px 15px;
+    background-color: white;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.pagination button:hover:not(:disabled) {
     background-color: var(--primary-color);
     color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
 }
 
 .pagination button:disabled {
-    background-color: #ccc;
+    background-color: white;
+    color: #999;
     cursor: not-allowed;
+    border-color: #ddd;
 }
 
 .section-title {
@@ -173,9 +265,17 @@ const prevPage = () => {
     color: var(--primary-color);
 }
 
-.pagination span {
-    font-size: 14px;
-    color: #666;
-    line-height: 38px;
+.page-number.ellipsis {
+    background-color: transparent;
+    border: none;
+    cursor: default;
+    pointer-events: none;
+    padding: 8px 8px;
+    min-width: 30px;
+}
+
+.page-number.ellipsis:hover {
+    background-color: transparent;
+    color: #333;
 }
 </style>

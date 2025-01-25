@@ -217,7 +217,6 @@ const isProgressDragging = ref(false);
 const isDraggingHandle = ref(false);
 const climaxPoints = ref([]);
 const NextSong = ref([]);
-const initOnce = ref(true);
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
@@ -267,9 +266,6 @@ const easterEggClass = computed(() => easterEggImage.value?.class || '');
 // 播放音乐
 const playSong = async (song) => {
     try {
-        if (initOnce.value) {
-            initOnce.value = false;
-        }
         currentSong.value = structuredClone(song);
         lyricsData.value = [];
         audio.src = song.url;
