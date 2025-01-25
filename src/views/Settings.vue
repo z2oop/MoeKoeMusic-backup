@@ -86,9 +86,9 @@ const { t } = useI18n();
 const { proxy } = getCurrentInstance();
 
 const selectedSettings = ref({
-    language: { displayText: '🇯🇵 日本語', value: 'ja' },
+    language: { displayText: '🌏 ' + t('zi-dong'), value: 'ja' },
     themeColor: { displayText: t('shao-nv-fen'), value: 'pink' },
-    theme: { displayText: t('qian-se'), value: 'light' },
+    theme: { displayText: '☀️ ' + t('qian-se'), value: 'light' },
     quality: { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
     lyricsBackground: { displayText: t('da-kai'), value: 'on' },
     desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
