@@ -64,11 +64,11 @@
         </section>
 
         <section class="setting-section">
-            <h3>系统</h3>
+            <h3>{{ $t('xi-tong') }}</h3>
             <div class="setting-item" @click="openShortcutSettings">
-                <span>全局快捷键</span>
+                <span>{{ $t('quan-ju-kuai-jie-jian') }}</span>
                 <div class="setting-control">
-                    <span>自定义快捷键</span>
+                    <span>{{ $t('zi-ding-yi-kuai-jie-jian') }}</span>
                 </div>
             </div>
         </section>
@@ -88,10 +88,10 @@
         <!-- 快捷键设置弹窗 -->
         <div v-if="showShortcutModal" class="shortcut-modal">
             <div class="shortcut-modal-content">
-                <h3>快捷键设置</h3>
+                <h3>{{ $t('kuai-jie-jian-she-zhi') }}</h3>
                 <div class="shortcut-list">
                     <div class="shortcut-item">
-                        <span>显示/隐藏主窗口</span>
+                        <span>{{ $t('xian-shi-yin-cang-zhu-chuang-kou') }}</span>
                         <div class="shortcut-input" @click="startRecording('mainWindow')" 
                              :class="{ 'recording': recordingKey === 'mainWindow' }">
                             {{ shortcuts.mainWindow || '点击设置快捷键' }}
@@ -104,7 +104,7 @@
                     </div>
                     
                     <div class="shortcut-item">
-                        <span>退出主程序</span>
+                        <span>{{ $t('tui-chu-zhu-cheng-xu') }}</span>
                         <div class="shortcut-input" @click="startRecording('quitApp')"
                              :class="{ 'recording': recordingKey === 'quitApp' }">
                             {{ shortcuts.quitApp || '点击设置快捷键' }}
@@ -117,7 +117,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>上一首</span>
+                        <span>{{ $t('shang-yi-shou') }}</span>
                         <div class="shortcut-input" @click="startRecording('prevTrack')"
                              :class="{ 'recording': recordingKey === 'prevTrack' }">
                             {{ shortcuts.prevTrack || '点击设置快捷键' }}
@@ -130,7 +130,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>下一首</span>
+                        <span>{{ $t('xia-yi-shou') }}</span>
                         <div class="shortcut-input" @click="startRecording('nextTrack')"
                              :class="{ 'recording': recordingKey === 'nextTrack' }">
                             {{ shortcuts.nextTrack || '点击设置快捷键' }}
@@ -143,7 +143,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>暂停/播放</span>
+                        <span>{{ $t('zan-ting-bo-fang') }}</span>
                         <div class="shortcut-input" @click="startRecording('playPause')"
                              :class="{ 'recording': recordingKey === 'playPause' }">
                             {{ shortcuts.playPause || '点击设置快捷键' }}
@@ -156,7 +156,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>音量增加</span>
+                        <span>{{ $t('yin-liang-zeng-jia') }}</span>
                         <div class="shortcut-input" @click="startRecording('volumeUp')"
                              :class="{ 'recording': recordingKey === 'volumeUp' }">
                             {{ shortcuts.volumeUp || '点击设置快捷键' }}
@@ -169,7 +169,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>音量减小</span>
+                        <span>{{ $t('yin-liang-jian-xiao') }}</span>
                         <div class="shortcut-input" @click="startRecording('volumeDown')"
                              :class="{ 'recording': recordingKey === 'volumeDown' }">
                             {{ shortcuts.volumeDown || '点击设置快捷键' }}
@@ -182,7 +182,7 @@
                     </div>
 
                     <div class="shortcut-item">
-                        <span>静音</span>
+                        <span>{{ $t('jing-yin') }}</span>
                         <div class="shortcut-input" @click="startRecording('mute')"
                              :class="{ 'recording': recordingKey === 'mute' }">
                             {{ shortcuts.mute || '点击设置快捷键' }}
@@ -195,8 +195,8 @@
                     </div>
                 </div>
                 <div class="shortcut-modal-footer">
-                    <button @click="closeShortcutSettings">取消</button>
-                    <button @click="saveShortcuts" class="primary">保存</button>
+                    <button @click="closeShortcutSettings">{{ $t('qu-xiao') }}</button>
+                    <button @click="saveShortcuts" class="primary">{{ $t('bao-cun') }}</button>
                 </div>
             </div>
         </div>
@@ -207,6 +207,8 @@
 import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { MoeAuthStore } from '../stores/store';
+// const globalShortcut = window?.electron?.remote?.globalShortcut;
+
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const { proxy } = getCurrentInstance();
@@ -312,14 +314,14 @@ const selectOption = (option) => {
         if(isElectron()){
             window.electron.ipcRenderer.send('desktop-lyrics-action', action);
         }else{
-            window.$modal.alert('非客户端环境，无法启用');
+            window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
             return;
         }
     }else if(selectionType.value === 'lyricsFontSize'){
         if(isElectron()){
             window.electron.ipcRenderer.send('lyrics-font-size', selectedSettings.value.lyricsFontSize.value);
         }else{
-            window.$modal.alert('非客户端环境，无法启用');
+            window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
             return;
         }
     }
@@ -330,13 +332,13 @@ const selectOption = (option) => {
 const isElectron = () => {
     return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
 };
-
 const saveSettings = () => {
     const settingsToSave = Object.fromEntries(
         Object.entries(selectedSettings.value).map(([key, setting]) => [key, setting.value])
     );
+    settingsToSave.shortcuts = shortcuts.value;
     localStorage.setItem('settings', JSON.stringify(settingsToSave));
-    isElectron() && window.electron.ipcRenderer.send('save-settings',settingsToSave);
+    isElectron() && window.electron.ipcRenderer.send('save-settings', JSON.parse(JSON.stringify(settingsToSave)));
 };
 
 const closeSelection = () => {
@@ -347,6 +349,7 @@ onMounted(() => {
     const savedSettings = JSON.parse(localStorage.getItem('settings'));
     if (savedSettings) {
         for (const key in savedSettings) {
+            if (key === 'shortcuts') continue;
             if (selectionTypeMap[key] && selectionTypeMap[key].options) {
                 const displayText = selectionTypeMap[key].options.find(
                     (option) => option.value === savedSettings[key]
@@ -354,6 +357,20 @@ onMounted(() => {
                 selectedSettings.value[key] = { displayText, value: savedSettings[key] };
             }
         }
+    }
+    if (savedSettings?.shortcuts) {
+        shortcuts.value = savedSettings.shortcuts;
+    } else {
+        shortcuts.value = {
+            mainWindow: 'Ctrl+Shift+S',      // 显示/关闭主窗口
+            quitApp: 'Ctrl+Q',               // 退出主程序
+            prevTrack: 'Alt+Ctrl+Left',      // 上一首
+            nextTrack: 'Alt+Ctrl+Right',     // 下一首
+            playPause: 'Alt+Ctrl+Space',     // 暂停/播放
+            volumeUp: 'Alt+Ctrl+Up',         // 音量大
+            volumeDown: 'Alt+Ctrl+Down',     // 音量小
+            mute: 'Alt+Ctrl+M'               // 静音
+        };
     }
 });
 
@@ -372,7 +389,7 @@ const closeShortcutSettings = () => {
 
 const startRecording = (key) => {
     recordingKey.value = key;
-    shortcuts.value[key] = '请按下修饰键';
+    shortcuts.value[key] = t('qing-an-xia-xiu-shi-jian');
     window.addEventListener('keydown', recordShortcut);
 };
 
@@ -383,40 +400,45 @@ const recordShortcut = (e) => {
     const keys = [];
     
     // 修饰键
-    if (e.metaKey) keys.push('Command');
+    if (e.metaKey) keys.push('CommandOrControl');
     if (e.ctrlKey) keys.push('Ctrl');
     if (e.altKey) keys.push('Alt');
     if (e.shiftKey) keys.push('Shift');
     
     // 如果按下了修饰键，更新提示
     if (keys.length > 0 && ['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
-        shortcuts.value[recordingKey.value] = keys.join('+') + ' + [请按下其他键]';
+        shortcuts.value[recordingKey.value] = keys.join('+') + t('qing-an-xia-qi-ta-jian');
         return;
     }
     
     // 特殊键映射
     const specialKeys = {
         ' ': 'Space',
-        'ArrowUp': '↑',
-        'ArrowDown': '↓',
-        'ArrowLeft': '←',
-        'ArrowRight': '→',
+        'ArrowUp': 'Up',
+        'ArrowDown': 'Down',
+        'ArrowLeft': 'Left',
+        'ArrowRight': 'Right',
         'Escape': 'Esc',
-        'Backspace': '⌫',
-        'Delete': 'Del',
-        'Enter': '↵',
-        'Tab': '⇥'
+        'Backspace': 'Backspace',
+        'Delete': 'Delete',
+        'Enter': 'Return',
+        'Tab': 'Tab',
+        'PageUp': 'PageUp',
+        'PageDown': 'PageDown',
+        'Home': 'Home',
+        'End': 'End'
     };
 
-    const key = e.key;
+    const key = specialKeys[e.key] || e.key.toUpperCase();
+    
     // 只有当按下的不是单独的修饰键时才结束记录
-    if (!['Control', 'Alt', 'Shift', 'Meta'].includes(key)) {
-        keys.push(specialKeys[key] || key.toUpperCase());
+    if (!['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) {
+        keys.push(key);
         
         if (keys.length > 0) {
             // 检查是否包含必要的修饰键
-            if (!keys.some(k => ['Ctrl', 'Alt', 'Shift', 'Command'].includes(k))) {
-                window.$modal.alert('快捷键必须包含至少一个修饰键(Ctrl/Alt/Shift/Command)');
+            if (!keys.some(k => ['Ctrl', 'Alt', 'Shift', 'CommandOrControl'].includes(k))) {
+                window.$modal.alert(t('kuai-jie-jian-bi-xu-bao-han-zhi-shao-yi-ge-xiu-shi-jian-ctrlaltshiftcommand'));
                 return;
             }
             
@@ -427,7 +449,7 @@ const recordShortcut = (e) => {
             );
             
             if (conflictKey) {
-                window.$modal.alert(`该快捷键与"${conflictKey[0]}"的快捷键冲突`);
+                window.$modal.alert(t('gai-kuai-jie-jian-yu')+conflictKey[0]+t('de-kuai-jie-jian-chong-tu'));
                 return;
             }
             
@@ -444,47 +466,36 @@ const validateShortcut = (shortcut) => {
     return keys.some(k => ['Ctrl', 'Alt', 'Shift', 'Command'].includes(k));
 };
 
-// 修改保存函数，添加验证
+// 修改 saveShortcuts 函数，添加检查
 const saveShortcuts = () => {
+    if (!isElectron()) {
+        window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
+        return;
+    }
+
     // 验证所有快捷键
     const invalidShortcuts = Object.entries(shortcuts.value).filter(([key, value]) => 
         value && !validateShortcut(value)
     );
     
     if (invalidShortcuts.length > 0) {
-        window.$modal.alert('存在无效的快捷键设置，请确保每个快捷键都包含修饰键');
+        window.$modal.alert(t('cun-zai-wu-xiao-de-kuai-jie-jian-she-zhi-qing-que-bao-mei-ge-kuai-jie-jian-du-bao-han-xiu-shi-jian'));
         return;
     }
     
-    localStorage.setItem('shortcuts', JSON.stringify(shortcuts.value));
-    if (isElectron()) {
-        window.electron.ipcRenderer.send('set-shortcuts', shortcuts.value);
+    try {
+        let settingsToSave = JSON.parse(localStorage.getItem('settings')) || {};
+        settingsToSave.shortcuts = shortcuts.value;
+        localStorage.setItem('settings', JSON.stringify(settingsToSave));
+        window.electron.ipcRenderer.send('save-settings',  JSON.parse(JSON.stringify(settingsToSave)));
+        window.electron.ipcRenderer.send('custom-shortcut');
+    } catch (error) {
+        console.error('保存设置失败:', error);
+        window.$modal.alert(t('bao-cun-she-zhi-shi-bai'));
     }
+    
     closeShortcutSettings();
 };
-
-onMounted(() => {
-    const savedShortcuts = localStorage.getItem('shortcuts');
-    if (savedShortcuts) {
-        shortcuts.value = JSON.parse(savedShortcuts);
-    } else {
-        // 如果没有保存的快捷键，使用默认值
-        shortcuts.value = {
-            mainWindow: 'Ctrl+Shift+S',      // 显示/关闭主窗口
-            quitApp: 'Ctrl+Q',            // 退出主程序
-            prevTrack: 'Alt+Ctrl+Left',       // 上一首
-            nextTrack: 'Alt+Ctrl+Right',      // 下一首
-            playPause: 'Alt+Ctrl+Space',          // 暂停/播放
-            volumeUp: 'Alt+Ctrl+Up',          // 音量大
-            volumeDown: 'Alt+Ctrl+Down',      // 音量小
-            mute: 'Alt+Ctrl+M'               // 静音
-        };
-        localStorage.setItem('shortcuts', JSON.stringify(shortcuts.value));
-        if (isElectron()) {
-            window.electron.ipcRenderer.send('set-shortcuts', shortcuts.value);
-        }
-    }
-});
 
 onUnmounted(() => {
     window.removeEventListener('keydown', recordShortcut);

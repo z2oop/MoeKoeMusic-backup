@@ -74,9 +74,9 @@ export function createWindow() {
             mainWindow.hide();
         }
     });
-    
+
     const savedConfig = store.get('settings');
-    if(savedConfig?.desktopLyrics === 'on'){
+    if (savedConfig?.desktopLyrics === 'on') {
         createLyricsWindow();
     }
     return mainWindow;
@@ -88,12 +88,12 @@ export function createLyricsWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
     const windowWidth = 800;
     const windowHeight = 150;
-    
+
     lyricsWindow = new BrowserWindow({
         width: windowWidth,
         height: windowHeight,
-        x: Math.floor((screenWidth - windowWidth) / 2), 
-        y: screenHeight - windowHeight, 
+        x: Math.floor((screenWidth - windowWidth) / 2),
+        y: screenHeight - windowHeight,
         alwaysOnTop: true,
         frame: false,
         transparent: true,
@@ -101,7 +101,7 @@ export function createLyricsWindow() {
         skipTaskbar: true,
         hasShadow: false,
         webPreferences: {
-            preload: path.join(__dirname, 'preload.cjs'), 
+            preload: path.join(__dirname, 'preload.cjs'),
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: false,
@@ -120,7 +120,7 @@ export function createLyricsWindow() {
 
     // 设置窗口置顶级别
     lyricsWindow.setAlwaysOnTop(true, 'screen-saver');
-    
+
     // 允许窗口透明
     lyricsWindow.setBackgroundColor('#00000000');
 }
@@ -249,15 +249,24 @@ export function stopApiServer() {
 
 // 注册快捷键
 export function registerShortcut() {
+    const settings = store.get('settings');
+    globalShortcut.unregisterAll();
+    let clickFunc = () => { app.isQuitting = true; };
     if (process.platform === 'darwin') {
-        app.on('before-quit', () => { app.isQuitting = true; });
+        app.on('before-quit', clickFunc);
     } else {
-        globalShortcut.register('CmdOrCtrl+Q', () => {
+        clickFunc = () => {
             app.isQuitting = true;
             app.quit();
-        });
+        };
+        if (settings?.shortcuts?.quitApp) {
+            globalShortcut.register(settings?.shortcuts?.quitApp, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('CmdOrCtrl+Q', clickFunc);
+        }
     }
-    globalShortcut.register('CmdOrCtrl+Shift+S', () => {
+
+    clickFunc = () => {
         if (mainWindow) {
             if (mainWindow.isVisible()) {
                 mainWindow.hide();
@@ -265,36 +274,73 @@ export function registerShortcut() {
                 mainWindow.show();
             }
         }
-    });
+    }
+    if (settings?.shortcuts?.mainWindow) {
+        globalShortcut.register(settings?.shortcuts?.mainWindow, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('CmdOrCtrl+Shift+S', clickFunc);
+    }
 
-    globalShortcut.register('MediaPreviousTrack', () => {
-        mainWindow.webContents.send('play-previous-track');
-    });
-    globalShortcut.register('MediaNextTrack', () => {
-        mainWindow.webContents.send('play-next-track');
-    });
-    globalShortcut.register('Alt+CommandOrControl+Left', () => {
-        mainWindow.webContents.send('play-previous-track');
-    });
-    globalShortcut.register('Alt+CommandOrControl+Right', () => {
-        mainWindow.webContents.send('play-next-track');
-    });
-    globalShortcut.register('Alt+CommandOrControl+Up', () => {
-        mainWindow.webContents.send('volume-up');
-    });
-    globalShortcut.register('Alt+CommandOrControl+Down', () => {
-        mainWindow.webContents.send('volume-down');
-    });
-    globalShortcut.register('MediaPlayPause', () => {
-        mainWindow.webContents.send('toggle-play-pause');
-    });
-    globalShortcut.register('Alt+CommandOrControl+M', () => {
-        mainWindow.webContents.send('toggle-mute');
-    });
-    globalShortcut.register('Alt+CommandOrControl+Space', () => {
-        mainWindow.webContents.send('toggle-play-pause'); 
-    });
+    clickFunc = () => mainWindow.webContents.send('play-previous-track');
+    if (settings?.shortcuts?.prevTrack) {
+        globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('MediaPreviousTrack', clickFunc);
+    }
+    if (settings?.shortcuts?.prevTrack) {
+        globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+Left', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('play-next-track');
+    if (settings?.shortcuts?.nextTrack) {
+        globalShortcut.register(settings?.shortcuts?.nextTrack, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('MediaNextTrack', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('play-next-track');
+    if (settings?.shortcuts?.nextTrack) {
+        globalShortcut.register(settings?.shortcuts?.nextTrack, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+Right', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('volume-up');
+    if (settings?.shortcuts?.volumeUp) {
+        globalShortcut.register(settings?.shortcuts?.volumeUp, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+Up', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('volume-down');
+    if (settings?.shortcuts?.volumeDown) {
+        globalShortcut.register(settings?.shortcuts?.volumeDown, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+Down', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('toggle-play-pause');
+    if (settings?.shortcuts?.playPause) {
+        globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('MediaPlayPause', clickFunc);
+    }
+    if (settings?.shortcuts?.playPause) {
+        globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+Space', clickFunc);
+    }
+
+    clickFunc = () => mainWindow.webContents.send('toggle-mute');
+    if (settings?.shortcuts?.mute) {
+        globalShortcut.register(settings?.shortcuts?.mute, clickFunc);
+    } else if (!settings?.shortcuts) {
+        globalShortcut.register('Alt+CommandOrControl+M', clickFunc);
+    }
 }
+
 // 播放启动问候语
 export function playStartupSound() {
     const savedConfig = store.get('settings');
@@ -307,7 +353,7 @@ export function playStartupSound() {
         '/assets/sound/qiqi-zh.mp3'
     ];
     const randomIndex = Math.floor(Math.random() * audioFiles.length);
-    const soundPath = isDev 
+    const soundPath = isDev
         ? path.join(__dirname, '..', 'public', audioFiles[randomIndex])
         : path.join(process.resourcesPath, 'public', audioFiles[randomIndex]);
     try {

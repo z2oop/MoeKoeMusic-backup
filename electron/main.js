@@ -1,14 +1,21 @@
 import { app, ipcMain, globalShortcut, dialog } from 'electron';
 import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound, createLyricsWindow } from './appServices.js';
 import Store from 'electron-store';
+// import { createRequire } from 'module';
+// const require = createRequire(import.meta.url);
+// const { initialize, enable } = require('@electron/remote/main');
 
 let mainWindow = null;
 const store = new Store();
 
 app.on('ready', () => {
+    // 初始化 @electron/remote
+    // initialize();
+    
     startApiServer().then(() => {
         try {
             mainWindow = createWindow();
+            // enable(mainWindow.webContents);
             createTray(mainWindow);
             playStartupSound();
             registerShortcut();
@@ -106,6 +113,9 @@ app.on('will-quit', () => {
 });
 ipcMain.on('save-settings', (event, settings) => {
     store.set('settings', settings);
+});
+ipcMain.on('custom-shortcut', (event) => {
+    registerShortcut();
 });
 
 ipcMain.on('update-current-time', (event, time) => {

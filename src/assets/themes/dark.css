@@ -231,11 +231,11 @@ html.dark .playlist-info .description {
     color: #999;
 }
 
-html.dark .track-list ul li {
+html.dark .track-list .li {
     border-bottom: none;
 }
 
-html.dark .track-list ul li:hover {
+html.dark .track-list .li:hover {
     background-color: #2a2a2a;
 }
 
