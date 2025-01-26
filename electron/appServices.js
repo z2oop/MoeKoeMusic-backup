@@ -288,6 +288,9 @@ export function registerShortcut() {
     globalShortcut.register('MediaPlayPause', () => {
         mainWindow.webContents.send('toggle-play-pause');
     });
+    globalShortcut.register('Alt+CommandOrControl+M', () => {
+        mainWindow.webContents.send('toggle-mute');
+    });
     globalShortcut.register('Alt+CommandOrControl+Space', () => {
         mainWindow.webContents.send('toggle-play-pause'); 
     });

@@ -708,6 +708,7 @@ onUnmounted(() => {
         window.electron.ipcRenderer.removeAllListeners('volume-up');
         window.electron.ipcRenderer.removeAllListeners('volume-down');
         window.electron.ipcRenderer.removeAllListeners('toggle-play-pause');
+        window.electron.ipcRenderer.removeAllListeners('toggle-mute');
     }
 });
 const isElectron = () => {
@@ -753,6 +754,9 @@ const handleShortcut = (event) => {
         });
         window.electron.ipcRenderer.on('toggle-play-pause', () => {
             togglePlayPause();
+        });
+        window.electron.ipcRenderer.on('toggle-mute', () => {
+            toggleMute();
         });
     }
 }
