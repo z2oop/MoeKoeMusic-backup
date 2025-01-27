@@ -285,19 +285,7 @@ export function registerShortcut() {
     if (settings?.shortcuts?.prevTrack) {
         globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
     } else if (!settings?.shortcuts) {
-        globalShortcut.register('MediaPreviousTrack', clickFunc);
-    }
-    if (settings?.shortcuts?.prevTrack) {
-        globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
-    } else if (!settings?.shortcuts) {
         globalShortcut.register('Alt+CommandOrControl+Left', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('play-next-track');
-    if (settings?.shortcuts?.nextTrack) {
-        globalShortcut.register(settings?.shortcuts?.nextTrack, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('MediaNextTrack', clickFunc);
     }
 
     clickFunc = () => mainWindow.webContents.send('play-next-track');
@@ -322,11 +310,6 @@ export function registerShortcut() {
     }
 
     clickFunc = () => mainWindow.webContents.send('toggle-play-pause');
-    if (settings?.shortcuts?.playPause) {
-        globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('MediaPlayPause', clickFunc);
-    }
     if (settings?.shortcuts?.playPause) {
         globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
     } else if (!settings?.shortcuts) {

@@ -614,6 +614,15 @@ const parseLyrics = (text) => {
 };
 // 添加到下一首 
 const addToNext = async (hash, name, img, author, timeLength) => {
+    const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
+    musicQueueStore.queue.splice(currentIndex !== -1 ? currentIndex + 1 : musicQueueStore.queue.length, 0, {
+        id: musicQueueStore.queue.length + 1,
+        hash: hash,
+        name: name,
+        img: img,
+        author: author,
+        timeLength: timeLength,
+    });
     NextSong.value.push({
         id: musicQueueStore.queue.length + 1,
         hash: hash,
@@ -908,12 +917,16 @@ const initSMTC = () => {
 };
 
 const changeSMTC = (song)=>{
-  navigator.mediaSession.metadata = new MediaMetadata({
-    title: song.name,
-    artist: song.author,
-    album: song.album,
-    artwork: [{ src: song.img }]
-  });
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.name,
+      artist: song.author,
+      album: song.album,
+      artwork: [{ src: song.img }]
+    });
+  } catch (error) {
+    console.error( error);
+  }
 };
 </script>
 
