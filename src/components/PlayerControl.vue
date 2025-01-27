@@ -240,7 +240,7 @@ onMounted(() => {
         audio.currentTime = localStorage.getItem('player_progress');
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
-    initSMTC();
+    initMediaSession();
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -270,7 +270,7 @@ const playSong = async (song) => {
         lyricsData.value = [];
         audio.src = song.url;
         try {
-            changeSMTC(currentSong.value);
+            changeMediaSession(currentSong.value);
             await audio.play();
             playing.value = true;
         } catch (playError) {
@@ -905,7 +905,9 @@ const hideTimeTooltip = () => {
     }
 };
 
-const initSMTC = () => {
+const initMediaSession = () => {
+    if (!("mediaSession" in navigator) || !navigator.mediaSession)
+        return;
     navigator.mediaSession.setActionHandler('play', togglePlayPause);
     navigator.mediaSession.setActionHandler('pause', togglePlayPause);
     navigator.mediaSession.setActionHandler('previoustrack', () => {
@@ -916,14 +918,25 @@ const initSMTC = () => {
     });
 };
 
-const changeSMTC = (song)=>{
+const changeMediaSession = (song)=>{
+  if (!("mediaSession" in navigator) || !navigator.mediaSession)
+      return;
   try {
     navigator.mediaSession.metadata = new MediaMetadata({
       title: song.name,
       artist: song.author,
       album: song.album,
-      artwork: [{ src: song.img }]
+      artwork: [{ src: './assets/images/logo.jpg' }]
     });
+  } catch (error) {
+    console.error( error);
+  }
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: song.name,
+      artist: song.author,
+      album: song.album,
+      artwork: [{ src: song.img }]});
   } catch (error) {
     console.error( error);
   }
