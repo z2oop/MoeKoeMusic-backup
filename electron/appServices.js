@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen, Tray, Menu, globalShortcut } from 'electron';
+import { app, BrowserWindow, screen, Tray, Menu, globalShortcut, dialog, shell } from 'electron';
 import path from 'path';
 import { spawn } from 'child_process';
 import log from 'electron-log';
@@ -249,79 +249,89 @@ export function stopApiServer() {
 
 // 注册快捷键
 export function registerShortcut() {
-    const settings = store.get('settings');
-    globalShortcut.unregisterAll();
-    let clickFunc = () => { app.isQuitting = true; };
-    if (process.platform === 'darwin') {
-        app.on('before-quit', clickFunc);
-    } else {
-        clickFunc = () => {
-            app.isQuitting = true;
-            app.quit();
-        };
-        if (settings?.shortcuts?.quitApp) {
-            globalShortcut.register(settings?.shortcuts?.quitApp, clickFunc);
-        } else if (!settings?.shortcuts) {
-            globalShortcut.register('CmdOrCtrl+Q', clickFunc);
-        }
-    }
-
-    clickFunc = () => {
-        if (mainWindow) {
-            if (mainWindow.isVisible()) {
-                mainWindow.hide();
-            } else {
-                mainWindow.show();
+    try {
+        const settings = store.get('settings');
+        globalShortcut.unregisterAll();
+        let clickFunc = () => { app.isQuitting = true; };
+        if (process.platform === 'darwin') {
+            app.on('before-quit', clickFunc);
+        } else {
+            clickFunc = () => {
+                app.isQuitting = true;
+                app.quit();
+            };
+            if (settings?.shortcuts?.quitApp) {
+                globalShortcut.register(settings?.shortcuts?.quitApp, clickFunc);
+            } else if (!settings?.shortcuts) {
+                globalShortcut.register('CmdOrCtrl+Q', clickFunc);
             }
         }
-    }
-    if (settings?.shortcuts?.mainWindow) {
-        globalShortcut.register(settings?.shortcuts?.mainWindow, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('CmdOrCtrl+Shift+S', clickFunc);
+
+        clickFunc = () => {
+            if (mainWindow) {
+                if (mainWindow.isVisible()) {
+                    mainWindow.hide();
+                } else {
+                    mainWindow.show();
+                }
+            }
+        }
+        if (settings?.shortcuts?.mainWindow) {
+            globalShortcut.register(settings?.shortcuts?.mainWindow, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('CmdOrCtrl+Shift+S', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('play-previous-track');
+        if (settings?.shortcuts?.prevTrack) {
+            globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+Left', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('play-next-track');
+        if (settings?.shortcuts?.nextTrack) {
+            globalShortcut.register(settings?.shortcuts?.nextTrack, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+Right', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('volume-up');
+        if (settings?.shortcuts?.volumeUp) {
+            globalShortcut.register(settings?.shortcuts?.volumeUp, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+Up', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('volume-down');
+        if (settings?.shortcuts?.volumeDown) {
+            globalShortcut.register(settings?.shortcuts?.volumeDown, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+Down', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('toggle-play-pause');
+        if (settings?.shortcuts?.playPause) {
+            globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+Space', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('toggle-mute');
+        if (settings?.shortcuts?.mute) {
+            globalShortcut.register(settings?.shortcuts?.mute, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+M', clickFunc);
+        }
+    } catch{
+        dialog.showMessageBox({
+            type: 'error',
+            title: '提示',
+            message: '快捷键注册失败，请重新尝试',
+            buttons: ['确定']
+        });
     }
 
-    clickFunc = () => mainWindow.webContents.send('play-previous-track');
-    if (settings?.shortcuts?.prevTrack) {
-        globalShortcut.register(settings?.shortcuts?.prevTrack, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+Left', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('play-next-track');
-    if (settings?.shortcuts?.nextTrack) {
-        globalShortcut.register(settings?.shortcuts?.nextTrack, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+Right', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('volume-up');
-    if (settings?.shortcuts?.volumeUp) {
-        globalShortcut.register(settings?.shortcuts?.volumeUp, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+Up', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('volume-down');
-    if (settings?.shortcuts?.volumeDown) {
-        globalShortcut.register(settings?.shortcuts?.volumeDown, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+Down', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('toggle-play-pause');
-    if (settings?.shortcuts?.playPause) {
-        globalShortcut.register(settings?.shortcuts?.playPause, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+Space', clickFunc);
-    }
-
-    clickFunc = () => mainWindow.webContents.send('toggle-mute');
-    if (settings?.shortcuts?.mute) {
-        globalShortcut.register(settings?.shortcuts?.mute, clickFunc);
-    } else if (!settings?.shortcuts) {
-        globalShortcut.register('Alt+CommandOrControl+M', clickFunc);
-    }
 }
 
 // 播放启动问候语

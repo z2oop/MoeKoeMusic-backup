@@ -426,7 +426,12 @@ const recordShortcut = (e) => {
         'PageUp': 'PageUp',
         'PageDown': 'PageDown',
         'Home': 'Home',
-        'End': 'End'
+        'End': 'End',
+        '+': 'numadd',
+        '-': 'numsub',
+        '*': 'nummult',
+        '/': 'numdiv',
+        '=': 'Equal'
     };
 
     const key = specialKeys[e.key] || e.key.toUpperCase();

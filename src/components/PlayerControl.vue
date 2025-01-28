@@ -1,20 +1,13 @@
 <template>
     <div class="player-container">
-        <div class="progress-bar" 
-            @mousedown="onProgressDragStart"
-            @click="updateProgressFromEvent"
-            @mousemove="updateTimeTooltip"
-            @mouseleave="hideTimeTooltip">
+        <div class="progress-bar" @mousedown="onProgressDragStart" @click="updateProgressFromEvent"
+            @mousemove="updateTimeTooltip" @mouseleave="hideTimeTooltip">
             <div class="progress" :style="{ width: progressWidth + '%' }"></div>
             <div class="progress-handle" :style="{ left: progressWidth + '%' }"></div>
-            <div v-for="(point, index) in climaxPoints" 
-                 :key="index"
-                 class="climax-point"
-                 :style="{ left: point.position + '%' }">
+            <div v-for="(point, index) in climaxPoints" :key="index" class="climax-point"
+                :style="{ left: point.position + '%' }">
             </div>
-            <div v-if="showTimeTooltip" 
-                 class="time-tooltip" 
-                 :style="{ left: tooltipPosition + 'px' }">
+            <div v-if="showTimeTooltip" class="time-tooltip" :style="{ left: tooltipPosition + 'px' }">
                 {{ tooltipTime }}
             </div>
         </div>
@@ -40,7 +33,8 @@
             </div>
             <div class="extra-controls">
                 <button class="extra-btn" @click="togglePlaybackMode">
-                    <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon" :title="currentPlaybackMode.title"></i>
+                    <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon"
+                        :title="currentPlaybackMode.title"></i>
                     <span v-else class="loop-icon" :title="currentPlaybackMode.title">
                         <i class="fas fa-repeat"></i>
                         <sup>1</sup>
@@ -88,7 +82,8 @@
                                         item.img,
                                         item.author
                                     )"><i class="fas fa-play"></i></button>
-                                    <i class="fas fa-times close-store" @click="musicQueueStore.queue.splice(index, 1);$event.target.closest('li').classList.add('marked-as-deleted');"></i>
+                                    <i class="fas fa-times close-store"
+                                        @click="musicQueueStore.queue.splice(index, 1); $event.target.closest('li').classList.add('marked-as-deleted');"></i>
                                 </template>
                             </div>
                         </li>
@@ -120,21 +115,14 @@
                     <!-- 播放进度条 -->
                     <div class="progress-bar-container">
                         <span class="current-time">{{ formattedCurrentTime }}</span>
-                        <div class="progress-bar" 
-                            @mousedown="onProgressDragStart"
-                            @click="updateProgressFromEvent"
-                            @mousemove="updateTimeTooltip"
-                            @mouseleave="hideTimeTooltip">
+                        <div class="progress-bar" @mousedown="onProgressDragStart" @click="updateProgressFromEvent"
+                            @mousemove="updateTimeTooltip" @mouseleave="hideTimeTooltip">
                             <div class="progress" :style="{ width: progressWidth + '%' }"></div>
                             <div class="progress-handle" :style="{ left: progressWidth + '%' }"></div>
-                            <div v-for="(point, index) in climaxPoints" 
-                                 :key="index"
-                                 class="climax-point"
-                                 :style="{ left: point.position + '%' }">
+                            <div v-for="(point, index) in climaxPoints" :key="index" class="climax-point"
+                                :style="{ left: point.position + '%' }">
                             </div>
-                            <div v-if="showTimeTooltip" 
-                                 class="time-tooltip" 
-                                 :style="{ left: tooltipPosition + 'px' }">
+                            <div v-if="showTimeTooltip" class="time-tooltip" :style="{ left: tooltipPosition + 'px' }">
                                 {{ tooltipTime }}
                             </div>
                         </div>
@@ -152,7 +140,8 @@
                             <i class="fas fa-step-forward"></i>
                         </button>
                         <button class="control-btn" @click="togglePlaybackMode">
-                            <i v-if="currentPlaybackMode.mode !== 'loop_one'" :class="currentPlaybackMode.icon" :title="currentPlaybackMode.title"></i>
+                            <i v-if="currentPlaybackMode.mode !== 'loop_one'" :class="currentPlaybackMode.icon"
+                                :title="currentPlaybackMode.title"></i>
                             <span v-else class="loop-icon" :title="currentPlaybackMode.title">
                                 <i class="fas fa-repeat"></i>
                                 <sup>1</sup>
@@ -180,9 +169,9 @@
 <script setup>
 import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller';
-import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css'; 
-import { get } from '../utils/request'; 
-import { useMusicQueueStore } from '../stores/musicQueue'; 
+import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
+import { get } from '../utils/request';
+import { useMusicQueueStore } from '../stores/musicQueue';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
 const MoeAuth = MoeAuthStore();
@@ -209,7 +198,7 @@ const timeoutId = ref(null);
 const playbackModes = ref([
     { icon: 'fas fa-random', title: t('sui-ji-bo-fang') },
     { icon: 'fas fa-refresh', title: t('lie-biao-xun-huan') },
-    { icon: '', title: t('dan-qu-xun-huan') } 
+    { icon: '', title: t('dan-qu-xun-huan') }
 ]);
 const currentPlaybackModeIndex = ref(0);
 const currentPlaybackMode = computed(() => playbackModes.value[currentPlaybackModeIndex.value]);
@@ -236,7 +225,7 @@ onMounted(() => {
         lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
     }
     handleShortcut();
-    if(current_song && localStorage.getItem('player_progress')) {
+    if (current_song && localStorage.getItem('player_progress')) {
         audio.currentTime = localStorage.getItem('player_progress');
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
@@ -322,8 +311,8 @@ const playSongFromQueue = (direction) => {
         return;
     }
 
-    if(direction == 'next'){
-        if(NextSong.value.length > 0){
+    if (direction == 'next') {
+        if (NextSong.value.length > 0) {
             addSongToQueue(NextSong.value[0].hash, NextSong.value[0].name, NextSong.value[0].img, NextSong.value[0].author, NextSong.value[0].timeLength);
             NextSong.value.shift();
             return;
@@ -338,8 +327,8 @@ const playSongFromQueue = (direction) => {
     } else if (currentPlaybackModeIndex.value == 0) {
         targetIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
     } else {
-        targetIndex = direction === 'previous' 
-            ? (currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1) 
+        targetIndex = direction === 'previous'
+            ? (currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1)
             : (currentIndex + 1) % musicQueueStore.queue.length;
     }
     addSongToQueue(
@@ -351,7 +340,7 @@ const playSongFromQueue = (direction) => {
 };
 
 // 切换播放/暂停
-const togglePlayPause = () => {
+const togglePlayPause = async () => {
     if (!currentSong.value.hash) {
         playSongFromQueue('next');
         return;
@@ -369,8 +358,12 @@ const togglePlayPause = () => {
         audio.pause();
         playing.value = false;
     } else {
-        audio.play();
-        playing.value = true;
+        try {
+            await audio.play();
+            playing.value = true;
+        } catch (retryError) {
+            window.$modal.alert(t('bo-fang-shi-bai'));
+        }
     }
 };
 
@@ -392,7 +385,7 @@ const setVolumeOnClick = (event) => {
         const sliderWidth = slider.offsetWidth;
         const offsetX = event.offsetX;
         volume.value = Math.round((offsetX / sliderWidth) * 100);
-        changeVolume(); 
+        changeVolume();
     }
 };
 // 开始拖拽时触发，初始化拖拽并实时更新音量
@@ -400,7 +393,7 @@ const onDragStart = (event) => {
     sliderElement = event.target.closest('.volume-slider');
     if (sliderElement) {
         isDragging.value = true;
-        setVolumeOnClick(event); 
+        setVolumeOnClick(event);
         document.addEventListener('mousemove', onDrag);
         document.addEventListener('mouseup', onDragEnd);
     }
@@ -410,16 +403,16 @@ const onDrag = (event) => {
     if (isDragging.value && sliderElement) {
         const sliderWidth = sliderElement.offsetWidth;
         const rect = sliderElement.getBoundingClientRect();
-        const offsetX = event.clientX - rect.left; 
-        const newVolume = Math.max(0, Math.min(100, Math.round((offsetX / sliderWidth) * 100))); 
+        const offsetX = event.clientX - rect.left;
+        const newVolume = Math.max(0, Math.min(100, Math.round((offsetX / sliderWidth) * 100)));
         volume.value = newVolume;
         changeVolume();
     }
 };
 const onDragEnd = () => {
     isDragging.value = false;
-    sliderElement = null; 
-    document.removeEventListener('mousemove', onDrag); 
+    sliderElement = null;
+    document.removeEventListener('mousemove', onDrag);
     document.removeEventListener('mouseup', onDragEnd);
 };
 // 音量调节
@@ -442,7 +435,7 @@ const getPlaylistAllSongs = async (id) => {
             }
             if (Object.keys(response.data.info).length === 0) break;
             allSongs = allSongs.concat(response.data.info);
-            if(response.data.info.length < 300) break;
+            if (response.data.info.length < 300) break;
         }
         addPlaylistToQueue(allSongs);
     } catch (error) {
@@ -479,7 +472,7 @@ const addSongToQueue = async (hash, name, img, author, free = true) => {
         const response = await get(url);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
-            if(response.status == 3){
+            if (response.status == 3) {
                 currentSong.value.name = t('gai-ge-qu-zan-wu-ban-quan')
             }
             if (musicQueueStore.queue.length === 0) return;
@@ -490,7 +483,7 @@ const addSongToQueue = async (hash, name, img, author, free = true) => {
             return;
         }
 
-        if(response.extName == 'mp4'){
+        if (response.extName == 'mp4') {
             addSongToQueue(hash, name, img, author, false);
             return;
         }
@@ -571,7 +564,7 @@ const toggleLyrics = async () => {
 // 请求歌词
 const getLyrics = async (hash) => {
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if (!showLyrics.value &&  savedConfig?.desktopLyrics === 'off') return;
+    if (!showLyrics.value && savedConfig?.desktopLyrics === 'off') return;
     const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
     if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
         SongTips.value = t('zan-wu-ge-ci');
@@ -608,7 +601,7 @@ const parseLyrics = (text) => {
         .filter((line) => line);
     lyricsData.value = parsedLyrics;
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if(isElectron() && savedConfig?.desktopLyrics === 'on'){
+    if (isElectron() && savedConfig?.desktopLyrics === 'on') {
         window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
     }
 };
@@ -683,13 +676,13 @@ const throttledHighlight = throttle(() => {
     }
     const savedConfig = JSON.parse(localStorage.getItem('settings'));
     if (audio && lyricsData.value) {
-        if(showLyrics.value){
+        if (showLyrics.value) {
             highlightCurrentChar(audio.currentTime);
         }
-        if(isElectron() && savedConfig?.desktopLyrics === 'on'){
+        if (isElectron() && savedConfig?.desktopLyrics === 'on') {
             window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
         }
-    }else if(isElectron() && savedConfig?.desktopLyrics === 'on'){
+    } else if (isElectron() && savedConfig?.desktopLyrics === 'on') {
         getLyrics(currentSong.value.hash)
     }
     localStorage.setItem('player_progress', audio.currentTime);
@@ -731,7 +724,7 @@ const handleClickOutside = (event) => {
 };
 const handleVolumeScroll = (event) => {
     event.preventDefault();
-    const delta = Math.sign(event.deltaY) * -1; 
+    const delta = Math.sign(event.deltaY) * -1;
     volume.value = Math.min(Math.max(volume.value + delta * 10, 0), 100);
     changeVolume();
 };
@@ -773,10 +766,10 @@ const handleShortcut = (event) => {
 // 修改进度条拖动
 const onProgressDragStart = (event) => {
     event.preventDefault();
-    
+
     const currentProgressBar = event.target.closest('.progress-bar');
     if (!currentProgressBar) return;
-    
+
     // 检查是否点击在小圆点上
     const handle = event.target.closest('.progress-handle');
     if (!handle) {
@@ -786,12 +779,12 @@ const onProgressDragStart = (event) => {
         const percentage = (offsetX / currentProgressBar.offsetWidth) * 100;
         progressWidth.value = Math.max(0, Math.min(percentage, 100));
     }
-    
+
     isProgressDragging.value = true;
     isDraggingHandle.value = true;
-    
+
     activeProgressBar.value = currentProgressBar;
-    
+
     document.addEventListener('mousemove', onProgressDrag);
     document.addEventListener('mouseup', onProgressDragEnd);
 };
@@ -806,7 +799,7 @@ const onProgressDrag = (event) => {
         const offsetX = Math.max(0, Math.min(event.clientX - rect.left, activeProgressBar.value.offsetWidth));
         const percentage = (offsetX / activeProgressBar.value.offsetWidth) * 100;
         progressWidth.value = Math.max(0, Math.min(percentage, 100));
-        
+
         // 更新时间提示
         tooltipPosition.value = offsetX;
         const time = (percentage / 100) * audio.duration;
@@ -817,19 +810,19 @@ const onProgressDrag = (event) => {
 // 重置歌词高亮
 const resetLyricsHighlight = (currentTimeInSeconds) => {
     if (!lyricsData.value) return;
-    
+
     // 重置所有字符的高亮状态
     lyricsData.value.forEach((lineData, lineIndex) => {
         lineData.characters.forEach(charData => {
             charData.highlighted = (currentTimeInSeconds * 1000 >= charData.startTime);
         });
-        
+
         // 找到当前应该显示的行
-        const isCurrentLine = lineData.characters.some(char => 
-            currentTimeInSeconds * 1000 >= char.startTime && 
+        const isCurrentLine = lineData.characters.some(char =>
+            currentTimeInSeconds * 1000 >= char.startTime &&
             currentTimeInSeconds * 1000 <= char.endTime
         );
-        
+
         if (isCurrentLine) {
             currentLineIndex = lineIndex;
             const lyricsContainer = document.getElementById('lyrics-container');
@@ -850,14 +843,14 @@ const onProgressDragEnd = (event) => {
         const offsetX = Math.max(0, Math.min(event.clientX - rect.left, activeProgressBar.value.offsetWidth));
         const percentage = (offsetX / activeProgressBar.value.offsetWidth) * 100;
         const newTime = (percentage / 100) * audio.duration;
-        
+
         audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
         resetLyricsHighlight(audio.currentTime);
     }
     isProgressDragging.value = false;
     isDraggingHandle.value = false;
     showTimeTooltip.value = false;
-    activeProgressBar.value = null; 
+    activeProgressBar.value = null;
     document.removeEventListener('mousemove', onProgressDrag);
     document.removeEventListener('mouseup', onProgressDragEnd);
 };
@@ -865,15 +858,15 @@ const onProgressDragEnd = (event) => {
 // 修改点击进度条的处理方法
 const updateProgressFromEvent = (event) => {
     if (isProgressDragging.value) return; // 如果正在拖动则不处理点击
-    
+
     const progressBar = event.target.closest('.progress-bar');
     if (!progressBar || !audio.duration) return;
-    
+
     const rect = progressBar.getBoundingClientRect();
     const offsetX = Math.max(0, Math.min(event.clientX - rect.left, progressBar.offsetWidth));
     const percentage = (offsetX / progressBar.offsetWidth) * 100;
     const newTime = (percentage / 100) * audio.duration;
-    
+
     audio.currentTime = Math.max(0, Math.min(newTime, audio.duration));
     progressWidth.value = percentage;
     resetLyricsHighlight(audio.currentTime);
@@ -887,15 +880,15 @@ const tooltipTime = ref('0:00');
 const updateTimeTooltip = (event) => {
     const progressBar = event.target.closest('.progress-bar');
     if (!progressBar || !audio.duration) return;
-    
+
     const rect = progressBar.getBoundingClientRect();
     const offsetX = Math.max(0, Math.min(event.clientX - rect.left, progressBar.offsetWidth));
-    
+
     tooltipPosition.value = offsetX;
     const percentage = (offsetX / progressBar.offsetWidth);
     const time = percentage * audio.duration;
     tooltipTime.value = formatTime(time);
-    
+
     showTimeTooltip.value = true;
 };
 
@@ -906,8 +899,7 @@ const hideTimeTooltip = () => {
 };
 
 const initMediaSession = () => {
-    if (!("mediaSession" in navigator) || !navigator.mediaSession)
-        return;
+    if (!("mediaSession" in navigator) || !navigator.mediaSession) return;
     navigator.mediaSession.setActionHandler('play', togglePlayPause);
     navigator.mediaSession.setActionHandler('pause', togglePlayPause);
     navigator.mediaSession.setActionHandler('previoustrack', () => {
@@ -918,28 +910,33 @@ const initMediaSession = () => {
     });
 };
 
-const changeMediaSession = (song)=>{
-  if (!("mediaSession" in navigator) || !navigator.mediaSession)
-      return;
-  try {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: song.name,
-      artist: song.author,
-      album: song.album,
-      artwork: [{ src: './assets/images/logo.jpg' }]
-    });
-  } catch (error) {
-    console.error( error);
-  }
-  try {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: song.name,
-      artist: song.author,
-      album: song.album,
-      artwork: [{ src: song.img }]});
-  } catch (error) {
-    console.error( error);
-  }
+const changeMediaSession = (song) => {
+    if (!("mediaSession" in navigator) || !navigator.mediaSession) return;
+
+    const defaultArtwork = './assets/images/logo.png';
+    const checkImageAccessibility = (src) => {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(src);
+            img.onerror = () => resolve(defaultArtwork);
+            img.src = src;
+        });
+    };
+
+    const updateMediaSession = async () => {
+        try {
+            const artworkSrc = await checkImageAccessibility(song.img || defaultArtwork);
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: song.name,
+                artist: song.author,
+                album: song.album,
+                artwork: [{ src: artworkSrc }]
+            });
+        } catch (error) {
+            console.error("Failed to update media session metadata:", error);
+        }
+    };
+    updateMediaSession();
 };
 </script>
 
