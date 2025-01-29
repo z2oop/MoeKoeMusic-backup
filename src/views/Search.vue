@@ -12,21 +12,21 @@
                             <p class="result-name">{{ result.SongName }}</p>
                             <p class="result-type">{{ result.SingerName }}</p>
                         </div>
+                        <div class="result-meta">
+                            <div class="meta-column">
+                                <p class="result-duration">{{ $formatMilliseconds(result.Duration) }}</p>
+                                <p class="result-publish-date">{{ result.PublishDate }}</p>
+                            </div>
+                        </div>
                     </li>
                 </ul>
                 <div class="pagination">
                     <button @click="prevPage" :disabled="currentPage === 1">{{ $t('shang-yi-ye') }}</button>
                     <div class="page-numbers">
-                        <button 
-                            v-for="pageNum in displayedPageNumbers" 
-                            :key="pageNum"
-                            :class="['page-number', { 
-                                active: pageNum === currentPage,
-                                'ellipsis': pageNum === '...'
-                            }]"
-                            @click="pageNum !== '...' && goToPage(pageNum)"
-                            :disabled="pageNum === '...'"
-                        >
+                        <button v-for="pageNum in displayedPageNumbers" :key="pageNum" :class="['page-number', {
+                            active: pageNum === currentPage,
+                            'ellipsis': pageNum === '...'
+                        }]" @click="pageNum !== '...' && goToPage(pageNum)" :disabled="pageNum === '...'">
                             {{ pageNum }}
                         </button>
                     </div>
@@ -108,7 +108,7 @@ const prevPage = () => {
 const displayedPageNumbers = computed(() => {
     const delta = 2; // 当前页前后显示的页码数
     let pages = [];
-    
+
     if (totalPages.value <= 7) {
         // 如果总页数小于等于7，显示所有页码
         for (let i = 1; i <= totalPages.value; i++) {
@@ -117,7 +117,7 @@ const displayedPageNumbers = computed(() => {
     } else {
         // 始终显示第一页
         pages.push(1);
-        
+
         // 计算中间页码的范围
         let leftBound = Math.max(2, currentPage.value - delta);
         let rightBound = Math.min(totalPages.value - 1, currentPage.value + delta);
@@ -140,7 +140,7 @@ const displayedPageNumbers = computed(() => {
         // 始终显示最后一页
         pages.push(totalPages.value);
     }
-    
+
     return pages;
 });
 
@@ -158,12 +158,12 @@ const goToPage = (page) => {
 .result-item {
     display: flex;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px;
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.3s;
     cursor: pointer;
     border-radius: 5px;
-    padding-left: 10px;
+    gap: 10px;
 }
 
 .result-item:hover {
@@ -180,6 +180,23 @@ const goToPage = (page) => {
 .result-info {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-width: 0; /* 防止flex子项溢出 */
+}
+
+.result-meta {
+    display: flex;
+    margin-left: auto;
+    min-width: 120px;
+    justify-content: flex-end;
+    padding-right: 20px;
+}
+
+.meta-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
 }
 
 .result-name {
@@ -193,16 +210,30 @@ const goToPage = (page) => {
     white-space: nowrap;
 }
 
+.result-duration,
+.result-publish-date {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.result-duration {
+    color: #666;
+}
+
+.result-publish-date {
+    font-size: 12px;
+    color: #999;
+}
+
 .result-type {
     font-size: 14px;
     color: #666;
-    height: 18px;
-    max-width: 900px;
+    margin: 6px 0 0 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    margin-top: 6px;
-    margin-bottom: 0px;
 }
 
 .pagination {
