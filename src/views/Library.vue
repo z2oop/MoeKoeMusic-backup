@@ -25,8 +25,7 @@
                 <ul v-if="listenHistory.length > 0">
                     <li v-for="(song, index) in listenHistory" :key="index" class="song-item"
                         @click="playSong($getQuality(null, song), song.name.split(' - ')[1] || song.name, $getCover(song.image, 480), song.singername)">
-                        <img :src="song.image ? $getCover(song.image, 120) : './assets/images/ico.png'" alt="cover"
-                            class="album-cover" />
+                        <img :src="$getCover(song.image, 120)" class="album-cover" />
                         <div class="song-info">
                             <p class="album-name">{{ song.name.split(' - ')[1] || song.name }}</p>
                             <p class="singer-name">{{ song.singername }}</p>

@@ -7,7 +7,7 @@
                     <li v-for="(result, index) in searchResults" :key="index" class="result-item"
                         @click="playSong(result.FileHash, result.SongName, $getCover(result.Image, 480), result.SingerName)"
                         @contextmenu.prevent="showContextMenu($event, result)">
-                        <img :src="result.Image ? $getCover(result.Image, 100) : './assets/images/ico.png'" alt="Cover" />
+                        <img :src="$getCover(result.Image, 100)" alt="Cover" />
                         <div class="result-info">
                             <p class="result-name">{{ result.SongName }}</p>
                             <p class="result-type">{{ result.SingerName }}</p>
@@ -51,7 +51,7 @@ const totalPages = ref(1);
 const contextMenuRef = ref(null);
 const showContextMenu = (event, song) => {
     if (contextMenuRef.value) {
-        song.cover = song.Image.replace("{size}", 480),
+        song.cover = song.Image?.replace("{size}", 480) || './assets/images/ico.png',
         song.timeLength = song.Duration;
         song.OriSongName = song.FileName;
         contextMenuRef.value.openContextMenu(event, song);

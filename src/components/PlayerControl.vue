@@ -451,7 +451,7 @@ const addPlaylistToQueue = async (info) => {
             id: index + 1,
             hash: song.hash,
             name: song.name,
-            img: song.cover.replace("{size}", 480),
+            img: song.cover?.replace("{size}", 480) || './assets/images/ico.png',
             author: song.name,
             timeLength: song.timelen
         };
