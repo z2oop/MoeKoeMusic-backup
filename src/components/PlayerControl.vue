@@ -462,6 +462,7 @@ const addPlaylistToQueue = async (info) => {
 
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author, free = true) => {
+    localStorage.setItem('player_progress', 0);
     try {
         clearTimeout(timeoutId.value);
         currentSong.value.author = author;

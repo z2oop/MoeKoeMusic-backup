@@ -5,9 +5,9 @@
             <template v-if="searchResults.length > 0">
                 <ul>
                     <li v-for="(result, index) in searchResults" :key="index" class="result-item"
-                        @click="playSong(result.FileHash, result.FileName, $getCover(result.Image, 480), result.SingerName)"
+                        @click="playSong(result.FileHash, result.SongName, $getCover(result.Image, 480), result.SingerName)"
                         @contextmenu.prevent="showContextMenu($event, result)">
-                        <img :src="$getCover(result.Image, 100)" alt="Cover" />
+                        <img :src="result.Image ? $getCover(result.Image, 100) : './assets/images/ico.png'" alt="Cover" />
                         <div class="result-info">
                             <p class="result-name">{{ result.SongName }}</p>
                             <p class="result-type">{{ result.SingerName }}</p>
@@ -35,7 +35,7 @@
             </template>
         </div>
     </div>
-    <ContextMenu ref="contextMenuRef" />
+    <ContextMenu ref="contextMenuRef" :playerControl="playerControl" />
 </template>
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
@@ -51,6 +51,9 @@ const totalPages = ref(1);
 const contextMenuRef = ref(null);
 const showContextMenu = (event, song) => {
     if (contextMenuRef.value) {
+        song.cover = song.Image.replace("{size}", 480),
+        song.timeLength = song.Duration;
+        song.OriSongName = song.FileName;
         contextMenuRef.value.openContextMenu(event, song);
     }
 };
@@ -59,6 +62,7 @@ onMounted(() => {
     performSearch();
 });
 watch(() => route.query.q, (newQuery) => {
+    currentPage.value = 1;
     searchQuery.value = newQuery;
     performSearch();
 });

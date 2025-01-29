@@ -102,10 +102,7 @@ const props = defineProps({
 
 const addToNext = async (song) => {
     let songNameParts = song?.OriSongName.split(' - ');
-    if(songNameParts.length != 2 ){
-        songNameParts = song?.FileName.split(' - ');
-    }
-    props.playerControl.addToNext(song.FileHash, songNameParts[0], song.cover, songNameParts[1], song.timeLength);
+    props.playerControl.addToNext(song.FileHash, songNameParts[1], song.cover, songNameParts[0], song.timeLength);
     ElMessage.success({
         message:  i18n.global.t('tian-jia-cheng-gong'),
         duration: 2000

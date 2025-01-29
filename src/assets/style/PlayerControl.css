@@ -94,7 +94,7 @@
 .song-title {
     font-weight: bold;
     margin-bottom: 5px;
-    width: 200px;
+    width: 300px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -107,7 +107,7 @@
 .artist {
     font-size: 0.9em;
     color: #c3c3c3;
-    width: 200px;
+    width: 300px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

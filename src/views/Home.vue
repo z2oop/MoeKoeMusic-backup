@@ -3,19 +3,20 @@
         <h2 class="section-title">{{ $t('tui-jian') }}</h2>
         <div class="recommendations">
             <div class="recommend-card">
-                <a href="https://activity.kugou.com/download/v-a23b0cf0/index.html" target="_blank"><img src="@/assets/images/home/recommend1.png" class="recommend-image" title="酷狗概念版下载"></a>
+                <a href="https://activity.kugou.com/download/v-a23b0cf0/index.html" target="_blank"><img
+                        src="@/assets/images/home/recommend1.png" class="recommend-image" title="酷狗概念版下载"></a>
             </div>
             <div class="recommend-card">
-                <a href="https://activity.kugou.com/getvips/v-4163b2d0/index.html" target="_blank"><img src="@/assets/images/home/recommend2.png"
-                    class="recommend-image" title="每日领取VIP"></a>
+                <a href="https://activity.kugou.com/getvips/v-4163b2d0/index.html" target="_blank"><img
+                        src="@/assets/images/home/recommend2.png" class="recommend-image" title="每日领取VIP"></a>
             </div>
 
             <div class="recommend-card">
                 <div class="card-content">
                     <router-link :to="{
-                    path: '/PlaylistDetail',
-                    query: { global_collection_id: 'collection_3_25230245_24_0' }
-                }">
+                        path: '/PlaylistDetail',
+                        query: { global_collection_id: 'collection_3_25230245_24_0' }
+                    }">
                         <img src="@/assets/images/home/recommend3.png" class="recommend-image" title="阿珏酱の歌单">
                     </router-link>
                 </div>
@@ -33,7 +34,9 @@
             </div>
         </div>
         <div v-else class="song-list">
-            <div class="song-item" v-for="(song, index) in songs" :key="index" @click="playSong($getQuality(null, song), song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)" @contextmenu.prevent="showContextMenu($event, song)">
+            <div class="song-item" v-for="(song, index) in songs" :key="index"
+                @click="playSong($getQuality(null, song), song.ori_audio_name, $getCover(song.sizable_cover, 480), song.author_name)"
+                @contextmenu.prevent="showContextMenu($event, song)">
                 <img :src="$getCover(song.sizable_cover, 64)" :alt="song.ori_audio_name" class="song-cover">
                 <div class="song-info">
                     <div class="song-title">{{ song.ori_audio_name }}</div>
@@ -56,7 +59,7 @@
                 </router-link>
             </div>
         </div>
-        <ContextMenu ref="contextMenuRef"/>
+        <ContextMenu ref="contextMenuRef" :playerControl="playerControl" />
     </div>
 </template>
 
@@ -73,11 +76,16 @@ const playSong = (hash, name, img, author) => {
 const contextMenuRef = ref(null);
 const showContextMenu = (event, song) => {
     if (contextMenuRef.value) {
-        contextMenuRef.value.openContextMenu(event, {OriSongName:song.ori_audio_name,FileHash:song.hash});
+        contextMenuRef.value.openContextMenu(event, { 
+            OriSongName: song.filename, 
+            FileHash: song.hash, 
+            cover: song.sizable_cover.replace("{size}", 480),
+            timeLength: song.time_length
+        });
     }
 };
 const props = defineProps({
-  playerControl: Object
+    playerControl: Object
 });
 onMounted(() => {
     recommend();
@@ -288,5 +296,4 @@ const playlist = async () => {
     border-radius: 5px;
     width: 150px;
 }
-
 </style>

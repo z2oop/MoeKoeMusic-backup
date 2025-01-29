@@ -42,16 +42,20 @@
             <RecycleScroller ref="recycleScrollerRef" :items="filteredTracks" :item-size="50" class="track-list" key-field="hash">
                 <template #default="{ item, index }">
                     <div class="li" :key="item.hash"
-                        @click="playSong($getQuality(item.relate_goods), item.name, $getCover(item.cover, 480), item.name)"
+                        @click="playSong($getQuality(item.relate_goods), item.name.split('-')[1], $getCover(item.cover, 480), item.name.split('-')[0])"
                         @contextmenu.prevent="showContextMenu($event, item)">
                         <div class="track-number">{{ index + 1 }}</div>
-                        <div class="track-title">{{ item.name }}
+                        <div class="track-title" :title="item.name">{{ item.name.split('-')[1] || item.name }}
                             <span v-if="item.privilege == 10" class="icon vip-icon">VIP</span>
                             <span v-if="item.relate_goods.length > 2" class="icon sq-icon">SQ</span>
                             <span v-else-if="item.relate_goods.length > 1" class="icon sq-icon">HQ</span>
                         </div>
-                        <button v-if="props.playerControl.currentSong.hash == item.hash" class="queue-play-btn fas fa-music"></button>
-                        <div class="track-duration">{{ $formatMilliseconds(item.timelen) }}</div>
+                        <div class="track-artist" :title="item.name.split('-')[0]">{{ item.name.split('-')[0] }}</div>
+                        <div class="track-album" :title="item.albuminfo?.name">{{ item.albuminfo?.name }}</div>
+                        <div class="track-duration">
+                            <button v-if="props.playerControl.currentSong.hash == item.hash" class="queue-play-btn fas fa-music"></button>
+                            {{ $formatMilliseconds(item.timelen) }}
+                        </div>
                     </div>
                 </template>
             </RecycleScroller>
@@ -75,7 +79,6 @@ const router = useRouter();
 const route = useRoute();
 const tracks = ref([]);
 const filteredTracks = ref([]);
-const currentPage = ref(1);
 const pageSize = ref(250);
 const detail = ref([]);
 const searchQuery = ref('');
@@ -335,6 +338,7 @@ const sharePlaylist = () => {
 .track-list .li {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 0;
     border-bottom: 1px solid #eee;
     padding-left: 10px;
@@ -350,15 +354,34 @@ const sharePlaylist = () => {
 .track-number {
     font-weight: bold;
     margin-right: 10px;
+    width: 30px;
 }
 
 .track-title {
-    flex-grow: 1;
+    flex: 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.track-artist {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 10px;
+}
+
+.track-album {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 10px;
 }
 
 .track-duration {
-    margin-left: 10px;
-    width: 85px;
+    width: 95px;
     text-align: right;
 }
 
@@ -367,7 +390,6 @@ const sharePlaylist = () => {
     border: 1px solid;
     border-radius: 5px;
     font-size: 10px;
-    padding: 2px;
     padding-left: 6px;
     padding-right: 6px;
 }
