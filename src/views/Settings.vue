@@ -214,7 +214,7 @@ const { t } = useI18n();
 const { proxy } = getCurrentInstance();
 
 const selectedSettings = ref({
-    language: { displayText: '🌏 ' + t('zi-dong'), value: 'ja' },
+    language: { displayText: '🌏 ' + t('zi-dong'), value: '' },
     themeColor: { displayText: t('shao-nv-fen'), value: 'pink' },
     theme: { displayText: '☀️ ' + t('qian-se'), value: 'light' },
     quality: { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
@@ -306,6 +306,7 @@ const selectOption = (option) => {
         proxy.$setTheme(option.value);
     } else if (selectionType.value === 'language') {
         proxy.$i18n.locale = option.value;
+        document.documentElement.lang = option.value;
     }else if( selectionType.value === 'quality' && !MoeAuth.isAuthenticated) {
         window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
         return
@@ -353,7 +354,7 @@ onMounted(() => {
             if (selectionTypeMap[key] && selectionTypeMap[key].options) {
                 const displayText = selectionTypeMap[key].options.find(
                     (option) => option.value === savedSettings[key]
-                ).displayText;
+                )?.displayText || '🌏 ' + t('zi-dong');
                 selectedSettings.value[key] = { displayText, value: savedSettings[key] };
             }
         }

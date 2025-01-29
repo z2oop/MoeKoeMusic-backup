@@ -15,7 +15,18 @@
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
   <script>
-    document.documentElement.lang = JSON.parse(localStorage.getItem('settings'))?.['language'] || 'ja';
+    const getBrowserLocale = () => {
+      const browserLang = navigator.language;
+      if (browserLang.startsWith('zh')) {
+        if (browserLang === 'zh-TW' || browserLang === 'zh-HK') {
+          return 'zh-TW';
+        }
+        return 'zh-CN';
+      }
+      const lang = browserLang.split('-')[0];
+      return Object.keys(messages).includes(lang) ? lang : 'ja';
+    };
+    document.documentElement.lang = JSON.parse(localStorage.getItem('settings'))?.['language'] || getBrowserLocale();
   </script>
 </body>
 
