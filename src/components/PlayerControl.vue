@@ -452,7 +452,7 @@ const addPlaylistToQueue = async (info) => {
             hash: song.hash,
             name: song.name,
             img: song.cover?.replace("{size}", 480) || './assets/images/ico.png',
-            author: song.name,
+            author: song.author,
             timeLength: song.timelen
         };
     });
@@ -463,6 +463,7 @@ const addPlaylistToQueue = async (info) => {
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author, free = true) => {
     localStorage.setItem('player_progress', 0);
+    audio.currentTime = progressWidth.value = 0;
     try {
         clearTimeout(timeoutId.value);
         currentSong.value.author = author;

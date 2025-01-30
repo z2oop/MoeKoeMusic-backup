@@ -8,7 +8,7 @@
                 <p class="playlist-meta">{{ detail.tags }}</p>
                 <p class="playlist-description">{{ detail.intro }}</p>
                 <div class="playlist-actions">
-                    <button class="play-btn" @click="props.playerControl.addPlaylistToQueue(filteredTracks)">
+                    <button class="play-btn" @click="addPlaylistToQueue($event)">
                         <i class="fas fa-play"></i> {{ $t('bo-fang') }}
                     </button>
                     <button class="fav-btn" v-if="detail.list_create_userid != MoeAuth.UserInfo?.userid && !route.query.listid" @click="toggleFavorite(detail.list_create_gid)">
@@ -61,6 +61,11 @@
             </RecycleScroller>
         </div>
         <ContextMenu ref="contextMenuRef" :playerControl="playerControl" />
+        <div class="note-container">
+            <transition-group name="fly-note">
+                <div v-for="note in flyingNotes" :key="note.id" class="flying-note":style="note.style">♪</div>
+            </transition-group>
+        </div>
     </div>
 </template>
 
@@ -85,9 +90,31 @@ const searchQuery = ref('');
 const contextMenuRef = ref(null);
 const recycleScrollerRef = ref(null);
 const isDropdownVisible = ref(false);
+const flyingNotes = ref([]);
+let noteId = 0;
 const playSong = (hash, name, img, author) => {
     props.playerControl.addSongToQueue(hash, name, img, author);
 };
+const addPlaylistToQueue = (event) => {
+    const playButton = event.currentTarget;
+    const rect = playButton.getBoundingClientRect();
+    const note = {
+        id: noteId++,
+        style: {
+            '--start-x': `${rect.left + rect.width/2}px`,
+            '--start-y': `${rect.top + rect.height/2}px`,
+            'left': '0',
+            'top': '0'
+        }
+    };
+    flyingNotes.value.push(note);
+    setTimeout(() => {
+        flyingNotes.value = flyingNotes.value.filter(n => n.id !== note.id);
+    }, 1500);
+
+    const newTracks = filteredTracks.value.map(track => ({...track, author: track.name.split(' - ')[0], name: track.name.split(' - ')[1]}))
+    props.playerControl.addPlaylistToQueue(newTracks);
+}
 const toggleFavorite = async (id) => {
     if(!MoeAuth.isAuthenticated){
         window.$modal.alert(t('qing-xian-deng-lu'));
@@ -455,5 +482,47 @@ const sharePlaylist = () => {
 
 .dropdown-menu li:hover {
     background-color: #f0f0f0;
+}
+
+
+.note-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.flying-note {
+    position: absolute;
+    font-size: 36px;
+    color: var(--primary-color);
+    pointer-events: none;
+    transform-origin: center;
+}
+
+.fly-note-enter-active {
+    animation: fly-note 2s ease-out forwards;
+}
+
+.fly-note-leave-active {
+    animation: fly-note 2s ease-out forwards;
+}
+
+@keyframes fly-note {
+    0% {
+        transform: translate(var(--start-x), calc(var(--start-y) - 50px)) rotate(0deg) scale(1.2);
+        opacity: 0.9;
+    }
+    20% {
+        transform: translate(calc(var(--start-x) + 20px), calc(var(--start-y) - 70px)) rotate(45deg) scale(1.3);
+        opacity: 0.85;
+    }
+    100% {
+        transform: translate(80vw, 100vh) rotate(360deg) scale(0.6);
+        opacity: 0;
+    }
 }
 </style>
