@@ -42,15 +42,15 @@
             <RecycleScroller ref="recycleScrollerRef" :items="filteredTracks" :item-size="50" class="track-list" key-field="hash">
                 <template #default="{ item, index }">
                     <div class="li" :key="item.hash"
-                        @click="playSong($getQuality(item.relate_goods), item.name.split('-')[1], $getCover(item.cover, 480), item.name.split('-')[0])"
+                        @click="playSong($getQuality(item.relate_goods), item.name.split(' - ')[1], $getCover(item.cover, 480), item.name.split(' - ')[0])"
                         @contextmenu.prevent="showContextMenu($event, item)">
                         <div class="track-number">{{ index + 1 }}</div>
-                        <div class="track-title" :title="item.name">{{ item.name.split('-')[1] || item.name }}
+                        <div class="track-title" :title="item.name">{{ item.name.split(' - ')[1] || item.name }}
                             <span v-if="item.privilege == 10" class="icon vip-icon">VIP</span>
                             <span v-if="item.relate_goods.length > 2" class="icon sq-icon">SQ</span>
                             <span v-else-if="item.relate_goods.length > 1" class="icon sq-icon">HQ</span>
                         </div>
-                        <div class="track-artist" :title="item.name.split('-')[0]">{{ item.name.split('-')[0] }}</div>
+                        <div class="track-artist" :title="item.name.split(' - ')[0]">{{ item.name.split(' - ')[0] }}</div>
                         <div class="track-album" :title="item.albuminfo?.name">{{ item.albuminfo?.name }}</div>
                         <div class="track-duration">
                             <button v-if="props.playerControl.currentSong.hash == item.hash" class="queue-play-btn fas fa-music"></button>
