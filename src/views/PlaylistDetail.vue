@@ -20,7 +20,7 @@
                         </button>
                         <div v-if="isDropdownVisible" class="dropdown-menu">
                             <ul>
-                                <li @click="deletePlaylist(detail.listid)" v-if="detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.listid">
+                                <li @click="deletePlaylist(detail.listid)" v-if="(detail.list_create_userid == MoeAuth.UserInfo?.userid || route.query.listid) && detail.sort > 1">
                                     <i class="fas fa-trash-alt"></i>
                                 </li>
                                 <li @click="sharePlaylist">
