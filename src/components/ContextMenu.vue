@@ -65,7 +65,7 @@ const fetchPlaylists = async () => {
 // 添加到歌单功能
 const addToPlaylist = async (listid, song) => {
     try {
-        await get(`/playlist/tracks/add?listid=${listid}&data=${song.OriSongName}|${song.FileHash}`);
+        await get(`/playlist/tracks/add?listid=${listid}&data=${encodeURIComponent(song.OriSongName.replace(',', ''))}|${song.FileHash}`);
         hideContextMenu();
         ElMessage.success({
             message: i18n.global.t('cheng-gong-tian-jia-dao-ge-dan'),
