@@ -43,9 +43,9 @@
   "qing-shu-ru-yan-zheng-ma": "请输入验证码",
   "fa-song-yan-zheng-ma": "发送验证码",
   "li-ji-deng-lu": "立即登录",
-  "qing-shu-ru-deng-lu-you-xiang": "请输入登录邮箱",
+  "qing-shu-ru-deng-lu-you-xiang": "请输入登录账号",
   "qing-shu-ru-mi-ma": "请输入密码",
-  "you-xiang-deng-lu": "邮箱登录",
+  "you-xiang-deng-lu": "账号登录",
   "er-wei-ma": "二维码",
   "meng-yin-cheng-nuo-bu-hui-bao-cun-ni-de-ren-he-zhang-hao-xin-xi-dao-yun-duan-ni-de-mi-ma-hui-zai-ben-di-jin-hang-jia-mi-hou-zai-chuan-shu-dao-ku-gou-guan-fang-meng-yin-bing-fei-ku-gou-guan-fang-wang-zhan-shu-ru-zhang-hao-xin-xi-qian-qing-shen-zhong-kao-lv-er-wei-ma-sao-ma-hou-xu-yao-deng-dai-ji-fen-zhong-cai-hui-deng-lu-cheng-gong": "萌音 承诺不会保存你的任何账号信息到云端。你的密码会在本地进行加密后再传输到酷狗官方。萌音并非酷狗官方网站，输入账号信息前请慎重考虑,二维码扫码后需要等待几分钟才会登录成功.",
   "shi-yong-yan-zheng-ma-deng-lu": "使用验证码登录.",
@@ -53,7 +53,7 @@
   "sao-ma-deng-lu": "扫码登录",
   "qing-shu-ru-shou-ji-hao-ma": "请输入手机号码",
   "shou-ji-hao-ge-shi-cuo-wu": "手机号格式错误",
-  "qing-shu-ru-you-xiang": "请输入邮箱",
+  "qing-shu-ru-you-xiang": "请输入账号",
   "you-xiang-ge-shi-cuo-wu": "邮箱格式错误",
   "qing-shi-yong-ku-gou-sao-miao-er-wei-ma-deng-lu": "请使用酷狗扫描二维码登录",
   "deng-lu-cheng-gong": "登录成功",
@@ -175,5 +175,6 @@
   "mei-ri-tui-jian": "每日推荐",
   "mei-you-zheng-zai-bo-fang-de-ge-qu": "没有在播放的歌曲",
   "shou-cang-dao": "收藏到",
-  "mei-you-ge-dan": "还没有歌单"
+  "mei-you-ge-dan": "还没有歌单",
+  "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "暂不支持多账号绑定手机登录"
 }

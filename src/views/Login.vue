@@ -22,9 +22,9 @@
                                     type="primary"
                                     @click="sendCaptcha"
                                     :loading="isSendingCaptcha"
-                                    :disabled="!phoneForm.mobile"
+                                    :disabled="!phoneForm.mobile || countdown > 0"
                                 >
-                                    {{ $t('fa-song-yan-zheng-ma') }}
+                                    {{ countdown > 0 ? `${countdown}s` : $t('fa-song-yan-zheng-ma') }}
                                 </el-button>
                             </template>
                         </el-input>
@@ -60,9 +60,8 @@
     </div>
 </template>
 
-
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive } from 'vue';
 import { get } from '../utils/request';
 import { MoeAuthStore } from '../stores/store';
 import { useRouter, useRoute } from 'vue-router';
@@ -70,7 +69,6 @@ import { ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const loginType = ref(t('shou-ji-hao-deng-lu'));
-
 const options = [t('shou-ji-hao-deng-lu'), t('you-xiang-deng-lu'), t('sao-ma-deng-lu')];
 
 const MoeAuth = MoeAuthStore();
@@ -104,17 +102,7 @@ const rules = {
         }
     ],
     email: [
-        { required: true, message: t('qing-shu-ru-you-xiang'), trigger: "blur" },
-        {
-            validator: (rule, value, callback) => {
-                if (/^\w{1,64}@[a-z0-9\-]{1,256}(\.[a-z]{2,6}){1,2}$/i.test(value) === false) {
-                    callback(new Error(t('you-xiang-ge-shi-cuo-wu')));
-                } else {
-                    callback();
-                }
-            },
-            trigger: "blur"
-        }
+        { required: true, message: t('qing-shu-ru-you-xiang'), trigger: "blur" }
     ]
 };
 
@@ -122,19 +110,15 @@ const qrKey = ref('');
 const qrCode = ref('');
 const tips = ref(t('qing-shi-yong-ku-gou-sao-miao-er-wei-ma-deng-lu'));
 const isSendingCaptcha = ref(false);
+const countdown = ref(0);
 const isPhoneLoginLoading = ref(false);
 const isEmailLoginLoading = ref(false);
+const interval = ref(null);
 
-// 邮箱登录
+// 账号密码登录
 const emailLogin = async () => {
     if (!emailForm.email) {
         ElMessage.error(t('qing-shu-ru-you-xiang'));
-        return;
-    }
-    // 验证邮箱格式
-    const emailPattern = /^\w{1,64}@[a-z0-9\-]{1,256}(\.[a-z]{2,6}){1,2}$/i;
-    if (!emailPattern.test(emailForm.email)) {
-        ElMessage.error(t('you-xiang-ge-shi-cuo-wu'));
         return;
     }
     if (!emailForm.password) {
@@ -148,12 +132,10 @@ const emailLogin = async () => {
             MoeAuth.setData({ UserInfo: response.data });
             router.push(route.query.redirect || '/library');
             ElMessage.success(t('deng-lu-cheng-gong'));
-        } else {
-            console.error('登录失败:', response.data);
-            ElMessage.error(t('deng-lu-shi-bai-0')+`${response.data}`);
         }
     } catch (error) {
-        ElMessage.error(error.message || t('deng-lu-shi-bai'));
+        console.error(error.response.data);
+        ElMessage.error(error.response?.data?.data || t('deng-lu-shi-bai'));
     } finally {
         isEmailLoginLoading.value = false;
     }
@@ -176,12 +158,17 @@ const sendCaptcha = async () => {
         const response = await get(`/captcha/sent?mobile=${phoneForm.mobile}`);
         if (response.status === 1) {
             ElMessage.success(t('yan-zheng-ma-yi-fa-song'));
-        } else {
-            console.error('验证码发送失败:', response.data);
-            ElMessage.error(t('yan-zheng-ma-fa-song-shi-bai-0')+`${response.data}`);
+            countdown.value = 60;
+            const timer = setInterval(() => {
+                countdown.value--;
+                if (countdown.value <= 0) {
+                    clearInterval(timer);
+                }
+            }, 1000);
         }
     } catch (error) {
-        ElMessage.error(error.message || t('yan-zheng-ma-fa-song-shi-bai'));
+        console.error(error.response.data);
+        ElMessage.error(error.response.data.data || t('yan-zheng-ma-fa-song-shi-bai'));
     } finally {
         isSendingCaptcha.value = false;
     }
@@ -199,17 +186,18 @@ const phoneLogin = async () => {
     isPhoneLoginLoading.value = true;
     try {
         const response = await get(`/login/cellphone?mobile=${phoneForm.mobile}&code=${phoneForm.code}`);
-        if (response && response.status === 1) {
+        if (response.status === 1) {
             MoeAuth.setData({ UserInfo: response.data });
             router.push(route.query.redirect || '/library');
             ElMessage.success(t('deng-lu-cheng-gong'));
-        } else {
-            console.error('登录失败:', response ? response.data : '无响应数据');
-            ElMessage.error(t('deng-lu-shi-bai-0')+`${response ? response.data : t('wu-xiang-ying-shu-ju')}`);
         }
     } catch (error) {
-        console.error('登录失败:', error.response.data.data || '未知错误');
-        ElMessage.error(error.response.data.data || t('deng-lu-shi-bai'));
+        if (error.response.data?.data?.info_list) {
+            ElMessage.error(t('zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu'));
+        } else {
+            ElMessage.error(error.response.data?.data || t('deng-lu-shi-bai'));
+        }
+        console.error(error.response.data);
     } finally {
         isPhoneLoginLoading.value = false;
     }
@@ -217,6 +205,7 @@ const phoneLogin = async () => {
 
 // 切换登录方式
 const handleTabSwitch = (value) => {
+    clearInterval(interval.value);
     if (value === t('sao-ma-deng-lu')) {
         getQrCode();
     }
@@ -234,8 +223,6 @@ const getQrCode = async () => {
             const qrResponse = await get(`/login/qr/create?key=${qrKey.value}&qrimg=true`);
             if (qrResponse.code === 200) {
                 qrCode.value = qrResponse.data.base64;
-                console.log(qrCode.value);
-
                 checkQrStatus();
             } else {
                 ElMessage.error(t('huo-qu-er-wei-ma-shi-bai'));
@@ -250,33 +237,28 @@ const getQrCode = async () => {
 
 // 检查二维码扫描状态
 const checkQrStatus = async () => {
-    const interval = setInterval(async () => {
+    interval.value = setInterval(async () => {
         try {
             const response = await get(`/login/qr/check?key=${qrKey.value}`);
             if (response.status === 1) {
                 if (response.data.status === 2) {
                     tips.value = t('yong-hu')+` ${response.data.nickname} `+t('yi-sao-ma-deng-dai-que-ren');
                 } else if (response.data.status === 4) {
-                    clearInterval(interval);
+                    clearInterval(interval.value);
                     MoeAuth.setData({ UserInfo: response.data });
                     ElMessage.success(t('er-wei-ma-deng-lu-cheng-gong'));
                 } else if (response.data.status === 0) {
-                    clearInterval(interval);
+                    clearInterval(interval.value);
                     ElMessage.error(t('er-wei-ma-yi-guo-qi-qing-zhong-xin-sheng-cheng'));
                 }
             }
         } catch {
-            clearInterval(interval);
+            clearInterval(interval.value);
             ElMessage.error(t('er-wei-ma-jian-ce-shi-bai'));
         }
     }, 5000);
 };
 
-onMounted(() => {
-    if (loginType.value === t('sao-ma-deng-lu')) {
-        getQrCode();
-    }
-});
 </script>
 
 <style scoped>

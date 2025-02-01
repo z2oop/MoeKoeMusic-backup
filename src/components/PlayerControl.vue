@@ -414,7 +414,9 @@ const togglePlayPause = async () => {
             currentSong.value.hash,
             currentSong.value.name,
             currentSong.value.img,
-            currentSong.value.author
+            currentSong.value.author,
+            false,
+            false
         );
         return;
     }
@@ -536,9 +538,11 @@ const addPlaylistToQueue = async (info) => {
 };
 
 // 添加歌曲到队列并播放的方法
-const addSongToQueue = async (hash, name, img, author, free = true) => {
-    localStorage.setItem('player_progress', 0);
-    audio.currentTime = progressWidth.value = 0;
+const addSongToQueue = async (hash, name, img, author, free = true, isReset = true) => {
+    if (isReset) {
+        localStorage.setItem('player_progress', 0);
+        audio.currentTime = progressWidth.value = 0;
+    }
     const currentSongHash = currentSong.value.hash;
     try {
         clearTimeout(timeoutId.value);

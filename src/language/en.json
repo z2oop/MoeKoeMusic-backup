@@ -81,12 +81,12 @@
   "mian-ze-sheng-ming": "Disclaimer",
   "ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba": "You haven't added a song yet, go ahead and add it!",
   "qing-shi-yong-ku-gou-sao-miao-er-wei-ma-deng-lu": "Please use Kugou to scan the QR code to log in",
-  "qing-shu-ru-deng-lu-you-xiang": "Please enter your login email",
+  "qing-shu-ru-deng-lu-you-xiang": "Please enter the login account",
   "qing-shu-ru-mi-ma": "Please enter password",
   "qing-shu-ru-shou-ji-hao": "Please enter mobile phone number",
   "qing-shu-ru-shou-ji-hao-ma": "Please enter mobile phone number",
   "qing-shu-ru-yan-zheng-ma": "Please enter the verification code",
-  "qing-shu-ru-you-xiang": "Please enter your email",
+  "qing-shu-ru-you-xiang": "Please enter the account number",
   "qu-xiao": "Cancel",
   "que-ding": "Sure",
   "sao-ma-deng-lu": "Scan code to log in",
@@ -120,7 +120,7 @@
   "yong-hu": "user",
   "yong-hu-tiao-kuan": "User Terms",
   "yong-hu-tou-xiang": "User avatar",
-  "you-xiang-deng-lu": "Email login",
+  "you-xiang-deng-lu": "Account login",
   "you-xiang-ge-shi-cuo-wu": "Email format error",
   "zan-wu-ge-ci": "No lyrics yet",
   "zheng-zai-sheng-cheng-er-wei-ma": "Generating QR code...",
@@ -175,5 +175,6 @@
   "mei-ri-tui-jian": "Daily recommendation",
   "mei-you-zheng-zai-bo-fang-de-ge-qu": "There are no songs that are playing",
   "shou-cang-dao": "Collect",
-  "mei-you-ge-dan": "No song list"
+  "mei-you-ge-dan": "No song list",
+  "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "Do not support multi -account binding mobile phone login for the time being"
 }

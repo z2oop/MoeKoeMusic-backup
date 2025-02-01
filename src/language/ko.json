@@ -80,12 +80,12 @@
   "mian-ze-sheng-ming": "부인 성명",
   "ni-huan-mei-you-tian-jia-ge-quo-kuai-qu-tian-jia-ba": "아직 노래를 추가하지 않았습니다. 계속해서 추가하세요!",
   "qing-shi-yong-ku-gou-sao-miao-er-wei-ma-deng-lu": "로그인하려면 Kugou를 사용하여 QR 코드를 스캔하세요.",
-  "qing-shu-ru-deng-lu-you-xiang": "로그인 이메일을 입력해주세요",
+  "qing-shu-ru-deng-lu-you-xiang": "로그인 계정을 입력하십시오",
   "qing-shu-ru-mi-ma": "비밀번호를 입력해주세요",
   "qing-shu-ru-shou-ji-hao": "휴대폰번호를 입력해주세요",
   "qing-shu-ru-shou-ji-hao-ma": "휴대폰번호를 입력해주세요",
   "qing-shu-ru-yan-zheng-ma": "인증번호를 입력해주세요",
-  "qing-shu-ru-you-xiang": "이메일을 입력해주세요",
+  "qing-shu-ru-you-xiang": "계정 번호를 입력하십시오",
   "qu-xiao": "취소",
   "que-ding": "확신하는",
   "sao-ma-deng-lu": "로그인하려면 코드를 스캔하세요",
@@ -119,7 +119,7 @@
   "yong-hu": "사용자",
   "yong-hu-tiao-kuan": "사용자 약관",
   "yong-hu-tou-xiang": "사용자 아바타",
-  "you-xiang-deng-lu": "이메일 로그인",
+  "you-xiang-deng-lu": "계정 로그인",
   "you-xiang-ge-shi-cuo-wu": "이메일 형식 오류",
   "zan-wu-ge-ci": "아직 가사가 없습니다",
   "deng-lu-shi-bai-0": "로그인에 실패했습니다.",
@@ -175,5 +175,6 @@
   "mei-ri-tui-jian": "매일 추천",
   "mei-you-zheng-zai-bo-fang-de-ge-qu": "연주하는 노래는 없습니다",
   "shou-cang-dao": "모으다",
-  "mei-you-ge-dan": "노래 목록이 없습니다"
+  "mei-you-ge-dan": "노래 목록이 없습니다",
+  "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "시간 동안 멀티 카운트 바인딩 휴대 전화 로그인을 지원하지 마십시오."
 }
