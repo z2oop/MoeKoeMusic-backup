@@ -52,7 +52,7 @@ const fetchPlaylists = async () => {
     try {
         const playlistResponse = await get('/user/playlist');
         if (playlistResponse.status === 1) {
-            playlists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_username === MoeAuth.UserInfo.nickname);
+            playlists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === MoeAuth.UserInfo.userid);
         }
     } catch (error) {
         ElMessage.error({

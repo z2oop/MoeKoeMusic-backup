@@ -32,6 +32,7 @@
                 </button>
             </div>
             <div class="extra-controls">
+                <button class="extra-btn" @click="toggleFavorite"><i class="fas fa-heart"></i></button>
                 <button class="extra-btn" @click="togglePlaybackMode">
                     <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon"
                         :title="currentPlaybackMode.title"></i>
@@ -130,6 +131,9 @@
                     </div>
 
                     <div class="player-controls">
+                        <button class="control-btn like-btn" @click="toggleFavorite">
+                            <i class="fas fa-heart"></i>
+                        </button>
                         <button class="control-btn" @click="playSongFromQueue('previous')">
                             <i class="fas fa-step-backward"></i>
                         </button>
@@ -164,6 +168,24 @@
             </div>
         </div>
     </transition>
+
+    <!-- 歌单选择模态框 -->
+    <transition name="fade">
+        <div v-if="isPlaylistSelectOpen" class="modal">
+            <div class="modal-content">
+                <h3>{{ t('shou-cang-dao') }}</h3>
+                <ul class="playlist-select-list" v-if="playlists.length > 0">
+                    <li v-for="playlist in playlists" 
+                        :key="playlist.list_id" 
+                        @click="addToPlaylist(playlist.listid, currentSong); closePlaylistSelect()">
+                        {{ playlist.name }}
+                    </li>
+                </ul>
+                <div v-else class="no-playlist">{{ t('mei-you-ge-dan') }}</div>
+                <button class="close-btn-modal" @click="closePlaylistSelect">{{ t('guan-bi') }}</button>
+            </div>
+        </div>
+    </transition>
 </template>
 
 <script setup>
@@ -171,6 +193,7 @@ import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller';
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
 import { get } from '../utils/request';
+import { ElMessage } from 'element-plus';
 import { useMusicQueueStore } from '../stores/musicQueue';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
@@ -206,12 +229,54 @@ const isProgressDragging = ref(false);
 const isDraggingHandle = ref(false);
 const climaxPoints = ref([]);
 const NextSong = ref([]);
+const playlists = ref([]);
+const isPlaylistSelectOpen = ref(false);
+
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
     audio.loop = currentPlaybackModeIndex.value == 2;
     localStorage.setItem('player_playback_mode', currentPlaybackModeIndex.value);
 };
+
+const toggleFavorite = async () => {
+    if (!currentSong.value.hash) {
+        window.$modal.alert(t('mei-you-zheng-zai-bo-fang-de-ge-qu'));
+        return;
+    }
+    try {
+        const playlistResponse = await get('/user/playlist');
+        if (playlistResponse.status !== 1) {
+            window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
+            return;
+        }
+        playlists.value = playlistResponse.data.info.filter(
+            playlist => playlist.list_create_userid === MoeAuth.UserInfo.userid
+        );
+        isPlaylistSelectOpen.value = true;
+    } catch (error) {
+        window.$modal.alert(t('shou-cang-shi-bai'));
+    }
+};
+const addToPlaylist = async (listid, song) => {
+    try {
+        await get(`/playlist/tracks/add?listid=${listid}&data=${encodeURIComponent(song.name.replace(',', ''))}|${song.hash}`);
+        ElMessage.success({
+            message: t('cheng-gong-tian-jia-dao-ge-dan'),
+            duration: 2000
+        });
+    } catch (error) {
+        ElMessage.error({
+            message: t('tian-jia-dao-ge-dan-shi-bai'),
+            duration: 2000
+        })
+    }
+    closePlaylistSelect();
+};
+const closePlaylistSelect = () => {
+    isPlaylistSelectOpen.value = false;
+};
+
 onMounted(() => {
     const savedVolume = localStorage.getItem('player_volume');
     if (savedVolume !== null) volume.value = parseFloat(savedVolume);
@@ -378,6 +443,7 @@ const toggleMute = () => {
     }
     localStorage.setItem('player_volume', volume.value);
 };
+
 // 更新音量的点击处理函数
 const setVolumeOnClick = (event) => {
     const slider = event.target.closest('.volume-slider');
@@ -388,6 +454,7 @@ const setVolumeOnClick = (event) => {
         changeVolume();
     }
 };
+
 // 开始拖拽时触发，初始化拖拽并实时更新音量
 const onDragStart = (event) => {
     sliderElement = event.target.closest('.volume-slider');
@@ -398,6 +465,7 @@ const onDragStart = (event) => {
         document.addEventListener('mouseup', onDragEnd);
     }
 };
+
 // 拖拽过程中的音量更新
 const onDrag = (event) => {
     if (isDragging.value && sliderElement) {
@@ -409,12 +477,14 @@ const onDrag = (event) => {
         changeVolume();
     }
 };
+
 const onDragEnd = () => {
     isDragging.value = false;
     sliderElement = null;
     document.removeEventListener('mousemove', onDrag);
     document.removeEventListener('mouseup', onDragEnd);
 };
+
 // 音量调节
 const changeVolume = () => {
     audio.volume = volume.value / 100;
@@ -443,6 +513,7 @@ const getPlaylistAllSongs = async (id) => {
         window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
     }
 }
+
 // 添加歌单到播放列表
 const addPlaylistToQueue = async (info) => {
     musicQueueStore.clearQueue();
@@ -607,6 +678,7 @@ const parseLyrics = (text) => {
         window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
     }
 };
+
 // 添加到下一首 
 const addToNext = async (hash, name, img, author, timeLength) => {
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
