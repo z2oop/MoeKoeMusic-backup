@@ -528,13 +528,18 @@ const addPlaylistToQueue = async (info) => {
         };
     });
     musicQueueStore.queue = songs;
-    addSongToQueue(songs[0].hash, songs[0].name, songs[0].img, songs[0].author);
+    let startIndex = 0;
+    if (currentPlaybackModeIndex.value == 0) {
+        startIndex = Math.floor(Math.random() * songs.length);
+    }
+    addSongToQueue(songs[startIndex].hash, songs[startIndex].name, songs[startIndex].img, songs[startIndex].author);
 };
 
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author, free = true) => {
     localStorage.setItem('player_progress', 0);
     audio.currentTime = progressWidth.value = 0;
+    const currentSongHash = currentSong.value.hash;
     try {
         clearTimeout(timeoutId.value);
         currentSong.value.author = author;
@@ -573,7 +578,13 @@ const addSongToQueue = async (hash, name, img, author, free = true) => {
                 timeLength: response.timeLength,
                 url: response.url[0]
             };
-            musicQueueStore.addSong(song);
+
+            const currentIndex = musicQueueStore.queue.findIndex(song => song.hash == currentSongHash);
+            if (currentIndex !== -1) {
+                musicQueueStore.queue.splice(currentIndex + 1, 0, song);
+            } else {
+                musicQueueStore.addSong(song);
+            }
             playSong(song);
         } else {
             const updatedQueue = [...musicQueueStore.queue];
