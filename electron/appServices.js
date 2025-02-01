@@ -75,6 +75,10 @@ export function createWindow() {
         }
     });
 
+    if (process.platform === 'win32') {
+        setThumbarButtons(mainWindow);
+    }
+
     const savedConfig = store.get('settings');
     if (savedConfig?.desktopLyrics === 'on') {
         createLyricsWindow();
@@ -368,4 +372,55 @@ export function playStartupSound() {
     } catch (error) {
         console.error('播放启动问候语失败:', error);
     }
+}
+
+// 设置任务栏缩略图工具栏
+export function setThumbarButtons(mainWindow, isPlaying = false) {
+    const buttons = [
+        {
+            tooltip: '上一首',
+            icon: isDev 
+                ? path.join(__dirname, '../build/icons/prev.png')
+                : path.join(process.resourcesPath, 'icons', 'prev.png'),
+            click: () => {
+                mainWindow.webContents.send('play-previous-track');
+                setThumbarButtons(mainWindow, true);
+            }
+        },
+        {
+            tooltip: '暂停',
+            icon: isDev 
+                ? path.join(__dirname, '../build/icons/pause.png')
+                : path.join(process.resourcesPath, 'icons', 'pause.png'),
+            click: () => {
+                mainWindow.webContents.send('toggle-play-pause');
+                setThumbarButtons(mainWindow, false);
+            }
+        },
+        {
+            tooltip: '下一首',
+            icon: isDev 
+                ? path.join(__dirname, '../build/icons/next.png')
+                : path.join(process.resourcesPath, 'icons', 'next.png'),
+            click: () => {
+                mainWindow.webContents.send('play-next-track');
+                setThumbarButtons(mainWindow, true);
+            }
+        }
+    ];
+
+    if (!isPlaying) {
+        buttons[1] = {
+            tooltip: '播放',
+            icon: isDev 
+                ? path.join(__dirname, '../build/icons/play.png')
+                : path.join(process.resourcesPath, 'icons', 'play.png'),
+            click: () => {
+                mainWindow.webContents.send('toggle-play-pause');
+                setThumbarButtons(mainWindow, true);
+            }
+        };
+    }
+
+    mainWindow.setThumbarButtons(buttons);
 }
