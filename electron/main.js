@@ -167,4 +167,9 @@ ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
     const lyricsWindow = mainWindow.lyricsWindow;
     if (!lyricsWindow) return
     lyricsWindow.setPosition(mouseX, mouseY)
+    try {
+        store.set('lyricsWindowPosition', { x: mouseX, y: mouseY });
+    } catch (error) {
+        console.error(error);
+    }
 })

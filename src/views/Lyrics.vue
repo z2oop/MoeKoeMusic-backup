@@ -4,33 +4,75 @@
         <div class="controls-overlay" ref="controlsOverlay">
             <div class="controls-wrapper" :class="{ 'locked-controls': isLocked }">
                 <template v-if="!isLocked">
-                    <button @click="sendAction('previous-song')">
+                    <div class="color-controls">
+                        <button 
+                            class="color-button"
+                            title="默认颜色"
+                            @click="$refs.defaultColorInput.click()"
+                        >
+                            <div class="color-preview" :style="{ backgroundColor: defaultColor }"></div>
+                        </button>
+                        <button 
+                            class="color-button"
+                            title="高亮颜色"
+                            @click="$refs.highlightColorInput.click()"
+                        >
+                            <div class="color-preview" :style="{ backgroundColor: highlightColor }"></div>
+                        </button>
+                        <input
+                            ref="defaultColorInput"
+                            type="color"
+                            :value="defaultColor"
+                            @input="e => handleColorChange(e.target.value, 'default')"
+                            class="hidden-color-input"
+                        >
+                        <input
+                            ref="highlightColorInput"
+                            type="color"
+                            :value="highlightColor"
+                            @input="e => handleColorChange(e.target.value, 'highlight')"
+                            class="hidden-color-input"
+                        >
+                    </div>
+                    <button @click="changeFontSize(-2)" class="font-control" title="减小字体">
+                        <i class="fas fa-minus"></i>
+                        <i class="fas fa-font"></i>
+                    </button>
+                    <button @click="sendAction('previous-song')" title="上一首">
                         <i class="fas fa-step-backward"></i>
                     </button>
-                    <button @click="togglePlay">
+                    <button @click="togglePlay" :title="isPlaying ? '暂停' : '播放'">
                         <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
                     </button>
-                    <button @click="sendAction('next-song')">
+                    <button @click="sendAction('next-song')" title="下一首">
                         <i class="fas fa-step-forward"></i>
                     </button>
-                </template>
-                <button @click="toggleLock" class="lock-button">
-                    <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
-                </button>
-                <template v-if="!isLocked">
-                    <button @click="sendAction('close-lyrics')">
+                    <button @click="changeFontSize(2)" class="font-control" title="增大字体">
+                        <i class="fas fa-font"></i>
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button @click="toggleLock" class="lock-button" :title="isLocked ? '解锁' : '锁定'">
+                        <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
+                    </button>
+                    <button @click="sendAction('close-lyrics')" title="关闭歌词">
                         <i class="fas fa-times"></i>
+                    </button>
+                </template>
+                <template v-else>
+                    <button @click="toggleLock" class="lock-button" :title="isLocked ? '解锁' : '锁定'">
+                        <i :class="isLocked ? 'fas fa-lock' : 'fas fa-lock-open'"></i>
                     </button>
                 </template>
             </div>
         </div>
         <!-- 歌词内容 -->
         <div 
-            class="lyrics-container" 
+            class="lyrics-container lyrics-container-hover" 
             ref="lyricsContainerRef"
             @mouseenter="handleMouseEnter"
             @mouseleave="handleMouseLeave"
             :class="{ 'hovering': isHovering,'locked': isLocked }"
+            :style="containerStyle"
         >
             <template v-if="lyrics.length">
                 <div class="lyrics-line current">
@@ -76,17 +118,24 @@ const lyrics = ref([])
 const currentLineScrollX = ref(0)
 const isDragging = ref(false)
 const dragOffset = ref({ x: 0, y: 0 })
-// 计算属性
-const currentLine = computed(() => lyrics.value[currentLineIndex.value] || { characters: [] })
-
 const currentLineStyle = computed(() => ({
     transform: `translateX(${currentLineScrollX.value}px)`
 }))
 
-// 新增显示行索引状态
-const displayedLines = ref([0, 1]) // [当前显示的第一行索引, 当前显示的第二行索引]
+const displayedLines = ref([0, 1]) 
+const defaultColor = ref(localStorage.getItem('lyrics-default-color') || '#999999')
+const highlightColor = ref(localStorage.getItem('lyrics-highlight-color') || 'var(--primary-color)')
 
-// 字符样式计算
+const handleColorChange = (color, type) => {
+    if (type === 'default') {
+        defaultColor.value = color
+        localStorage.setItem('lyrics-default-color', color)
+    } else {
+        highlightColor.value = color
+        localStorage.setItem('lyrics-highlight-color', color)
+    }
+}
+
 const getCharacterStyle = (char) => {
     const startTime = char.startTime / 1000
     const endTime = char.endTime / 1000
@@ -102,12 +151,10 @@ const getCharacterStyle = (char) => {
     }
     
     return {
-        backgroundImage: `linear-gradient(to right, #FF69B4 0%, #FF69B4 ${fillPercent}%, #999 ${fillPercent}%)`
+        backgroundImage: `linear-gradient(to right, ${highlightColor.value} 0%, ${highlightColor.value} ${fillPercent}%, ${defaultColor.value} ${fillPercent}%)`
     }
 }
 
-
-// 播放控制
 const sendAction = (action) => {
     window.electron.ipcRenderer.send('desktop-lyrics-action', action)
 }
@@ -126,45 +173,7 @@ const toggleLock = () => {
     }
 }
 
-// 歌词滚动处理
-const updateScroll = () => {
-    if (!currentLine.value) return
-    
-    const container = lyricsContainerRef.value
-    if (!container) return
-    
-    const currentLineEl = container.querySelector('.lyrics-line.current')
-    const contentEl = currentLineEl?.querySelector('.lyrics-content')
-    if (!contentEl) return
-    
-    const contentWidth = contentEl.offsetWidth
-    const containerWidth = currentLineEl.offsetWidth
-    
-    if (contentWidth <= containerWidth) {
-        currentLineScrollX.value = 0
-        return
-    }
-    
-    // 找到当前正在播放的字符
-    const currentChar = currentLine.value.characters.find(char => 
-        currentTime.value >= char.startTime / 1000 && 
-        currentTime.value <= char.endTime / 1000
-    )
-    
-    if (!currentChar) return
-    
-    const charIndex = currentLine.value.characters.indexOf(currentChar)
-    const charPosition = (charIndex / currentLine.value.characters.length) * contentWidth
-    
-    const targetPosition = containerWidth * 0.3
-    const scrollAmount = -(charPosition - targetPosition)
-    
-    const maxScroll = 0
-    const minScroll = -(contentWidth - containerWidth)
-    currentLineScrollX.value = Math.min(maxScroll, Math.max(minScroll, scrollAmount))
-}
-
-// 修改更新当前行索引的逻辑
+// 更新当前行索引
 const updateCurrentLineIndex = () => {
     const currentTimeMs = currentTime.value * 1000
     
@@ -185,7 +194,6 @@ const updateCurrentLineIndex = () => {
     }
 }
 
-// 新增更新显示行的逻辑
 const updateDisplayedLines = () => {
     const currentIdx = currentLineIndex.value
     if (currentIdx > displayedLines.value[1]) {
@@ -194,16 +202,13 @@ const updateDisplayedLines = () => {
     }
 }
 
-// 监听时间变化
 watch(currentTime, () => {
     updateCurrentLineIndex()
-    updateScroll()
 })
 
 
-// 修改开始拖动函数
+// 开始拖动
 const startDrag = (event) => {
-    // 如果锁定了，或者不是在控制栏/歌词内容区域，则不处理
     if (isLocked.value || 
         (!event.target.closest('.controls-overlay') && 
          !event.target.closest('.lyrics-content'))) return
@@ -215,16 +220,13 @@ const startDrag = (event) => {
     }
 }
 
-// 修改检查鼠标是否在交互区域的逻辑
+// 检查鼠标是否在交互区域
 const checkMousePosition = (event) => {
-    // 如果是锁定状态，只检查控制栏
     if (isLocked.value) {
         const isMouseInControls = event.target.closest('.controls-overlay') !== null
         window.electron.ipcRenderer.send('set-ignore-mouse-events', !isMouseInControls)
         return
     }
-
-    // 非锁定状态，检查是否在控制栏或悬停的歌词内容上
     const isMouseInControls = event.target.closest('.controls-overlay') !== null
     const isMouseInLyrics = event.target.closest('.lyrics-content') !== null && isHovering.value
 
@@ -242,18 +244,23 @@ window.electron.ipcRenderer.on('update-current-time', (time) => {
     currentTime.value = time
 })
 
+const fontSize = ref(32)
+const changeFontSize = (delta) => {
+    fontSize.value = Math.max(12, Math.min(72, fontSize.value + delta))
+    localStorage.setItem('lyrics-font-size', fontSize.value)
+}
+
 onMounted(() => {
     isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
     window.electron.ipcRenderer.send('set-ignore-mouse-events', true)
     
-
     document.addEventListener('mousemove', checkMousePosition)
     document.addEventListener('mousedown', startDrag)
     document.addEventListener('mousemove', onDrag)
     document.addEventListener('mouseup', endDrag)
+    fontSize.value = parseInt(localStorage.getItem('lyrics-font-size') || '32')
 })
 
-// 拖动中
 const onDrag = (event) => {
     if (!isDragging.value) return
 
@@ -266,7 +273,6 @@ const onDrag = (event) => {
     })
 }
 
-// 结束拖动
 const endDrag = () => {
     isDragging.value = false
 }
@@ -278,10 +284,7 @@ onBeforeUnmount(() => {
     document.removeEventListener('mouseup', endDrag)
 })
 
-// 添加新的 ref 来控制背景状态
 const isHovering = ref(false)
-
-// 修改鼠标移入移出处理函数
 const handleMouseEnter = () => {
     if (!isLocked.value) {
         isHovering.value = true
@@ -295,6 +298,10 @@ const handleMouseLeave = () => {
         window.electron.ipcRenderer.send('set-ignore-mouse-events', true)
     }
 }
+
+const containerStyle = computed(() => ({
+    fontSize: `${fontSize.value}px`
+}))
 </script>
 
 <style>
@@ -302,7 +309,8 @@ body,
 html {
     background-color: rgba(0, 0, 0, 0);
 }
-
+</style>
+<style scoped>
 .character {
     display: inline-block;
     color: transparent;
@@ -323,9 +331,10 @@ html {
     justify-content: center;
     align-items: center;
     cursor: inherit;
-    width: 100%;
-    font-size: 32px;
     font-weight: bold;
+}
+.lyrics-container-hover:not(.locked):hover {
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .controls-overlay {
@@ -342,12 +351,13 @@ html {
     display: flex;
     gap: 15px;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 6px;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 6px 12px;
     border-radius: 20px;
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
-    width: 430px;
+    width: auto;
+    min-width: 430px;
 }
 
 .lock-button {
@@ -367,11 +377,11 @@ html {
 
 .controls-wrapper button {
     background: transparent;
-    border: none;
+    border: none !important;
     color: white;
     cursor: pointer;
-    width: 28px;
-    height: 28px;
+    width: 28px !important;
+    height: 28px !important;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -406,10 +416,72 @@ html {
 
 .lyrics-container:not(.locked) .lyrics-content.hovering:hover {
     cursor: move;
-    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .controls-wrapper:not(.locked-controls) {
     cursor: move;
+}
+
+.font-size-controls {
+    display: none;
+}
+
+.font-control {
+    opacity: 0.8;
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    width: auto !important;
+}
+
+.font-control i {
+    font-size: 12px;
+}
+
+.font-control i.fa-font {
+    font-size: 14px;
+    margin: 0 1px;
+}
+
+.font-control:hover {
+    opacity: 1;
+}
+
+.font-icon {
+    display: none;
+}
+
+.color-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.color-button {
+    padding: 2px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.color-preview {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.hidden-color-input {
+    position: absolute;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    border: none;
 }
 </style>

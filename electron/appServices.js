@@ -91,13 +91,18 @@ let lyricsWindow;
 export function createLyricsWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
     const windowWidth = Math.floor(screenWidth * 0.7);
-    const windowHeight = 150;
+    const windowHeight = 200;
+
+    const savedLyricsPosition = store.get('lyricsWindowPosition') || {
+        x: Math.floor((screenWidth - windowWidth) / 2),
+        y: screenHeight - windowHeight
+    };
 
     lyricsWindow = new BrowserWindow({
         width: windowWidth,
         height: windowHeight,
-        x: Math.floor((screenWidth - windowWidth) / 2),
-        y: screenHeight - windowHeight,
+        x: savedLyricsPosition.x,
+        y: savedLyricsPosition.y,
         alwaysOnTop: true,
         frame: false,
         transparent: true,
