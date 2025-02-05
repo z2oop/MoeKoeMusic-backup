@@ -38,7 +38,7 @@ httpClient.interceptors.response.use(
     },
     error => {
         if (error.response) {
-            console.error(`HTTP Error: ${error.response.status}, Message: ${error.response.data?.message}`);
+            console.error(`HTTP Error: ${error.response.status}, Message: ${error.response.data}`);
             if (error.response.data && error.response.data.data) {
                 console.error(error.response.data.data);
             } else {

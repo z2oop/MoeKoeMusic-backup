@@ -1,7 +1,7 @@
 <template>
-    <div class="lyrics-container">
+    <div class="lyrics-container" :class="{ 'locked': isLocked }">
         <!-- 控制栏 -->
-        <div class="controls-overlay">
+        <div class="controls-overlay" ref="controlsOverlay">
             <div class="controls-wrapper" :class="{ 'locked-controls': isLocked }">
                 <template v-if="!isLocked">
                     <button @click="sendAction('previous-song')">
@@ -25,201 +25,276 @@
             </div>
         </div>
         <!-- 歌词内容 -->
-        <div class="lyrics-container" id="lyricsContainer">暂无歌词</div>
+        <div 
+            class="lyrics-container" 
+            ref="lyricsContainerRef"
+            @mouseenter="handleMouseEnter"
+            @mouseleave="handleMouseLeave"
+            :class="{ 'hovering': isHovering,'locked': isLocked }"
+        >
+            <template v-if="lyrics.length">
+                <div class="lyrics-line current">
+                    <div class="lyrics-content" 
+                        :style="currentLineStyle"
+                        :class="{ 'hovering': isHovering && !isLocked }"
+                    >
+                        <span
+                            v-for="(char, index) in lyrics[displayedLines[0]]?.characters"
+                            :key="`line1-${index}`"
+                            class="character"
+                            :style="getCharacterStyle(char)"
+                        >{{ char.char }}</span>
+                    </div>
+                </div>
+                <div class="lyrics-line next" v-if="lyrics[displayedLines[1]]">
+                    <div class="lyrics-content"
+                        :class="{ 'hovering': isHovering && !isLocked }"
+                    >
+                        <span
+                            v-for="(char, index) in lyrics[displayedLines[1]]?.characters"
+                            :key="`line2-${index}`"
+                            class="character"
+                            :style="getCharacterStyle(char)"
+                        >{{ char.char }}</span>
+                    </div>
+                </div>
+            </template>
+            <div v-else class="lyrics-content hovering">暂无歌词</div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 const isPlaying = ref(false)
 const isLocked = ref(false)
-let controlsOverlay = null;
-const handleMouseMove = () => setWindowIgnoreMouseEvents(false);
-const handleMouseLeave = () => setWindowIgnoreMouseEvents(true);
-// 存储状态的对象
-const state = {
-    lyricsContainer: null,
-    lyrics: [],
-    currentTime: 0,
-    duration: 0,
-    currentLineIndex: 0,
-    displayedLines: [0, 1]
-};
+const controlsOverlay = ref(null)
+const lyricsContainerRef = ref(null)
+const currentTime = ref(0)
+const currentLineIndex = ref(0)
+const lyrics = ref([])
+const currentLineScrollX = ref(0)
+const isDragging = ref(false)
+const dragOffset = ref({ x: 0, y: 0 })
+// 计算属性
+const currentLine = computed(() => lyrics.value[currentLineIndex.value] || { characters: [] })
 
-onMounted(() => {
-    const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    const lyricsFontSize = savedConfig?.lyricsFontSize || '32px';
-    document.querySelector('.lyrics-container').style.fontSize = lyricsFontSize;
-    isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
-    setWindowIgnoreMouseEvents(true);
-    controlsOverlay = document.querySelector('.controls-overlay');
-    controlsOverlay.addEventListener('mousemove', handleMouseMove);
-    controlsOverlay.addEventListener('mouseleave', handleMouseLeave);
-})
+const currentLineStyle = computed(() => ({
+    transform: `translateX(${currentLineScrollX.value}px)`
+}))
 
-// 设置歌词数据
-function setLyrics(lyricsData) {
-    state.lyrics = lyricsData;
-    state.duration = Math.max(...state.lyrics.flatMap(line =>
-        line.characters.map(char => char.endTime / 1000)
-    ));
-    renderLyrics();
-}
+// 新增显示行索引状态
+const displayedLines = ref([0, 1]) // [当前显示的第一行索引, 当前显示的第二行索引]
 
-// 渲染歌词
-function renderLyrics() {
-    state.lyricsContainer.innerHTML = '';
-    const currentLine = document.createElement('div');
-    currentLine.className = 'lyrics-line current';
-    const nextLine = document.createElement('div');
-    nextLine.className = 'lyrics-line next';
-
-    updateLineContent(currentLine, state.lyrics[0]);
-    if (state.lyrics.length > 1) {
-        updateLineContent(nextLine, state.lyrics[1]);
+// 字符样式计算
+const getCharacterStyle = (char) => {
+    const startTime = char.startTime / 1000
+    const endTime = char.endTime / 1000
+    const progress = (currentTime.value - startTime) / (endTime - startTime)
+    
+    let fillPercent = 0
+    if (currentTime.value < startTime) {
+        fillPercent = 0
+    } else if (currentTime.value >= endTime) {
+        fillPercent = 100
+    } else {
+        fillPercent = Math.max(0, Math.min(100, progress * 100))
     }
-
-    state.lyricsContainer.appendChild(currentLine);
-    state.lyricsContainer.appendChild(nextLine);
-}
-
-// 更新行内容
-function updateLineContent(lineElement, lyricLine) {
-    lineElement.innerHTML = '';
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'lyrics-content';
-
-    lyricLine.characters.forEach(char => {
-        const span = document.createElement('span');
-        span.textContent = char.char;
-        span.className = 'character';
-        span.dataset.startTime = char.startTime / 1000;
-        span.dataset.endTime = char.endTime / 1000;
-        contentDiv.appendChild(span);
-    });
-
-    lineElement.appendChild(contentDiv);
-}
-
-// 更新高亮
-function updateHighlight() {
-    const allChars = document.querySelectorAll('.character');
-    const currentTime = state.currentTime * 1000;
-    let currentChar = null;
-
-    for (let i = 0; i < state.lyrics.length; i++) {
-        const line = state.lyrics[i];
-        const lineStartTime = line.characters[0].startTime;
-        const lineEndTime = line.characters[line.characters.length - 1].endTime;
-
-        if (currentTime >= lineStartTime && currentTime <= lineEndTime) {
-            if (state.currentLineIndex !== i) {
-                state.currentLineIndex = i;
-                updateDisplayedLines();
-            }
-            break;
-        }
-    }
-
-    allChars.forEach(char => {
-        const startTime = parseFloat(char.dataset.startTime);
-        const endTime = parseFloat(char.dataset.endTime);
-        const progress = (state.currentTime - startTime) / (endTime - startTime);
-
-        if (state.currentTime < startTime) {
-            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 0%, #999 0%)`;
-        } else if (state.currentTime >= endTime) {
-            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 100%, #999 100%)`;
-        } else {
-            const fillPercent = Math.max(0, Math.min(100, progress * 100));
-            char.style.backgroundImage = `linear-gradient(to right, #FF69B4 0%, #FF69B4 ${fillPercent}%, #999 ${fillPercent}%)`;
-            currentChar = char;
-        }
-    });
-
-    // 处理滚动
-    if (currentChar) {
-        const line = currentChar.closest('.lyrics-line');
-        const content = currentChar.closest('.lyrics-content');
-        const charRect = currentChar.getBoundingClientRect();
-        const lineRect = line.getBoundingClientRect();
-
-        const contentWidth = content.offsetWidth;
-        const lineWidth = line.offsetWidth;
-
-        if (contentWidth > lineWidth) {
-            const charLeft = charRect.left - lineRect.left;
-            const targetPosition = lineWidth * 0.3;
-            const scrollAmount = -(charLeft - targetPosition);
-
-            const maxScroll = 0;
-            const minScroll = -(contentWidth - lineWidth);
-            const finalScroll = Math.min(maxScroll, Math.max(minScroll, scrollAmount));
-
-            content.style.transform = `translateX(${finalScroll}px)`;
-        }
+    
+    return {
+        backgroundImage: `linear-gradient(to right, #FF69B4 0%, #FF69B4 ${fillPercent}%, #999 ${fillPercent}%)`
     }
 }
 
-// 更新显示的行
-function updateDisplayedLines() {
-    const currentLine = document.querySelector('.lyrics-line.current');
-    const nextLine = document.querySelector('.lyrics-line.next');
 
-    if (state.currentLineIndex > state.displayedLines[1]) {
-        const oldContent = currentLine.querySelector('.lyrics-content');
-        if (oldContent) {
-            oldContent.style.transform = 'translateX(0)';
-        }
-
-        state.displayedLines = [state.currentLineIndex, state.currentLineIndex + 1];
-
-        if (state.currentLineIndex < state.lyrics.length) {
-            updateLineContent(currentLine, state.lyrics[state.currentLineIndex]);
-        }
-        if (state.currentLineIndex + 1 < state.lyrics.length) {
-            updateLineContent(nextLine, state.lyrics[state.currentLineIndex + 1]);
-        }
-    }
-}
-
-window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
-    state.lyricsContainer = state.lyricsContainer ? state.lyricsContainer : document.getElementById('lyricsContainer');
-    setLyrics(newLyrics);
-});
-
-
-window.electron.ipcRenderer.on('update-current-time', (time) => {
-    state.currentTime = time;
-    updateHighlight();
-});
-
-window.electron.ipcRenderer.on('lyrics-font-size', (fontSize) => {
-    document.querySelector('.lyrics-content').style.fontSize = fontSize;
-});
-
+// 播放控制
 const sendAction = (action) => {
-    window.electron.ipcRenderer.send('desktop-lyrics-action', action);
+    window.electron.ipcRenderer.send('desktop-lyrics-action', action)
 }
-
-const setWindowIgnoreMouseEvents = (ignore) => {
-    window.electron.ipcRenderer.send('set-ignore-mouse-events', ignore);
-};
 
 const togglePlay = () => {
     isPlaying.value = !isPlaying.value
-    sendAction('toggle-play');
+    sendAction('toggle-play')
 }
 
 const toggleLock = () => {
     isLocked.value = !isLocked.value
     localStorage.setItem('lyrics-lock', isLocked.value)
+    if (isLocked.value) {
+        isHovering.value = false
+        window.electron.ipcRenderer.send('set-ignore-mouse-events', true)
+    }
+}
+
+// 歌词滚动处理
+const updateScroll = () => {
+    if (!currentLine.value) return
+    
+    const container = lyricsContainerRef.value
+    if (!container) return
+    
+    const currentLineEl = container.querySelector('.lyrics-line.current')
+    const contentEl = currentLineEl?.querySelector('.lyrics-content')
+    if (!contentEl) return
+    
+    const contentWidth = contentEl.offsetWidth
+    const containerWidth = currentLineEl.offsetWidth
+    
+    if (contentWidth <= containerWidth) {
+        currentLineScrollX.value = 0
+        return
+    }
+    
+    // 找到当前正在播放的字符
+    const currentChar = currentLine.value.characters.find(char => 
+        currentTime.value >= char.startTime / 1000 && 
+        currentTime.value <= char.endTime / 1000
+    )
+    
+    if (!currentChar) return
+    
+    const charIndex = currentLine.value.characters.indexOf(currentChar)
+    const charPosition = (charIndex / currentLine.value.characters.length) * contentWidth
+    
+    const targetPosition = containerWidth * 0.3
+    const scrollAmount = -(charPosition - targetPosition)
+    
+    const maxScroll = 0
+    const minScroll = -(contentWidth - containerWidth)
+    currentLineScrollX.value = Math.min(maxScroll, Math.max(minScroll, scrollAmount))
+}
+
+// 修改更新当前行索引的逻辑
+const updateCurrentLineIndex = () => {
+    const currentTimeMs = currentTime.value * 1000
+    
+    for (let i = 0; i < lyrics.value.length; i++) {
+        const line = lyrics.value[i]
+        if (!line?.characters?.length) continue
+        
+        const lineStartTime = line.characters[0].startTime
+        const lineEndTime = line.characters[line.characters.length - 1].endTime
+        
+        if (currentTimeMs >= lineStartTime && currentTimeMs <= lineEndTime) {
+            if (currentLineIndex.value !== i) {
+                currentLineIndex.value = i
+                updateDisplayedLines()
+            }
+            break
+        }
+    }
+}
+
+// 新增更新显示行的逻辑
+const updateDisplayedLines = () => {
+    const currentIdx = currentLineIndex.value
+    if (currentIdx > displayedLines.value[1]) {
+        displayedLines.value = [currentIdx, currentIdx + 1]
+        currentLineScrollX.value = 0
+    }
+}
+
+// 监听时间变化
+watch(currentTime, () => {
+    updateCurrentLineIndex()
+    updateScroll()
+})
+
+
+// 修改开始拖动函数
+const startDrag = (event) => {
+    // 如果锁定了，或者不是在控制栏/歌词内容区域，则不处理
+    if (isLocked.value || 
+        (!event.target.closest('.controls-overlay') && 
+         !event.target.closest('.lyrics-content'))) return
+
+    isDragging.value = true
+    dragOffset.value = {
+        x: event.clientX,
+        y: event.clientY
+    }
+}
+
+// 修改检查鼠标是否在交互区域的逻辑
+const checkMousePosition = (event) => {
+    // 如果是锁定状态，只检查控制栏
+    if (isLocked.value) {
+        const isMouseInControls = event.target.closest('.controls-overlay') !== null
+        window.electron.ipcRenderer.send('set-ignore-mouse-events', !isMouseInControls)
+        return
+    }
+
+    // 非锁定状态，检查是否在控制栏或悬停的歌词内容上
+    const isMouseInControls = event.target.closest('.controls-overlay') !== null
+    const isMouseInLyrics = event.target.closest('.lyrics-content') !== null && isHovering.value
+
+    window.electron.ipcRenderer.send('set-ignore-mouse-events', !(isMouseInControls || isMouseInLyrics))
+}
+
+window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
+    lyrics.value = newLyrics
+    currentLineIndex.value = 0
+    currentTime.value = 0
+    currentLineScrollX.value = 0
+})
+
+window.electron.ipcRenderer.on('update-current-time', (time) => {
+    currentTime.value = time
+})
+
+onMounted(() => {
+    isLocked.value = localStorage.getItem('lyrics-lock') === 'true'
+    window.electron.ipcRenderer.send('set-ignore-mouse-events', true)
+    
+
+    document.addEventListener('mousemove', checkMousePosition)
+    document.addEventListener('mousedown', startDrag)
+    document.addEventListener('mousemove', onDrag)
+    document.addEventListener('mouseup', endDrag)
+})
+
+// 拖动中
+const onDrag = (event) => {
+    if (!isDragging.value) return
+
+    const deltaX = event.screenX - dragOffset.value.x
+    const deltaY = event.screenY - dragOffset.value.y
+
+    window.electron.ipcRenderer.send('window-drag', {
+        mouseX: deltaX,
+        mouseY: deltaY
+    })
+}
+
+// 结束拖动
+const endDrag = () => {
+    isDragging.value = false
 }
 
 onBeforeUnmount(() => {
-    controlsOverlay.removeEventListener('mousemove', handleMouseMove);
-    controlsOverlay.removeEventListener('mouseleave', handleMouseLeave);
+    document.removeEventListener('mousemove', checkMousePosition)
+    document.removeEventListener('mousedown', startDrag)
+    document.removeEventListener('mousemove', onDrag)
+    document.removeEventListener('mouseup', endDrag)
 })
+
+// 添加新的 ref 来控制背景状态
+const isHovering = ref(false)
+
+// 修改鼠标移入移出处理函数
+const handleMouseEnter = () => {
+    if (!isLocked.value) {
+        isHovering.value = true
+        window.electron.ipcRenderer.send('set-ignore-mouse-events', false)
+    }
+}
+
+const handleMouseLeave = () => {
+    isHovering.value = false
+    if (!isLocked.value) {
+        window.electron.ipcRenderer.send('set-ignore-mouse-events', true)
+    }
+}
 </script>
 
 <style>
@@ -249,6 +324,8 @@ html {
     align-items: center;
     cursor: inherit;
     width: 100%;
+    font-size: 32px;
+    font-weight: bold;
 }
 
 .controls-overlay {
@@ -308,6 +385,7 @@ html {
 .lyrics-line {
     overflow: hidden;
     position: relative;
+    transition: transform 0.3s ease-out;
 }
 
 .lyrics-line.current {
@@ -321,6 +399,17 @@ html {
 .lyrics-content {
     display: inline-block;
     white-space: nowrap;
-    transition: transform 0.3s ease-out;
+    transition: all 0.3s ease-out;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.lyrics-container:not(.locked) .lyrics-content.hovering:hover {
+    cursor: move;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.controls-wrapper:not(.locked-controls) {
+    cursor: move;
 }
 </style>

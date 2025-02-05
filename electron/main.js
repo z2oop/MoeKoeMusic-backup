@@ -132,13 +132,6 @@ ipcMain.on('lyrics-data', (event, lyricsData) => {
     }
 });
 
-ipcMain.on('lyrics-font-size', (event, fontSize) => {
-    const lyricsWindow = mainWindow.lyricsWindow;
-    if (lyricsWindow) {
-        lyricsWindow.webContents.send('lyrics-font-size', fontSize);
-    }
-});
-
 // 监听桌面歌词操作
 ipcMain.on('desktop-lyrics-action', (event, action) => {
     switch (action) {
@@ -169,3 +162,9 @@ ipcMain.on('set-ignore-mouse-events', (event, ignore) => {
         lyricsWindow.setIgnoreMouseEvents(ignore, { forward: true });
     }
 });
+
+ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (!lyricsWindow) return
+    lyricsWindow.setPosition(mouseX, mouseY)
+})

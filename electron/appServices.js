@@ -90,7 +90,7 @@ let lyricsWindow;
 
 export function createLyricsWindow() {
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
-    const windowWidth = 800;
+    const windowWidth = Math.floor(screenWidth * 0.7);
     const windowHeight = 150;
 
     lyricsWindow = new BrowserWindow({

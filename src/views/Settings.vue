@@ -47,6 +47,13 @@
                     <span>{{ selectedSettings.lyricsBackground.displayText }}</span>
                 </div>
             </div>
+            
+            <div class="setting-item" @click="openSelection('lyricsFontSize')">
+                <span>{{ $t('ge-ci-zi-ti-da-xiao') }}</span>
+                <div class="setting-control">
+                    <span>{{ selectedSettings.lyricsFontSize.displayText }}</span>
+                </div>
+            </div>
 
             <div class="setting-item" @click="openSelection('desktopLyrics')">
                 <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }} (实验性功能)</span>
@@ -55,12 +62,6 @@
                 </div>
             </div>
 
-            <div class="setting-item" @click="openSelection('lyricsFontSize')">
-                <span>{{ $t('ge-ci-zi-ti-da-xiao') }}</span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.lyricsFontSize.displayText }}</span>
-                </div>
-            </div>
         </section>
 
         <section class="setting-section">
@@ -319,9 +320,7 @@ const selectOption = (option) => {
             return;
         }
     }else if(selectionType.value === 'lyricsFontSize'){
-        if(isElectron()){
-            window.electron.ipcRenderer.send('lyrics-font-size', selectedSettings.value.lyricsFontSize.value);
-        }else{
+        if(!isElectron()){
             window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
             return;
         }

@@ -213,11 +213,11 @@ const getTracks = async () => {
             pagesize: pageSize.value
         });
         if (response.status == 1) {
-            if(response.data.info.length < pageSize.value) break;
             if (response.data.info.length > 0) {
                 allTracks = allTracks.concat(response.data.info);
                 currentPage++;
             }
+            if(response.data.info.length < pageSize.value) break;
         } else {
             break;
         }
