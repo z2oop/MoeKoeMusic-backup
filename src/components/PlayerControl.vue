@@ -972,8 +972,16 @@ const updateTimeTooltip = (event) => {
 
     const rect = progressBar.getBoundingClientRect();
     const offsetX = Math.max(0, Math.min(event.clientX - rect.left, progressBar.offsetWidth));
+    
+    const tooltipWidth = 50;
+    if (offsetX < tooltipWidth / 2) {
+        tooltipPosition.value = tooltipWidth / 2;
+    } else if (offsetX > progressBar.offsetWidth - tooltipWidth / 2) {
+        tooltipPosition.value = progressBar.offsetWidth - tooltipWidth / 2;
+    } else {
+        tooltipPosition.value = offsetX;
+    }
 
-    tooltipPosition.value = offsetX;
     const percentage = (offsetX / progressBar.offsetWidth);
     const time = percentage * audio.duration;
     tooltipTime.value = formatTime(time);
