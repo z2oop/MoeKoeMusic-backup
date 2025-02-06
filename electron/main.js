@@ -1,9 +1,16 @@
-import { app, ipcMain, globalShortcut, dialog } from 'electron';
-import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound, createLyricsWindow } from './appServices.js';
+import { app, ipcMain, globalShortcut, dialog, Notification } from 'electron';
+import { 
+    createWindow, createTray, startApiServer, 
+    stopApiServer, registerShortcut, 
+    playStartupSound, createLyricsWindow, setThumbarButtons 
+} from './appServices.js';
 import Store from 'electron-store';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 let mainWindow = null;
 const store = new Store();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.on('ready', () => {
     startApiServer().then(() => {
@@ -118,17 +125,10 @@ ipcMain.on('custom-shortcut', (event) => {
     registerShortcut();
 });
 
-ipcMain.on('update-current-time', (event, time) => {
+ipcMain.on('lyrics-data', (event, data) => {
     const lyricsWindow = mainWindow.lyricsWindow;
     if (lyricsWindow) {
-        lyricsWindow.webContents.send('update-current-time', time);
-    }
-});
-
-ipcMain.on('lyrics-data', (event, lyricsData) => {
-    const lyricsWindow = mainWindow.lyricsWindow;
-    if (lyricsWindow) {
-        lyricsWindow.webContents.send('lyrics-data', lyricsData);
+        lyricsWindow.webContents.send('lyrics-data', data);
     }
 });
 
@@ -148,6 +148,11 @@ ipcMain.on('desktop-lyrics-action', (event, action) => {
             const lyricsWindow = mainWindow.lyricsWindow;
             if (lyricsWindow) {
                 lyricsWindow.close();
+                new Notification({
+                    title: '桌面歌词已关闭',
+                    body: '仅本次生效',
+                    icon: path.join(__dirname, '../build/icons/logo.png')
+                }).show();
             }
             break;
         case 'display-lyrics':
@@ -167,11 +172,7 @@ ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
     const lyricsWindow = mainWindow.lyricsWindow;
     if (!lyricsWindow) return
     lyricsWindow.setPosition(mouseX, mouseY)
-    try {
-        store.set('lyricsWindowPosition', { x: mouseX, y: mouseY });
-    } catch (error) {
-        console.error(error);
-    }
+    store.set('lyricsWindowPosition', { x: mouseX, y: mouseY });
 })
 
 ipcMain.on('play-pause-action',(event, playing) =>{
@@ -179,4 +180,5 @@ ipcMain.on('play-pause-action',(event, playing) =>{
     if (lyricsWindow) {
         lyricsWindow.webContents.send('playing-status', playing);
     }
+    setThumbarButtons(mainWindow, playing);
 })

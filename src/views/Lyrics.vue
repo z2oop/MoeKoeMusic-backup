@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 const isPlaying = ref(false)
 const isLocked = ref(false)
 const controlsOverlay = ref(null)
@@ -151,7 +151,10 @@ const getCharacterStyle = (char) => {
     }
     
     return {
-        backgroundImage: `linear-gradient(to right, ${highlightColor.value} 0%, ${highlightColor.value} ${fillPercent}%, ${defaultColor.value} ${fillPercent}%)`
+        backgroundImage: `linear-gradient(to right, ${highlightColor.value} 50%, ${defaultColor.value} 50%)`,
+        backgroundSize: '200% 100%',
+        backgroundPosition: `${100 - fillPercent}% 0`,
+        transition: 'background-position 0.3s ease-out'
     }
 }
 
@@ -199,6 +202,13 @@ const updateDisplayedLines = () => {
     if (currentIdx > displayedLines.value[1]) {
         displayedLines.value = [currentIdx, currentIdx + 1]
         currentLineScrollX.value = 0
+        nextTick(() => {
+            const elements = document.querySelectorAll('.lyrics-line .character')
+            elements.forEach(el => {
+                el.style.backgroundPosition = '100% 0'
+                el.style.transition = 'none'
+            })
+        })
     }
 }
 
@@ -228,16 +238,19 @@ const checkMousePosition = (event) => {
     window.electron.ipcRenderer.send('set-ignore-mouse-events', !(isMouseInControls || isMouseInLyrics))
 }
 
-window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
-    lyrics.value = newLyrics
-    currentLineIndex.value = 0
-    currentTime.value = 0
-    currentLineScrollX.value = 0
-})
-
-window.electron.ipcRenderer.on('update-current-time', (time) => {
-    currentTime.value = time
-    updateCurrentLineIndex()
+window.electron.ipcRenderer.on('lyrics-data', (data) => {
+    if (data.currentTime < 1 || 
+        lyrics.value.length === 0 || 
+        JSON.stringify(lyrics.value) !== JSON.stringify(data.lyricsData)) {
+        
+        lyrics.value = data.lyricsData;
+        currentLineIndex.value = 0;
+        currentTime.value = 0;
+        currentLineScrollX.value = 0;
+        displayedLines.value = [0, 1];
+    } 
+    currentTime.value = data.currentTime;
+    updateCurrentLineIndex();
 })
 
 window.electron.ipcRenderer.on('playing-status', (playing)=>{

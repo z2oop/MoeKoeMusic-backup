@@ -119,6 +119,9 @@ export function createLyricsWindow() {
         }
     });
     mainWindow.lyricsWindow = lyricsWindow;
+    lyricsWindow.on('closed', () => {
+        mainWindow.lyricsWindow = null;
+    });
     if (isDev) {
         lyricsWindow.loadURL('http://localhost:8080/#/lyrics');
         lyricsWindow.webContents.openDevTools();

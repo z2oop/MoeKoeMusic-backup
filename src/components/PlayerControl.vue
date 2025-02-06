@@ -691,10 +691,6 @@ const parseLyrics = (text) => {
         })
         .filter((line) => line);
     lyricsData.value = parsedLyrics;
-    const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if (isElectron() && savedConfig?.desktopLyrics === 'on') {
-        window.electron.ipcRenderer.send('lyrics-data', parsedLyrics);
-    }
 };
 
 // 添加到下一首 
@@ -772,7 +768,7 @@ const throttledHighlight = throttle(() => {
             highlightCurrentChar(audio.currentTime);
         }
         if (isElectron() && savedConfig?.desktopLyrics === 'on') {
-            window.electron.ipcRenderer.send('update-current-time', audio.currentTime);
+            window.electron.ipcRenderer.send('lyrics-data', { currentTime: audio.currentTime, lyricsData: JSON.parse(JSON.stringify(lyricsData.value)) });
         }
     } else if (isElectron() && savedConfig?.desktopLyrics === 'on') {
         getLyrics(currentSong.value.hash)
