@@ -238,7 +238,10 @@ window.electron.ipcRenderer.on('lyrics-data', (newLyrics) => {
 window.electron.ipcRenderer.on('update-current-time', (time) => {
     currentTime.value = time
     updateCurrentLineIndex()
-    isPlaying.value = true
+})
+
+window.electron.ipcRenderer.on('playing-status', (playing)=>{
+    isPlaying.value = !!playing
 })
 
 const fontSize = ref(32)

@@ -174,6 +174,9 @@ ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
     }
 })
 
-ipcMain.on('play-pause-action',(event) =>{
-    
+ipcMain.on('play-pause-action',(event, playing) =>{
+    const lyricsWindow = mainWindow.lyricsWindow;
+    if (lyricsWindow) {
+        lyricsWindow.webContents.send('playing-status', playing);
+    }
 })

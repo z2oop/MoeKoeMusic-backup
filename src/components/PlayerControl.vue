@@ -620,18 +620,15 @@ audio.addEventListener('ended', () => {
     if (currentPlaybackModeIndex.value == 2) return;
     playSongFromQueue('next');
 });
-audio.addEventListener('pause', () => {
-    playing.value = false;
+const handleAudioEvent = (event) => {
+    playing.value = event.type === 'play';
     if(isElectron()){
         window.electron.ipcRenderer.send('play-pause-action', playing.value);
     }
-});
-audio.addEventListener('play', () => {
-    playing.value = true;
-    if(isElectron()){
-        window.electron.ipcRenderer.send('play-pause-action', playing.value);
-    }
-});
+};
+
+audio.addEventListener('pause', handleAudioEvent);
+audio.addEventListener('play', handleAudioEvent);
 const toggleQueue = async () => {
     showQueue.value = !showQueue.value;
     if (showQueue.value) {
