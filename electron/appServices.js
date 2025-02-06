@@ -114,7 +114,8 @@ export function createLyricsWindow() {
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: false,
-            webSecurity: true
+            webSecurity: true,
+            backgroundThrottling: false, 
         }
     });
     mainWindow.lyricsWindow = lyricsWindow;

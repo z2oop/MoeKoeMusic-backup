@@ -52,6 +52,13 @@ app.on('ready', () => {
     });
 });
 
+const settings = store.get('settings');
+if(settings?.gpuAcceleration === 'off'){
+    app.disableHardwareAcceleration();
+    app.commandLine.appendSwitch('enable-transparent-visuals');
+    app.commandLine.appendSwitch('disable-gpu-compositing');
+}
+
 // 即将退出
 app.on('before-quit', () => {
     if (mainWindow) {

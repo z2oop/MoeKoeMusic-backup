@@ -176,5 +176,6 @@
   "mei-you-zheng-zai-bo-fang-de-ge-qu": "演奏している曲はありません",
   "shou-cang-dao": "集める",
   "mei-you-ge-dan": "曲リストはありません",
-  "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "当面の間、マルチカウントバインディング携帯電話のログインをサポートしない"
+  "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "当面の間、マルチカウントバインディング携帯電話のログインをサポートしない",
+  "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "GPU加速を無効にする（再起動が有効になる）"
 }

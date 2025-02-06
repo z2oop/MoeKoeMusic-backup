@@ -66,6 +66,13 @@
 
         <section class="setting-section">
             <h3>{{ $t('xi-tong') }}</h3>
+            <div class="setting-item" @click="openSelection('gpuAcceleration')">
+                <span>{{ $t('jin-yong-gpu-jia-su-zhong-qi-sheng-xiao') }}</span>
+                <div class="setting-control">
+                    <span>{{ selectedSettings.gpuAcceleration.displayText }}</span>
+                </div>
+            </div>
+            
             <div class="setting-item" @click="openShortcutSettings">
                 <span>{{ $t('quan-ju-kuai-jie-jian') }}</span>
                 <div class="setting-control">
@@ -222,7 +229,8 @@ const selectedSettings = ref({
     lyricsBackground: { displayText: t('da-kai'), value: 'on' },
     desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
     lyricsFontSize: { displayText: t('zhong'), value: '32px' },
-    greetings: { displayText: t('kai-qi'), value: 'on' }
+    greetings: { displayText: t('kai-qi'), value: 'on' },
+    gpuAcceleration: { displayText: t('guan-bi'), value: 'off' }
 });
 
 const isSelectionOpen = ref(false);
@@ -291,6 +299,13 @@ const selectionTypeMap = {
             { displayText: t('kai-qi'), value: 'on' },
             { displayText: t('guan-bi'), value: 'off' }
         ]
+    },
+    gpuAcceleration: {
+        title: t('jin-yong-gpu-jia-su-zhong-qi-sheng-xiao'),
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
     }
 };
 
@@ -300,31 +315,31 @@ const openSelection = (type) => {
 };
 
 const selectOption = (option) => {
-    selectedSettings.value[selectionType.value] = option;
-    if (selectionType.value === 'themeColor') {
-        proxy.$applyColorTheme(option.value);
-    } else if (selectionType.value === 'theme') {
-        proxy.$setTheme(option.value);
-    } else if (selectionType.value === 'language') {
-        proxy.$i18n.locale = option.value;
-        document.documentElement.lang = option.value;
-    }else if( selectionType.value === 'quality' && !MoeAuth.isAuthenticated) {
-        window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
-        return
-    }else if(selectionType.value === 'desktopLyrics'){
-        const action = selectedSettings.value.desktopLyrics.value === 'on' ? 'display-lyrics' : 'close-lyrics';
-        if(isElectron()){
-            window.electron.ipcRenderer.send('desktop-lyrics-action', action);
-        }else{
-            window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
-            return;
-        }
-    }else if(selectionType.value === 'lyricsFontSize'){
-        if(!isElectron()){
-            window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
-            return;
-        }
+    const electronFeatures = ['desktopLyrics', 'lyricsFontSize', 'gpuAcceleration'];
+    if (!isElectron() && electronFeatures.includes(selectionType.value)) {
+        window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
+        return;
     }
+    selectedSettings.value[selectionType.value] = option;
+    const actions = {
+        'themeColor': () => proxy.$applyColorTheme(option.value),
+        'theme': () => proxy.$setTheme(option.value),
+        'language': () => {
+            proxy.$i18n.locale = option.value;
+            document.documentElement.lang = option.value;
+        },
+        'quality': () => {
+            if (!MoeAuth.isAuthenticated) {
+                window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
+                return;
+            }
+        },
+        'desktopLyrics': () => {
+            const action = option.value === 'on' ? 'display-lyrics' : 'close-lyrics';
+            window.electron.ipcRenderer.send('desktop-lyrics-action', action);
+        },
+    };
+    actions[selectionType.value]?.();
     saveSettings();
     closeSelection();
 };
