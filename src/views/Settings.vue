@@ -1,6 +1,7 @@
 <template>
     <div class="settings-page">
         <section class="setting-section">
+            <h3>{{ $t('jie-mian') }}</h3>
             <div class="setting-item" @click="openSelection('language')">
                 <span>{{ $t('yu-yan') }}</span>
                 <div class="setting-control">
