@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 const isPlaying = ref(false)
 const isLocked = ref(false)
 const controlsOverlay = ref(null)

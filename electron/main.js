@@ -1,21 +1,14 @@
 import { app, ipcMain, globalShortcut, dialog } from 'electron';
 import { createWindow, createTray, startApiServer, stopApiServer, registerShortcut, playStartupSound, createLyricsWindow } from './appServices.js';
 import Store from 'electron-store';
-// import { createRequire } from 'module';
-// const require = createRequire(import.meta.url);
-// const { initialize, enable } = require('@electron/remote/main');
 
 let mainWindow = null;
 const store = new Store();
 
 app.on('ready', () => {
-    // 初始化 @electron/remote
-    // initialize();
-    
     startApiServer().then(() => {
         try {
             mainWindow = createWindow();
-            // enable(mainWindow.webContents);
             createTray(mainWindow);
             playStartupSound();
             registerShortcut();
@@ -179,4 +172,8 @@ ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
     } catch (error) {
         console.error(error);
     }
+})
+
+ipcMain.on('play-pause-action',(event) =>{
+    
 })

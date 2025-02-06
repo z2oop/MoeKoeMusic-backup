@@ -622,9 +622,15 @@ audio.addEventListener('ended', () => {
 });
 audio.addEventListener('pause', () => {
     playing.value = false;
+    if(isElectron()){
+        window.electron.ipcRenderer.send('play-pause-action', playing.value);
+    }
 });
 audio.addEventListener('play', () => {
     playing.value = true;
+    if(isElectron()){
+        window.electron.ipcRenderer.send('play-pause-action', playing.value);
+    }
 });
 const toggleQueue = async () => {
     showQueue.value = !showQueue.value;

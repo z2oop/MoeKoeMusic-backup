@@ -1,5 +1,4 @@
 const { contextBridge, ipcRenderer } = require('electron');
-// const { globalShortcut } = require('@electron/remote');
 
 contextBridge.exposeInMainWorld('electron', {
     ipcRenderer: {
@@ -10,8 +9,5 @@ contextBridge.exposeInMainWorld('electron', {
             ipcRenderer.removeListener(channel, func);
         }
     },
-    platform: process.platform,
-    // remote: {
-    //     globalShortcut
-    // }
+    platform: process.platform
 });
