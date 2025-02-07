@@ -539,10 +539,6 @@ const addPlaylistToQueue = async (info) => {
 
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author, free = true, isReset = true) => {
-    if (isReset) {
-        localStorage.setItem('player_progress', 0);
-        audio.currentTime = progressWidth.value = 0;
-    }
     const currentSongHash = currentSong.value.hash;
     try {
         clearTimeout(timeoutId.value);
@@ -568,6 +564,11 @@ const addSongToQueue = async (hash, name, img, author, free = true, isReset = tr
         if (response.extName == 'mp4') {
             addSongToQueue(hash, name, img, author, false);
             return;
+        }
+        
+        if (isReset) {
+            localStorage.setItem('player_progress', 0);
+            audio.currentTime = progressWidth.value = 0;
         }
 
         const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
