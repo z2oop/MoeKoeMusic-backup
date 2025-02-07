@@ -19,10 +19,8 @@
                         <div class="play-button" @click="playFM"></div>
                         <div class="note-container">
                             <transition-group name="fly-note">
-                                <div v-for="note in flyingNotes" 
-                                     :key="note.id" 
-                                     class="flying-note"
-                                     :style="note.style">♪</div>
+                                <div v-for="note in flyingNotes" :key="note.id" class="flying-note" :style="note.style">
+                                    ♪</div>
                             </transition-group>
                         </div>
                     </div>
@@ -42,26 +40,30 @@
                 }" class="ranking-entry">
                     <div class="ranking-content">
                         <div class="ranking-icon">🏆</div>
-                        <h3 class="ranking-title">排行榜</h3>
-                        <div class="ranking-description">发现你的专属好歌</div>
                         <div class="ranking-decoration">
                             <div class="ranking-bar"></div>
                             <div class="ranking-bar"></div>
                             <div class="ranking-bar"></div>
                         </div>
+                        <h3 class="ranking-title">排行榜</h3>
+                        <div class="ranking-description">发现你的专属好歌</div>
                     </div>
                 </router-link>
             </div>
 
             <div class="recommend-card">
                 <div class="playlist-entry gradient-background">
-                    <div class="playlist-content">
-                        <div class="playlist-icon">
-                            <img src="@/assets/images/home/hutao.png" />
+                    <router-link :to="{
+                        path: '/PlaylistDetail',
+                        query: { global_collection_id: 'collection_3_25230245_24_0' }
+                    }">
+                        <div class="playlist-content">
+                            <div class="playlist-icon">
+                                <img src="@/assets/images/home/hutao.png" />
+                            </div>
+                            <div class="ranking-description">送给也喜欢音乐的你</div>
                         </div>
-                        <h3 class="ranking-title">阿珏酱</h3>
-                        <div class="ranking-description">送给也喜欢音乐的你</div>
-                    </div>
+                    </router-link>
                 </div>
             </div>
         </div>
@@ -120,9 +122,9 @@ const playSong = (hash, name, img, author) => {
 const contextMenuRef = ref(null);
 const showContextMenu = (event, song) => {
     if (contextMenuRef.value) {
-        contextMenuRef.value.openContextMenu(event, { 
-            OriSongName: song.filename, 
-            FileHash: song.hash, 
+        contextMenuRef.value.openContextMenu(event, {
+            OriSongName: song.filename,
+            FileHash: song.hash,
             cover: song.sizable_cover?.replace("{size}", 480) || './assets/images/ico.png',
             timeLength: song.time_length
         });
@@ -136,7 +138,7 @@ const currentMode = ref('1');
 const modes = ['1', '2', '3', '4', '6'];
 
 const modeIcon = computed(() => {
-    switch(currentMode.value) {
+    switch (currentMode.value) {
         case '1': return '💖';
         case '2': return '🎶';
         case '3': return '🔥';
@@ -147,7 +149,7 @@ const modeIcon = computed(() => {
 });
 
 const radioSubtitle = computed(() => {
-    switch(currentMode.value) {
+    switch (currentMode.value) {
         case '1': return '私人专属好歌推荐';
         case '2': return '经典怀旧金曲精选';
         case '3': return '热门好歌随心听';
@@ -173,8 +175,8 @@ const playFM = async (event) => {
         const note = {
             id: noteId++,
             style: {
-                '--start-x': `${rect.left + rect.width/2}px`,
-                '--start-y': `${rect.top + rect.height/2}px`,
+                '--start-x': `${rect.left + rect.width / 2}px`,
+                '--start-y': `${rect.top + rect.height / 2}px`,
                 'left': '0',
                 'top': '0'
             }
@@ -189,7 +191,7 @@ const playFM = async (event) => {
                 card_id: currentMode.value
             }
         });
-        
+
         if (response.status === 1 && response.data?.song_list?.length > 0) {
             const newSongs = response.data.song_list.map(song => {
                 return {
@@ -198,7 +200,7 @@ const playFM = async (event) => {
                     cover: song.sizable_cover?.replace("{size}", 480),
                     author: song.author_name,
                     timelen: song.time_length
-                }   
+                }
             })
             props.playerControl.addPlaylistToQueue(newSongs);
         }
@@ -451,9 +453,9 @@ const playlist = async () => {
     height: 80px;
     object-fit: cover;
     border-radius: 50%;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2),
-                inset 0 0 20px rgba(0,0,0,0.1),
-                0 2px 4px rgba(255,255,255,0.8);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2),
+        inset 0 0 20px rgba(0, 0, 0, 0.1),
+        0 2px 4px rgba(255, 255, 255, 0.8);
     border: 8px solid #e8eeff;
     padding: 2px;
     background: #fff;
@@ -508,9 +510,12 @@ const playlist = async () => {
 }
 
 @keyframes sound-wave {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scaleY(1);
     }
+
     50% {
         transform: scaleY(0.5);
     }
@@ -526,7 +531,7 @@ const playlist = async () => {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     transition: all 0.2s ease;
     margin-right: 20px;
     margin-top: -57px;
@@ -619,10 +624,12 @@ const playlist = async () => {
         transform: translate(var(--start-x), calc(var(--start-y) - 50px)) rotate(0deg) scale(1.2);
         opacity: 0.9;
     }
+
     20% {
         transform: translate(calc(var(--start-x) + 20px), calc(var(--start-y) - 70px)) rotate(45deg) scale(1.3);
         opacity: 0.85;
     }
+
     100% {
         transform: translate(80vw, 100vh) rotate(360deg) scale(0.6);
         opacity: 0;
@@ -658,6 +665,7 @@ const playlist = async () => {
     font-size: 24px;
     font-weight: bold;
     margin-bottom: 10px;
+    margin-top: 0px;
 }
 
 .ranking-description {
@@ -666,7 +674,6 @@ const playlist = async () => {
 }
 
 .ranking-decoration {
-    position: absolute;
     display: flex;
     gap: 8px;
     align-items: flex-end;
@@ -695,9 +702,12 @@ const playlist = async () => {
 }
 
 @keyframes rankingBars {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scaleY(1);
     }
+
     50% {
         transform: scaleY(0.7);
     }
@@ -734,14 +744,9 @@ const playlist = async () => {
     width: 100%;
     height: 100%;
     justify-content: flex-end;
-    padding: 19px;
 }
 
 .playlist-icon {
-    position: absolute;
-    top: -9px;
-    left: 50%;
-    transform: translateX(-50%);
     width: 144px;
     height: 144px;
 }
