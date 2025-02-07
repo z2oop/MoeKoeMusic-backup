@@ -61,7 +61,7 @@ if(settings?.gpuAcceleration === 'off'){
 
 // 即将退出
 app.on('before-quit', () => {
-    if (mainWindow) {
+    if (mainWindow && !mainWindow.isMaximized()) {
         const windowBounds = mainWindow.getBounds();
         store.set('windowState', windowBounds);
     }
@@ -108,8 +108,10 @@ ipcMain.on('window-control', (event, action) => {
         case 'maximize':
             if (mainWindow.isMaximized()) {
                 mainWindow.unmaximize();
+                store.set('maximize', false);
             } else {
                 mainWindow.maximize();
+                store.set('maximize', true);
             }
             break;
     }

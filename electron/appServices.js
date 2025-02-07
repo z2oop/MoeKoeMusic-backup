@@ -45,6 +45,10 @@ export function createWindow() {
             : path.join(process.resourcesPath, 'icons', 'icon.ico')
     });
 
+    if (store.get('maximize')) {
+        mainWindow.maximize();
+    }
+
     if (isDev) {
         mainWindow.loadURL('http://localhost:8080');
         mainWindow.webContents.openDevTools();
