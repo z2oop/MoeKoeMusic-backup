@@ -178,5 +178,6 @@
   "mei-you-ge-dan": "还没有歌单",
   "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "暂不支持多账号绑定手机登录",
   "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "禁用GPU加速(重启生效)",
-  "jie-mian": "界面"
+  "jie-mian": "界面",
+  "guan-bi-shi-minimize-to-tray": "关闭窗口时到托盘"
 }

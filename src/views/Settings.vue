@@ -73,6 +73,13 @@
                     <span>{{ selectedSettings.gpuAcceleration.displayText }}</span>
                 </div>
             </div>
+
+            <div class="setting-item" @click="openSelection('minimizeToTray')">
+                <span>{{ $t('guan-bi-shi-minimize-to-tray') }}</span>
+                <div class="setting-control">
+                    <span>{{ selectedSettings.minimizeToTray.displayText }}</span>
+                </div>
+            </div>
             
             <div class="setting-item" @click="openShortcutSettings">
                 <span>{{ $t('quan-ju-kuai-jie-jian') }}</span>
@@ -231,7 +238,8 @@ const selectedSettings = ref({
     desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
     lyricsFontSize: { displayText: t('zhong'), value: '32px' },
     greetings: { displayText: t('kai-qi'), value: 'on' },
-    gpuAcceleration: { displayText: t('guan-bi'), value: 'off' }
+    gpuAcceleration: { displayText: t('guan-bi'), value: 'off' },
+    minimizeToTray: { displayText: t('da-kai'), value: 'on' }
 });
 
 const isSelectionOpen = ref(false);
@@ -307,6 +315,13 @@ const selectionTypeMap = {
             { displayText: t('da-kai'), value: 'on' },
             { displayText: t('guan-bi'), value: 'off' }
         ]
+    },
+    minimizeToTray: {
+        title: t('guan-bi-shi-minimize-to-tray'),
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
     }
 };
 
@@ -316,7 +331,7 @@ const openSelection = (type) => {
 };
 
 const selectOption = (option) => {
-    const electronFeatures = ['desktopLyrics', 'lyricsFontSize', 'gpuAcceleration'];
+    const electronFeatures = ['desktopLyrics', 'lyricsFontSize', 'gpuAcceleration', 'minimizeToTray'];
     if (!isElectron() && electronFeatures.includes(selectionType.value)) {
         window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
         return;
