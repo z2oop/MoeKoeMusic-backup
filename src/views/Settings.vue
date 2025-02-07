@@ -261,7 +261,8 @@ const selectionTypeMap = {
         options: [
             { displayText: t('shao-nv-fen'), value: 'pink' },
             { displayText: t('nan-nan-lan'), value: 'blue' },
-            { displayText: t('tou-ding-lv'), value: 'green' }
+            { displayText: t('tou-ding-lv'), value: 'green' },
+            { displayText: t('mi-gan-cheng'), value: 'orange' }
         ]
     },
     theme: {

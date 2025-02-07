@@ -56,6 +56,9 @@
             <p class="disclaimer">
                 {{ $t('meng-yin-cheng-nuo-bu-hui-bao-cun-ni-de-ren-he-zhang-hao-xin-xi-dao-yun-duan-ni-de-mi-ma-hui-zai-ben-di-jin-hang-jia-mi-hou-zai-chuan-shu-dao-ku-gou-guan-fang-meng-yin-bing-fei-ku-gou-guan-fang-wang-zhan-shu-ru-zhang-hao-xin-xi-qian-qing-shen-zhong-kao-lv-er-wei-ma-sao-ma-hou-xu-yao-deng-dai-ji-fen-zhong-cai-hui-deng-lu-cheng-gong') }}<b>{{ $t('tui-jian') }}</b>{{ $t('shi-yong-yan-zheng-ma-deng-lu') }}
             </p>
+            <p class="register-link">
+                <a href="https://activity.kugou.com/getvips/v-4163b2d0/index.html" target="_blank">{{ $t('zhu-ce') }}</a>
+            </p>
         </el-card>
     </div>
 </template>
@@ -272,7 +275,6 @@ const checkQrStatus = async () => {
 .login-container {
   background-color: #fff;
   border-radius: 12px;
-  padding: 20px;
   width: 400px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
@@ -339,5 +341,9 @@ h2 {
     --el-button-active-bg-color:var(--primary-color);
     --el-button-active-border-color: var(--primary-color);
 
+}
+.register-link {
+    text-align: center;
+    color: #606266;
 }
 </style>

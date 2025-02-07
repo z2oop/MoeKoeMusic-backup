@@ -177,14 +177,18 @@ const getfollow = async () => {
     }
 }
 const getplaylist = async () => {
-    const playlistResponse = await get('/user/playlist',{
-        pagesize:100,
-        t: localStorage.getItem('t')
-    });
-    if (playlistResponse.status === 1) {
-        userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
-        collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
-        collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
+    try {
+        const playlistResponse = await get('/user/playlist',{
+            pagesize:100,
+            t: localStorage.getItem('t')
+        });
+        if (playlistResponse.status === 1) {
+            userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
+            collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
+            collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
+        }
+    } catch (error) {
+        window.$modal.alert(t('xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci')); 
     }
 }
 const createPlaylist = async () => {

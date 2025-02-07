@@ -179,5 +179,8 @@
   "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "Do not support multi -account binding mobile phone login for the time being",
   "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "Disable GPU acceleration (restart takes effect)",
   "jie-mian": "interface",
-  "guan-bi-shi-minimize-to-tray": "Go to the tray when closing the window"
+  "guan-bi-shi-minimize-to-tray": "Go to the tray when closing the window",
+  "mi-gan-cheng": "Mian orange",
+  "zhu-ce": "Don't have an account yet?",
+  "xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci": "Please log in to the official client for a new account"
 }

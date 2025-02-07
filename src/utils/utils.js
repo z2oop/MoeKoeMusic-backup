@@ -18,6 +18,15 @@ export const applyColorTheme = (theme) => {
             '--color-secondary-bg-for-transparent': 'rgba(167, 243, 208, 0.28)',
             '--color-box-shadow': 'rgba(52, 199, 89, 0.2)',
         };
+    } else if (theme === 'orange') {
+        colors = {
+            '--primary-color': '#ff6b6b',
+            '--secondary-color': '#FFB6C1',
+            '--background-color': '#FFF0F5',
+            '--color-primary': '#ea33e4',
+            '--color-secondary-bg-for-transparent': 'rgba(209, 209, 214, 0.28)',
+            '--color-box-shadow': 'rgba(255, 105, 180, 0.2)',
+        };
     } else {
         colors = {
             '--primary-color': '#FF69B4',
