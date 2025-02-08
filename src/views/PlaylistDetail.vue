@@ -436,7 +436,7 @@ const sharePlaylist = () => {
     position: fixed;
     bottom: 168px;
     right: 14px;
-    z-index: 90;
+    z-index: 1;
     cursor: pointer;
     font-size: 37px;
     color: var(--primary-color);
@@ -448,7 +448,7 @@ const sharePlaylist = () => {
     height: 60px;
     bottom: 110px;
     right: 88px;
-    z-index: 90;
+    z-index: 1;
     cursor: pointer;
 }
 
