@@ -97,7 +97,7 @@
     <!-- 全屏歌词界面 -->
     <transition name="slide-up">
         <div v-if="showLyrics" class="lyrics-bg"
-            :style="(lyricsBackground == 'on' ? ({ backgroundImage: `url(${currentSong?.img || 'https://random.MoeJue.cn/randbg.php'})` }) : ({ background: 'var(--background-color)' }))">
+            :style="(lyricsBackground == 'on' ? ({ backgroundImage: `url(${currentSong?.img || 'https://random.MoeJue.cn/randbg.php'})` }) : ({ background: 'var(--secondary-color)' }))">
             <div class="lyrics-screen">
                 <div class="close-btn">
                     <i class="fas fa-chevron-down" @click="toggleLyrics"></i>
@@ -155,7 +155,7 @@
                 </div>
                 <div id="lyrics-container">
                     <div v-if="lyricsData.length > 0" id="lyrics"
-                        :style="{ transform: `translateY(${scrollAmount}px)` }">
+                        :style="{ fontSize: lyricsFontSize, transform: `translateY(${scrollAmount ? scrollAmount+'px' : '50%'})` }">
                         <div v-for="(lineData, lineIndex) in lyricsData" :key="lineIndex" class="line">
                             <span v-for="(charData, charIndex) in lineData.characters" :key="charIndex" class="char"
                                 :class="{ highlight: charData.highlighted }">
@@ -211,7 +211,7 @@ const musicQueueStore = useMusicQueueStore(); // 使用 Pinia store
 let sliderElement = null; // 用来保存音量滑块的 DOM 引用
 const progressWidth = ref(0);
 const lyricsData = ref([]);
-const scrollAmount = ref(226);
+const scrollAmount = ref();
 const currentTime = ref(0);
 const SongTips = ref(t('zan-wu-ge-ci'));
 const lyricsBackground = ref('on');
@@ -231,6 +231,7 @@ const climaxPoints = ref([]);
 const NextSong = ref([]);
 const playlists = ref([]);
 const isPlaylistSelectOpen = ref(false);
+const lyricsFontSize = ref('24px');
 
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
@@ -286,8 +287,10 @@ onMounted(() => {
     if (current_song) currentSong.value = JSON.parse(current_song);
     currentPlaybackModeIndex.value = localStorage.getItem('player_playback_mode') || 1;
     audio.loop = currentPlaybackModeIndex.value == 2;
-    if (localStorage.getItem('settings')) {
-        lyricsBackground.value = JSON.parse(localStorage.getItem('settings'))['lyricsBackground']
+    const settings = JSON.parse(localStorage.getItem('settings'));
+    if (settings) {
+        lyricsBackground.value = settings?.lyricsBackground;
+        lyricsFontSize.value = settings?.lyricsFontSize;
     }
     handleShortcut();
     if (current_song && localStorage.getItem('player_progress')) {

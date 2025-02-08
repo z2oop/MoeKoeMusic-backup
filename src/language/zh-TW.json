@@ -177,10 +177,12 @@
   "shou-cang-dao": "收藏到",
   "mei-you-ge-dan": "還沒有歌單",
   "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "暫不支持多賬號綁定手機登錄",
-  "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "禁用GPU加速(重啟生效)",
+  "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "禁用GPU加速",
   "jie-mian": "介面",
   "guan-bi-shi-minimize-to-tray": "關閉窗口時到托盤",
   "mi-gan-cheng": "蜜柑橙",
   "zhu-ce": "還沒有賬號？",
-  "xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci": "新註冊賬號請先在官方客戶端中登錄一次"
+  "xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci": "新註冊賬號請先在官方客戶端中登錄一次",
+  "shua-xin-hou-sheng-xiao": "(刷新後生效)",
+  "zhong-qi-hou-sheng-xiao": "(重啟後生效)"
 }

@@ -177,10 +177,12 @@
   "shou-cang-dao": "모으다",
   "mei-you-ge-dan": "노래 목록이 없습니다",
   "zhan-bu-zhi-chi-duo-zhang-hao-ding-yi-shou-ji-deng-lu": "시간 동안 멀티 카운트 바인딩 휴대 전화 로그인을 지원하지 마십시오.",
-  "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "GPU 가속도 비활성화 (재시작이 적용됩니다)",
+  "jin-yong-gpu-jia-su-zhong-qi-sheng-xiao": "GPU 가속도를 비활성화합니다",
   "jie-mian": "인터페이스",
   "guan-bi-shi-minimize-to-tray": "창을 닫을 때 트레이로 이동하십시오",
   "mi-gan-cheng": "미안 오렌지",
   "zhu-ce": "아직 계정이 없습니까?",
-  "xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci": "새 계정을 위해 공식 고객에게 로그인하십시오."
+  "xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci": "새 계정을 위해 공식 고객에게 로그인하십시오.",
+  "shua-xin-hou-sheng-xiao": "(새로 고침 후 효과)",
+  "zhong-qi-hou-sheng-xiao": "(재시작 후 효과)"
 }
