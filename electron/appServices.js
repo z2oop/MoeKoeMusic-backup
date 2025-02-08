@@ -38,7 +38,8 @@ export function createWindow() {
             contextIsolation: true,
             nodeIntegration: false,
             sandbox: false,
-            webSecurity: true
+            webSecurity: true,
+            zoomFactor: 1.0
         },
         icon: isDev
             ? path.join(__dirname, '../build/icons/icon.ico')
@@ -120,6 +121,7 @@ export function createLyricsWindow() {
             sandbox: false,
             webSecurity: true,
             backgroundThrottling: false, 
+            zoomFactor: 1.0
         }
     });
     mainWindow.lyricsWindow = lyricsWindow;

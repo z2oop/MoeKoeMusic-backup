@@ -52,6 +52,9 @@ app.on('ready', () => {
     });
 });
 
+app.commandLine.appendSwitch('high-dpi-support', '1');
+app.commandLine.appendSwitch('force-device-scale-factor', '1');
+
 const settings = store.get('settings');
 if(settings?.gpuAcceleration === 'off'){
     app.disableHardwareAcceleration();
