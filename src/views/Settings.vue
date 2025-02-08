@@ -79,6 +79,15 @@
                     <span>{{ selectedSettings.gpuAcceleration.displayText }}</span>
                 </div>
             </div>
+            
+            <div class="setting-item" @click="openSelection('highDpi')">
+                <span>{{ $t('shi-pei-gao-dpi') }}
+                    <span v-if="showRefreshHint.highDpi" class="refresh-hint"> {{ $t('zhong-qi-hou-sheng-xiao') }}</span>
+                </span>
+                <div class="setting-control">
+                    <span>{{ selectedSettings.highDpi.displayText }}</span>
+                </div>
+            </div>
 
             <div class="setting-item" @click="openSelection('minimizeToTray')">
                 <span>{{ $t('guan-bi-shi-minimize-to-tray') }}</span>
@@ -229,7 +238,6 @@
 import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { MoeAuthStore } from '../stores/store';
-// const globalShortcut = window?.electron?.remote?.globalShortcut;
 
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
@@ -245,7 +253,8 @@ const selectedSettings = ref({
     lyricsFontSize: { displayText: t('zhong'), value: '24px' },
     greetings: { displayText: t('kai-qi'), value: 'on' },
     gpuAcceleration: { displayText: t('guan-bi'), value: 'off' },
-    minimizeToTray: { displayText: t('da-kai'), value: 'on' }
+    minimizeToTray: { displayText: t('da-kai'), value: 'on' },
+    highDpi: { displayText: t('guan-bi'), value: 'off' }
 });
 
 const isSelectionOpen = ref(false);
@@ -329,6 +338,13 @@ const selectionTypeMap = {
             { displayText: t('da-kai'), value: 'on' },
             { displayText: t('guan-bi'), value: 'off' }
         ]
+    },
+    highDpi: {
+        title: t('shi-pei-gao-dpi'),
+        options: [
+            { displayText: t('da-kai'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
     }
 };
 
@@ -371,7 +387,7 @@ const selectOption = (option) => {
     actions[selectionType.value]?.();
     saveSettings();
     closeSelection();
-    if (selectionType.value == 'lyricsBackground' || selectionType.value == 'lyricsFontSize' || selectionType.value == 'gpuAcceleration') {
+    if (selectionType.value == 'lyricsBackground' || selectionType.value == 'lyricsFontSize' || selectionType.value == 'gpuAcceleration' || selectionType.value == 'highDpi') {
         showRefreshHint.value[selectionType.value] = true;
     }
 };

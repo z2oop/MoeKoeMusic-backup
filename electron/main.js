@@ -52,14 +52,16 @@ app.on('ready', () => {
     });
 });
 
-app.commandLine.appendSwitch('high-dpi-support', '1');
-app.commandLine.appendSwitch('force-device-scale-factor', '1');
-
 const settings = store.get('settings');
 if(settings?.gpuAcceleration === 'off'){
     app.disableHardwareAcceleration();
     app.commandLine.appendSwitch('enable-transparent-visuals');
     app.commandLine.appendSwitch('disable-gpu-compositing');
+}
+
+if(settings?.highDpi === 'on'){
+    app.commandLine.appendSwitch('high-dpi-support', '1');
+    app.commandLine.appendSwitch('force-device-scale-factor', '1');
 }
 
 // 即将退出
