@@ -5,7 +5,7 @@
             <template v-if="searchResults.length > 0">
                 <ul>
                     <li v-for="(result, index) in searchResults" :key="index" class="result-item"
-                        @click="playSong(result.FileHash, result.SongName, $getCover(result.Image, 480), result.SingerName)"
+                        @click="playSong(result?.HQFileHash || result?.SQFileHash || result?.FileHash, result.SongName, $getCover(result.Image, 480), result.SingerName)"
                         @contextmenu.prevent="showContextMenu($event, result)">
                         <img :src="$getCover(result.Image, 100)" alt="Cover" />
                         <div class="result-info">

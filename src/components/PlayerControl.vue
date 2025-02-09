@@ -246,7 +246,9 @@ const toggleFavorite = async () => {
         return;
     }
     try {
-        const playlistResponse = await get('/user/playlist');
+        const playlistResponse = await get('/user/playlist',{
+            pagesize:100
+        });
         if (playlistResponse.status !== 1) {
             window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
             return;
@@ -381,7 +383,7 @@ const playSongFromQueue = (direction) => {
 
     if (direction == 'next') {
         if (NextSong.value.length > 0) {
-            addSongToQueue(NextSong.value[0].hash, NextSong.value[0].name, NextSong.value[0].img, NextSong.value[0].author, NextSong.value[0].timeLength);
+            addSongToQueue(NextSong.value[0].hash, NextSong.value[0].name, NextSong.value[0].img, NextSong.value[0].author);
             NextSong.value.shift();
             return;
         }
@@ -418,7 +420,6 @@ const togglePlayPause = async () => {
             currentSong.value.name,
             currentSong.value.img,
             currentSong.value.author,
-            false,
             false
         );
         return;
@@ -541,7 +542,7 @@ const addPlaylistToQueue = async (info) => {
 };
 
 // 添加歌曲到队列并播放的方法
-const addSongToQueue = async (hash, name, img, author, free = true, isReset = true) => {
+const addSongToQueue = async (hash, name, img, author, isReset = true, high = true) => {
     const currentSongHash = currentSong.value.hash;
     try {
         clearTimeout(timeoutId.value);
@@ -549,10 +550,22 @@ const addSongToQueue = async (hash, name, img, author, free = true, isReset = tr
         currentSong.value.name = name;
         currentSong.value.img = img;
         currentSong.value.hash = hash;
-        const url = `/song/url?hash=${hash}${free ? '&free_part=1' : ''}`;
-        const response = await get(url);
+        const settings = JSON.parse(localStorage.getItem('settings'));
+        const data = {
+            hash: hash
+        }
+        if(!MoeAuth.isAuthenticated) data.free_part = 1;
+        if(MoeAuth.isAuthenticated && settings?.quality === 'lossless') data.quality = 'flac';
+        if(MoeAuth.isAuthenticated && settings?.quality === 'hires' && high) data.quality = 'high';
+        if(MoeAuth.isAuthenticated && settings?.quality === 'clear' && high) data.quality = 'viper_clear';
+
+        const response = await get('/song/url',data);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
+            if(response.status == 2){
+                addSongToQueue(hash, name, img, author, true, false);
+                return;
+            }
             if (response.status == 3) {
                 currentSong.value.name = t('gai-ge-qu-zan-wu-ban-quan')
             }
@@ -565,7 +578,7 @@ const addSongToQueue = async (hash, name, img, author, free = true, isReset = tr
         }
 
         if (response.extName == 'mp4') {
-            addSongToQueue(hash, name, img, author, false);
+            currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
             return;
         }
         

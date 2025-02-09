@@ -50,7 +50,9 @@ const fetchPlaylists = async () => {
     if(!MoeAuth.isAuthenticated) return;
     showSubMenu.value = true;
     try {
-        const playlistResponse = await get('/user/playlist');
+        const playlistResponse = await get('/user/playlist',{
+            pagesize:100
+        });
         if (playlistResponse.status === 1) {
             playlists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === MoeAuth.UserInfo.userid);
         }
