@@ -182,7 +182,7 @@ const getdetail = async () => {
 };
 
 const searchTracks = () => {
-    filteredTracks.value = tracks.value.filter(track => track.name.includes(searchQuery.value));
+    filteredTracks.value = tracks.value.filter(track => track.name.toLowerCase().trim().includes(searchQuery.value.toLowerCase().trim()));
 }
 
 const getTracks = async () => {
