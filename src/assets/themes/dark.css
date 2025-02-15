@@ -309,6 +309,7 @@ html.dark .context-menu, html.dark .context-menu ul {
     background-color: #1d1d1d;
     border:none;
     border-radius: 5px;
+    color: #999;
 }
 html.dark .context-menu li:hover {
     background-color: #2a2a2a !important;
