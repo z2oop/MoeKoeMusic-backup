@@ -300,6 +300,7 @@ onMounted(() => {
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
     initMediaSession();
+    document.addEventListener('keydown', handleKeyDown);
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -817,6 +818,7 @@ onUnmounted(() => {
         window.electron.ipcRenderer.removeAllListeners('toggle-play-pause');
         window.electron.ipcRenderer.removeAllListeners('toggle-mute');
     }
+    document.removeEventListener('keydown', handleKeyDown);
 });
 const isElectron = () => {
     return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
@@ -1050,6 +1052,22 @@ const changeMediaSession = (song) => {
         }
     };
     updateMediaSession();
+};
+
+// 处理键盘按下事件
+const handleKeyDown = (event) => {
+    switch (event.code) {
+        case 'Space':
+            event.preventDefault();
+            togglePlayPause();
+            break;
+        case 'ArrowLeft':
+            playSongFromQueue('previous');
+            break;
+        case 'ArrowRight':
+            playSongFromQueue('next');
+            break;
+    }
 };
 </script>
 
