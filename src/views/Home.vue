@@ -68,7 +68,10 @@
             </div>
         </div>
 
-        <h2 class="section-title">{{ $t('mei-ri-tui-jian') }}</h2>
+        <h2 class="section-title">
+            {{ $t('mei-ri-tui-jian') }}
+            <span class="play-all-icon" @click="addAllSongsToQueue" title="虽然不明显，但你就当它是个彩蛋吧"><i class="fas fa-music"></i></span>
+        </h2>
         <div v-if="isLoading" class="skeleton-loader">
             <div v-for="n in 16" :key="n" class="skeleton-item">
                 <div class="skeleton-cover"></div>
@@ -228,6 +231,16 @@ const playlist = async () => {
         special_list.value = response.data.special_list;
     }
 }
+
+const addAllSongsToQueue = () => {
+    props.playerControl.addPlaylistToQueue(songs.value.map(song => ({
+        hash: song.hash,
+        name: song.ori_audio_name,
+        cover: song.sizable_cover?.replace("{size}", 480),
+        author: song.author_name,
+        timelen: song.time_length
+    })));
+};
 
 </script>
 
@@ -755,4 +768,12 @@ const playlist = async () => {
     width: 100%;
     height: 100%;
 }
+
+.play-all-icon {
+    cursor: pointer;
+    font-size: 20px;
+    color: var(--primary-color);
+    transition: transform 0.2s ease;
+}
+
 </style>
