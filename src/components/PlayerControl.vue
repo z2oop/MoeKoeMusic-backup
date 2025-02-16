@@ -32,7 +32,8 @@
                 </button>
             </div>
             <div class="extra-controls">
-                <button class="extra-btn" @click="toggleFavorite"><i class="fas fa-heart"></i></button>
+                <button class="extra-btn" title="我喜欢" @click="toLike"><i class="fas fa-heart"></i></button>
+                <button class="extra-btn" title="收藏至" @click="toggleFavorite"><i class="fas fa-add"></i></button>
                 <button class="extra-btn" @click="togglePlaybackMode">
                     <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon"
                         :title="currentPlaybackMode.title"></i>
@@ -131,7 +132,7 @@
                     </div>
 
                     <div class="player-controls">
-                        <button class="control-btn like-btn" @click="toggleFavorite">
+                        <button class="control-btn like-btn" title="我喜欢" @click="toLike">
                             <i class="fas fa-heart"></i>
                         </button>
                         <button class="control-btn" @click="playSongFromQueue('previous')">
@@ -239,12 +240,26 @@ const togglePlaybackMode = () => {
     audio.loop = currentPlaybackModeIndex.value == 2;
     localStorage.setItem('player_playback_mode', currentPlaybackModeIndex.value);
 };
+const validateUserAndSong = () => {
+    if (!MoeAuth.isAuthenticated) {
+        window.$modal.alert(t('qing-xian-deng-lu')); 
+        return false;
+    }
+    if (!currentSong.value.hash) {
+        window.$modal.alert(t('mei-you-zheng-zai-bo-fang-de-ge-qu')); 
+        return false;
+    }
+    return true;
+}
+const toLike = ()=>{
+    if (!validateUserAndSong()) return;
+    const like_id = localStorage.getItem('like');
+    if(!like_id) {window.$modal.alert('先去看看你的收藏夹吧');return;}
+    addToPlaylist(like_id, currentSong.value);
+}
 
 const toggleFavorite = async () => {
-    if (!currentSong.value.hash) {
-        window.$modal.alert(t('mei-you-zheng-zai-bo-fang-de-ge-qu'));
-        return;
-    }
+    if (!validateUserAndSong()) return;
     try {
         const playlistResponse = await get('/user/playlist',{
             pagesize:100

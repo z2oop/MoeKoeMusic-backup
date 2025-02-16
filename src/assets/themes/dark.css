@@ -26,10 +26,6 @@ html.dark .setting-control {
     color: #e1e1e1;
 }
 
-html.dark .modal {
-    background: rgba(0, 0, 0);
-}
-
 html.dark .modal-content {
     background-color: #1d1d1d;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
@@ -102,6 +98,7 @@ html.dark .song-item {
 html.dark input {
     color: #e1e1e1;
     border-color: #333;
+    background: black;
 }
 
 /* 滚动条 */
@@ -444,4 +441,13 @@ html.dark .ranking-container .song-list {
 
 html.dark .ranking-container .song-list .song-item {
     margin-bottom: 2px;
+}
+
+html.dark .queue-play-btn{
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0.0)  !important;
+}
+
+html.dark .playlist-select-list li{
+    background-color: inherit;
 }

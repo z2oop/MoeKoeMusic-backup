@@ -53,7 +53,7 @@
                         <div class="track-artist" :title="item.name.split(' - ')[0]">{{ item.name.split(' - ')[0] }}</div>
                         <div class="track-album" :title="item.albuminfo?.name">{{ item.albuminfo?.name }}</div>
                         <div class="track-duration">
-                            <button v-if="props.playerControl.currentSong.hash == item.hash" class="queue-play-btn fas fa-music"></button>
+                            <button v-if="props.playerControl?.currentSong.hash == item.hash" class="queue-play-btn fas fa-music"></button>
                             {{ $formatMilliseconds(item.timelen) }}
                         </div>
                     </div>

@@ -183,7 +183,12 @@ const getplaylist = async () => {
             t: localStorage.getItem('t')
         });
         if (playlistResponse.status === 1) {
-            userPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢').sort((a, b) => a.name === '我喜欢' ? -1 : 1);
+            userPlaylists.value = playlistResponse.data.info.filter(playlist => {
+                if (playlist.name == '我喜欢') {
+                    localStorage.setItem('like', playlist.listid);
+                }
+                return playlist.list_create_userid === user.value.userid || playlist.name === '我喜欢';
+            }).sort((a, b) => a.name === '我喜欢' ? -1 : 1);
             collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
             collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
         }
