@@ -354,6 +354,7 @@ html {
     opacity: 0;
     transition: opacity 0.3s ease;
     margin-top: 10px;
+    height: 40px;
 }
 
 .controls-overlay:hover {
