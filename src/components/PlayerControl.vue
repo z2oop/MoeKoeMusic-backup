@@ -315,6 +315,7 @@ onMounted(() => {
         progressWidth.value = (audio.currentTime / currentSong.value.timeLength) * 100;
     }
     initMediaSession();
+    getVip();
     document.addEventListener('keydown', handleKeyDown);
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
@@ -363,13 +364,7 @@ const playSong = async (song) => {
 
         localStorage.setItem('current_song', JSON.stringify(currentSong.value));
         getLyrics(currentSong.value.hash);
-        if (MoeAuth.isAuthenticated && canRequestVip()) {
-            try {
-                await get('/youth/vip');
-            } catch (error) {
-                console.error('领取VIP失败:', error);
-            }
-        }
+        getVip();
         getMusicHighlights(currentSong.value.hash);
     } catch (error) {
         console.error('播放音乐时发生错误:', error);
@@ -850,18 +845,23 @@ const handleVolumeScroll = (event) => {
     volume.value = Math.min(Math.max(volume.value + delta * 10, 0), 100);
     changeVolume();
 };
-const canRequestVip = () => {
+const getVip = async() => {
+    if(!MoeAuth.isAuthenticated) return;
     const lastRequestTime = localStorage.getItem('lastVipRequestTime');
     if (lastRequestTime) {
         const now = new Date().getTime();
         const elapsedTime = now - parseInt(lastRequestTime);
         const threeHours = 3 * 60 * 60 * 1000;
         if (elapsedTime < threeHours) {
-            return false;
+            return;
         }
     }
+    try {
+        await get('/youth/vip');
+    } catch (error) {
+        console.error('领取VIP失败:', error);
+    }
     localStorage.setItem('lastVipRequestTime', new Date().getTime().toString());
-    return true;
 }
 
 const handleShortcut = (event) => {
