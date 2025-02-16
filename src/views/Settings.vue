@@ -294,8 +294,7 @@ const selectionTypeMap = {
             { displayText: t('pu-tong-yin-zhi'), value: 'normal' },
             { displayText: t('gao-yin-zhi-320kbps'), value: 'high' },
             { displayText: t('wu-sun-yin-zhi-1104kbps'), value: 'lossless' },
-            { displayText: t('hires-yin-zhi'), value: 'hires' },
-            { displayText: t('kui-she-chao-qing-yin-zhi'), value: 'clear' }
+            { displayText: t('hires-yin-zhi'), value: 'hires' }
         ]
     },
     lyricsBackground: {

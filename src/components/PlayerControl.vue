@@ -553,7 +553,7 @@ const addPlaylistToQueue = async (info) => {
 };
 
 // 添加歌曲到队列并播放的方法
-const addSongToQueue = async (hash, name, img, author, isReset = true, high = true) => {
+const addSongToQueue = async (hash, name, img, author, isReset = true) => {
     const currentSongHash = currentSong.value.hash;
     try {
         clearTimeout(timeoutId.value);
@@ -567,16 +567,11 @@ const addSongToQueue = async (hash, name, img, author, isReset = true, high = tr
         }
         if(!MoeAuth.isAuthenticated) data.free_part = 1;
         if(MoeAuth.isAuthenticated && settings?.quality === 'lossless') data.quality = 'flac';
-        if(MoeAuth.isAuthenticated && settings?.quality === 'hires' && high) data.quality = 'high';
-        if(MoeAuth.isAuthenticated && settings?.quality === 'clear' && high) data.quality = 'viper_clear';
+        if(MoeAuth.isAuthenticated && settings?.quality === 'hires') data.quality = 'high';
 
         const response = await get('/song/url',data);
         if (response.status !== 1) {
             currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
-            if(response.status == 2){
-                addSongToQueue(hash, name, img, author, true, false);
-                return;
-            }
             if (response.status == 3) {
                 currentSong.value.name = t('gai-ge-qu-zan-wu-ban-quan')
             }
@@ -589,7 +584,7 @@ const addSongToQueue = async (hash, name, img, author, isReset = true, high = tr
         }
 
         if (response.extName == 'mp4') {
-            currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
+            addSongToQueue(hash, name, img, author, false);
             return;
         }
         
