@@ -6,11 +6,8 @@ import Store from 'electron-store';
 import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import fs from 'fs';
-import kill from 'tree-kill';
 import { exec } from 'child_process';
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const store = new Store();
 let mainWindow = null;
 let apiProcess = null;
@@ -71,6 +68,7 @@ export function createWindow() {
         if (!store.get('disclaimerAccepted')) {
             mainWindow.webContents.send('show-disclaimer');
         }
+        mainWindow.webContents.send('version', app.getVersion());
     });
 
     mainWindow.on('close', (event) => {

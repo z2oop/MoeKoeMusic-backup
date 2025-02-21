@@ -231,6 +231,10 @@
                 </div>
             </div>
         </div>
+        <div class="version-info">
+            <p>© MoeKoe Music</p>
+            <span v-if="appVersion">V{{ appVersion }} - {{ platform }}</span>
+        </div>
     </div>
 </template>
 
@@ -242,7 +246,8 @@ import { MoeAuthStore } from '../stores/store';
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const { proxy } = getCurrentInstance();
-
+const appVersion = ref('');
+const platform = ref('');
 const selectedSettings = ref({
     language: { displayText: '🌏 ' + t('zi-dong'), value: '' },
     themeColor: { displayText: t('shao-nv-fen'), value: 'pink' },
@@ -435,6 +440,10 @@ onMounted(() => {
             volumeDown: 'Alt+Ctrl+Down',     // 音量小
             mute: 'Alt+Ctrl+M'               // 静音
         };
+    }
+    if(isElectron()){
+        appVersion.value = localStorage.getItem('version');
+        platform.value = window.electron.platform;
     }
 });
 
@@ -786,5 +795,12 @@ const clearShortcut = (key) => {
 
 .refresh-hint {
     color: red;
+}
+
+.version-info {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
 }
 </style>
