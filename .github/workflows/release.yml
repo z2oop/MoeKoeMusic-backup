@@ -23,6 +23,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get commit messages
+        id: get-commits
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            COMMIT_LOG=$(git log --pretty=format:"- %s" --no-merges)
+          else
+            COMMIT_LOG=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s" --no-merges)
+          fi
+          echo "COMMIT_LOG<<EOF" >> $GITHUB_ENV
+          echo "$COMMIT_LOG" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
       - name: Increment version
         id: set-version
         run: |
@@ -72,7 +85,9 @@ jobs:
           tag_name: ${{ needs.increment-version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ needs.increment-version.outputs.version }}"
-          body: ${{ env.COMMIT_MESSAGE }}
+          body: |
+            ## 更新日志
+            ${{ env.COMMIT_LOG }}
           prerelease: false
           files: "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
 
@@ -114,7 +129,9 @@ jobs:
           tag_name: ${{ needs.increment-version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ needs.increment-version.outputs.version }}"
-          body: ${{ env.COMMIT_MESSAGE }}
+          body: |
+            ## 更新日志
+            ${{ env.COMMIT_LOG }}
           prerelease: false
           files: |
             ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
@@ -155,7 +172,9 @@ jobs:
           tag_name: ${{ needs.increment-version.outputs.version }}
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ needs.increment-version.outputs.version }}"
-          body: ${{ env.COMMIT_MESSAGE }}
+          body: |
+            ## 更新日志
+            ${{ env.COMMIT_LOG }}
           prerelease: false
           files: |
             ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
