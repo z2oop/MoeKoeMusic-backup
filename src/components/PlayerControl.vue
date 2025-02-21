@@ -190,7 +190,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, computed, onUnmounted, onBeforeUnmount, nextTick } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller';
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
 import { get } from '../utils/request';
@@ -233,6 +233,7 @@ const NextSong = ref([]);
 const playlists = ref([]);
 const isPlaylistSelectOpen = ref(false);
 const lyricsFontSize = ref('24px');
+const isInputFocused = ref(false);
 
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
@@ -317,6 +318,8 @@ onMounted(() => {
     initMediaSession();
     getVip();
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('focus', checkFocus, true);
+    document.addEventListener('blur', checkFocus, true);
 });
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
@@ -825,6 +828,10 @@ onUnmounted(() => {
     }
     document.removeEventListener('keydown', handleKeyDown);
 });
+onBeforeUnmount(() => {
+    document.removeEventListener('focus', checkFocus, true);
+    document.removeEventListener('blur', checkFocus, true);
+});
 const isElectron = () => {
     return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
 };
@@ -1064,8 +1071,12 @@ const changeMediaSession = (song) => {
     updateMediaSession();
 };
 
+const checkFocus = () => {
+    isInputFocused.value = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
+};
 // 处理键盘按下事件
 const handleKeyDown = (event) => {
+    if(isInputFocused.value) return;
     switch (event.code) {
         case 'Space':
             event.preventDefault();
