@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-    if: contains(github.event.head_commit.message, '[release]')
   workflow_dispatch:
 
 permissions:
@@ -13,6 +12,7 @@ permissions:
 jobs:
   # 创建版本号
   increment-version:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, 'release')
     name: Increment Version
     runs-on: ubuntu-latest
     outputs:
