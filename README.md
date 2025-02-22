@@ -55,9 +55,9 @@
 - [ ] 🎧 支持 Mpris
 - [x] ⌨️ 全局快捷键
 - [x] 🤟 多语言支持
-- [ ] 📻 桌面歌词
-- [ ] ⚙️ 系统架构优化
-- [ ] 🎶 歌曲、歌单/收藏、取消
+- [x] 📻 桌面歌词
+- [x] ⚙️ 系统架构优化
+- [x] 🎶 歌曲、歌单/收藏、取消
 
 更新日志请查看 [Commits](https://github.com/iAJue/MoeKoeMusic/commits/main/)
 
