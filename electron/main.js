@@ -12,6 +12,20 @@ let mainWindow = null;
 const store = new Store();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit(); 
+  process.exit(0);
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.show(); 
+      mainWindow.focus(); 
+    }
+  });
+}
+
 app.on('ready', () => {
     startApiServer().then(() => {
         try {
