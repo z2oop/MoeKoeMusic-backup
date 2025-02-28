@@ -165,10 +165,13 @@ ipcMain.on('desktop-lyrics-action', (event, action) => {
                     body: '仅本次生效',
                     icon: path.join(__dirname, '../build/icons/logo.png')
                 }).show();
+                mainWindow.lyricsWindow = null;
             }
             break;
         case 'display-lyrics':
-            createLyricsWindow();
+            if(!mainWindow.lyricsWindow){
+                createLyricsWindow();
+            }
             break;
     }
 });
