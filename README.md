@@ -98,7 +98,7 @@ npm run build
   ```
   -	macOS: 
   ```sh
-  npm run electron:build:macos [默认Apple Silicon架构]
+  npm run electron:build:macos [默认 macOS 双架构]
   ```
 
 

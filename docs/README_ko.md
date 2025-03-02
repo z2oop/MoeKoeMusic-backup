@@ -98,7 +98,7 @@ npm run electron:build:linux [기본 AppImage 형식]
 ```
 -	macOS: 
 ```sh
-npm run electron:build:macos [기본 Apple Silicon 아키텍처]
+npm run electron:build:macos [기본 듀얼 아키텍처]
 ```
 
 

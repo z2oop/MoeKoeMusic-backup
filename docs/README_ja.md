@@ -98,7 +98,7 @@ npm run electron：build：linux[デフォルトAppImageフォーマット]
 ```
 -	macOS: 
 ```sh
-npm run electron：build：macos[デフォルトApple Siliconスキーマ]
+npm run electron：build：macos[デフォルトの双架構]
 ```
 
 
