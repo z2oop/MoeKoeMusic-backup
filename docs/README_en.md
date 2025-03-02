@@ -98,7 +98,7 @@ Npm run electron: build: Linux [default AppImage format]
 ```
 -	macOS: 
 ```sh
-Npm run electron: build: macos [default Apple Silicon architecture]
+Npm run electron: build: macos [default universal architecture]
 ```
 
 

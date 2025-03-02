@@ -15,7 +15,7 @@
     "build:api:macos": "npm run --prefix ./api pkgmacos",
     "electron:build:win": "run-s build:api:win \"electron:build -- --win\"",
     "electron:build:linux": "run-s build:api:linux \"electron:build -- --linux\"",
-    "electron:build:macos": "run-s build:api:macos \"electron:build -- --mac --arm64\"",
+    "electron:build:macos": "run-s build:api:macos \"electron:build -- --mac --universal\"",
     "electron:build": "cross-env NODE_ENV=production electron-builder"
   },
   "engines": {
@@ -87,6 +87,7 @@
       "warningsAsErrors": true
     },
     "mac": {
+      "x64ArchFiles": "*", 
       "icon": "build/icons/icon.icns",
       "target": [
         "dmg",
