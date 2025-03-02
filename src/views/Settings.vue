@@ -224,6 +224,32 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="shortcut-item">
+                        <span>{{ $t('tian-jia-wo-xi-huan') }}</span>
+                        <div class="shortcut-input" @click="startRecording('like')"
+                             :class="{ 'recording': recordingKey === 'like' }">
+                            {{ shortcuts.like || '点击设置快捷键' }}
+                            <div v-if="shortcuts.like" 
+                                 class="clear-shortcut" 
+                                 @click.stop="clearShortcut('like')">
+                                ×
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <span>{{ $t('qie-huan-bo-fang-mo-shi') }}</span>
+                        <div class="shortcut-input" @click="startRecording('mode')"
+                             :class="{ 'recording': recordingKey === 'mode' }">
+                            {{ shortcuts.mode || '点击设置快捷键' }}
+                            <div v-if="shortcuts.mode" 
+                                 class="clear-shortcut" 
+                                 @click.stop="clearShortcut('mode')">
+                                ×
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="shortcut-modal-footer">
                     <button @click="closeShortcutSettings">{{ $t('qu-xiao') }}</button>
@@ -438,7 +464,9 @@ onMounted(() => {
             playPause: 'Alt+Ctrl+Space',     // 暂停/播放
             volumeUp: 'Alt+Ctrl+Up',         // 音量大
             volumeDown: 'Alt+Ctrl+Down',     // 音量小
-            mute: 'Alt+Ctrl+M'               // 静音
+            mute: 'Alt+Ctrl+M',               // 静音
+            like: 'Alt+Ctrl+L',               // 一键我喜欢
+            mode: 'Alt+Ctrl+P'                // 切换播放模式
         };
     }
     if(isElectron()){
@@ -725,7 +753,7 @@ const clearShortcut = (key) => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 8px 0;
     border-bottom: 1px solid #eee;
 }
 

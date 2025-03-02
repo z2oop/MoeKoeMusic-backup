@@ -856,6 +856,8 @@ onUnmounted(() => {
         window.electron.ipcRenderer.removeAllListeners('volume-down');
         window.electron.ipcRenderer.removeAllListeners('toggle-play-pause');
         window.electron.ipcRenderer.removeAllListeners('toggle-mute');
+        window.electron.ipcRenderer.removeAllListeners('toggle-like');
+        window.electron.ipcRenderer.removeAllListeners('toggle-mode');
     }
     document.removeEventListener('keydown', handleKeyDown);
 });
@@ -914,6 +916,12 @@ const handleShortcut = (event) => {
         });
         window.electron.ipcRenderer.on('toggle-mute', () => {
             toggleMute();
+        });
+        window.electron.ipcRenderer.on('toggle-like', () => {
+            toLike();
+        });
+        window.electron.ipcRenderer.on('toggle-mode', () => {
+            togglePlaybackMode();
         });
     }
 }

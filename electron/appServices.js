@@ -347,6 +347,20 @@ export function registerShortcut() {
         } else if (!settings?.shortcuts) {
             globalShortcut.register('Alt+CommandOrControl+M', clickFunc);
         }
+
+        clickFunc = () => mainWindow.webContents.send('toggle-like');
+        if (settings?.shortcuts?.like) {
+            globalShortcut.register(settings?.shortcuts?.like, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+L', clickFunc);
+        }
+
+        clickFunc = () => mainWindow.webContents.send('toggle-mode');
+        if (settings?.shortcuts?.mode) {
+            globalShortcut.register(settings?.shortcuts?.mode, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+CommandOrControl+P', clickFunc);
+        }
     } catch{
         dialog.showMessageBox({
             type: 'error',
