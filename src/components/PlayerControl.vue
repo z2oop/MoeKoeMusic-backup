@@ -234,11 +234,15 @@ const playlists = ref([]);
 const isPlaylistSelectOpen = ref(false);
 const lyricsFontSize = ref('24px');
 const isInputFocused = ref(false);
+const playedSongsStack = ref([]);
+const currentStackIndex = ref(-1);
 
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
     currentPlaybackModeIndex.value = (currentPlaybackModeIndex.value + 1) % playbackModes.value.length;
     audio.loop = currentPlaybackModeIndex.value == 2;
+    playedSongsStack.value = [];
+    currentStackIndex.value = -1;
     localStorage.setItem('player_playback_mode', currentPlaybackModeIndex.value);
 };
 const validateUserAndSong = () => {
@@ -396,6 +400,7 @@ const playSongFromQueue = (direction) => {
     }
 
     if (direction == 'next') {
+        // 添加下一首播放
         if (NextSong.value.length > 0) {
             addSongToQueue(NextSong.value[0].hash, NextSong.value[0].name, NextSong.value[0].img, NextSong.value[0].author);
             NextSong.value.shift();
@@ -405,11 +410,37 @@ const playSongFromQueue = (direction) => {
 
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     let targetIndex;
-
     if (currentIndex == -1) {
         targetIndex = 0;
     } else if (currentPlaybackModeIndex.value == 0) {
-        targetIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
+        if (direction === 'previous' && currentStackIndex.value > 0) {
+            currentStackIndex.value--;
+            targetIndex = playedSongsStack.value[currentStackIndex.value];
+        } else if (direction === 'previous') {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
+            } while (playedSongsStack.value.length > 0 && newIndex === playedSongsStack.value[currentStackIndex.value]);
+            
+            playedSongsStack.value.unshift(newIndex);
+            targetIndex = newIndex;
+        } else if (direction === 'next' && currentStackIndex.value < playedSongsStack.value.length - 1) {
+            currentStackIndex.value++;
+            targetIndex = playedSongsStack.value[currentStackIndex.value];
+        } else if (direction === 'next') {
+            let newIndex;
+            do {
+                newIndex = Math.floor(Math.random() * musicQueueStore.queue.length);
+            } while (playedSongsStack.value.length > 0 && newIndex === playedSongsStack.value[currentStackIndex.value]);
+            
+            if (currentStackIndex.value < playedSongsStack.value.length - 1) {
+                playedSongsStack.value = playedSongsStack.value.slice(0, currentStackIndex.value + 1);
+            }
+            
+            playedSongsStack.value.push(newIndex);
+            currentStackIndex.value = playedSongsStack.value.length - 1;
+            targetIndex = newIndex;
+        }
     } else {
         targetIndex = direction === 'previous'
             ? (currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1)

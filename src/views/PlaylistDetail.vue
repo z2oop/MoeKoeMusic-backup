@@ -1,7 +1,7 @@
 <template>
     <div class="playlist-detail-page">
         <div class="playlist-header">
-            <img class="album-art" :src="detail.pic? $getCover(detail.pic, 240) : './assets/images/live.png'" />
+            <img class="album-art" :src="detail.pic? $getCover(detail.pic, 480) : './assets/images/live.png'" />
             <div class="playlist-info">
                 <h1 class="playlist-title">{{ detail.name }}</h1>
                 <p class="playlist-subtitle">{{ detail.publish_date }} | {{ detail.list_create_username }}</p>
