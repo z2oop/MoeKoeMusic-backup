@@ -23,6 +23,15 @@
                         {{ option.displayText }}
                     </li>
                 </ul>
+                
+                <div v-if="selectionType === 'quality'" class="compatibility-option">
+                    <label>
+                        <input type="checkbox" v-model="qualityCompatibilityMode" />
+                        兼容模式(mp3格式)
+                        <div class="compatibility-hint">如果高音质播放失败，请开启此选项</div>
+                    </label>
+                </div>
+                
                 <button @click="closeSelection">{{ $t('guan-bi') }}</button>
             </div>
         </div>
@@ -82,7 +91,8 @@ const selectedSettings = ref({
     greetings: { displayText: t('kai-qi'), value: 'on' },
     gpuAcceleration: { displayText: t('guan-bi'), value: 'off' },
     minimizeToTray: { displayText: t('da-kai'), value: 'on' },
-    highDpi: { displayText: t('guan-bi'), value: 'off' }
+    highDpi: { displayText: t('guan-bi'), value: 'off' },
+    qualityCompatibility: { displayText: t('guan-bi'), value: 'off' }
 });
 
 // 设置分区配置
@@ -260,6 +270,13 @@ const selectionTypeMap = {
             { displayText: t('da-kai'), value: 'on' },
             { displayText: t('guan-bi'), value: 'off' }
         ]
+    },
+    qualityCompatibility: {
+        title: t('jian-rong-mo-shi'),
+        options: [
+            { displayText: t('kai-qi'), value: 'on' },
+            { displayText: t('guan-bi'), value: 'off' }
+        ]
     }
 };
 
@@ -273,6 +290,10 @@ const showRefreshHint = ref({
 const openSelection = (type) => {
     isSelectionOpen.value = true;
     selectionType.value = type;
+    
+    if (type === 'quality') {
+        qualityCompatibilityMode.value = selectedSettings.value.qualityCompatibility?.value === 'on';
+    }
 };
 
 const selectOption = (option) => {
@@ -294,6 +315,10 @@ const selectOption = (option) => {
                 window.$modal.alert(t('gao-pin-zhi-yin-le-xu-yao-deng-lu-hou-cai-neng-bo-fango'));
                 return;
             }
+            selectedSettings.value.qualityCompatibility = { 
+                value: qualityCompatibilityMode.value ? 'on' : 'off',
+                displayText: qualityCompatibilityMode.value ? t('kai-qi') : t('guan-bi')
+            };
         },
         'desktopLyrics': () => {
             const action = option.value === 'on' ? 'display-lyrics' : 'close-lyrics';
@@ -529,6 +554,8 @@ onUnmounted(() => {
 const clearShortcut = (key) => {
     shortcuts.value[key] = '';
 };
+
+const qualityCompatibilityMode = ref(false);
 </script>
 
 <style scoped>
@@ -749,5 +776,27 @@ const clearShortcut = (key) => {
     margin-top: 20px;
     font-size: 14px;
     color: #666;
+}
+
+.compatibility-option {
+    margin-top: 15px;
+    text-align: left;
+    padding: 10px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+}
+
+.compatibility-option label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.compatibility-hint {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+    line-height: 21px;
 }
 </style>

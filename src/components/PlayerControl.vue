@@ -600,8 +600,8 @@ const addSongToQueue = async (hash, name, img, author, isReset = true) => {
             hash: hash
         }
         if(!MoeAuth.isAuthenticated) data.free_part = 1;
-        if(MoeAuth.isAuthenticated && settings?.quality === 'lossless') data.quality = 'flac';
-        if(MoeAuth.isAuthenticated && settings?.quality === 'hires') data.quality = 'high';
+        if(MoeAuth.isAuthenticated && settings?.quality === 'lossless' && settings?.qualityCompatibility === 'off') data.quality = 'flac';
+        if(MoeAuth.isAuthenticated && settings?.quality === 'hires' && settings?.qualityCompatibility === 'off') data.quality = 'high';
 
         const response = await get('/song/url',data);
         if (response.status !== 1) {
