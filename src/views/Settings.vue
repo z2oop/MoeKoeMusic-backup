@@ -1,105 +1,16 @@
 <template>
     <div class="settings-page">
-        <section class="setting-section">
-            <h3>{{ $t('jie-mian') }}</h3>
-            <div class="setting-item" @click="openSelection('language')">
-                <span>{{ $t('yu-yan') }}</span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.language.displayText }}</span>
-                </div>
-            </div>
-
-            <div class="setting-item" @click="openSelection('themeColor')">
-                <span>{{ $t('zhu-se-tiao') }}</span>
-                <div class="setting-control">
-                    <span>🎨 {{ selectedSettings.themeColor.displayText }}</span>
-                </div>
-            </div>
-
-            <div class="setting-item" @click="openSelection('theme')">
-                <span>{{ $t('wai-guan') }}</span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.theme.displayText }}</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="setting-section">
-            <h3>{{ $t('sheng-yin') }}</h3>
-            <div class="setting-item">
-                <span>{{ $t('yin-zhi-xuan-ze') }}</span>
-                <div class="setting-control" @click="openSelection('quality')">
-                    <span>🎧 {{ selectedSettings.quality.displayText }}</span>
-                </div>
-            </div>
-            <div class="setting-item">
-                <span>{{ $t('qi-dong-wen-hou-yu') }}</span>
-                <div class="setting-control" @click="openSelection('greetings')">
-                    <span>👋 {{ selectedSettings.greetings.displayText }}</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="setting-section">
-            <h3>{{ $t('ge-ci') }}</h3>
-            <div class="setting-item" @click="openSelection('lyricsBackground')">
-                <span>{{ $t('xian-shi-ge-ci-bei-jing') }}
-                    <span v-if="showRefreshHint.lyricsBackground" class="refresh-hint"> {{ $t('shua-xin-hou-sheng-xiao') }}</span>
+        <section v-for="(section, sectionIndex) in settingSections" :key="sectionIndex" class="setting-section">
+            <h3>{{ section.title }}</h3>
+            <div v-for="(item, itemIndex) in section.items" :key="itemIndex" 
+                 class="setting-item" @click="item.action ? item.action() : openSelection(item.key)">
+                <span>{{ item.label }}
+                    <span v-if="item.showRefreshHint && showRefreshHint[item.key]" class="refresh-hint"> 
+                        {{ item.refreshHintText }}
+                    </span>
                 </span>
                 <div class="setting-control">
-                    <span>{{ selectedSettings.lyricsBackground.displayText }}</span>
-                </div>
-            </div>
-            
-            <div class="setting-item" @click="openSelection('lyricsFontSize')">
-                <span>{{ $t('ge-ci-zi-ti-da-xiao') }}
-                    <span v-if="showRefreshHint.lyricsFontSize" class="refresh-hint"> {{ $t('shua-xin-hou-sheng-xiao') }}</span>
-                </span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.lyricsFontSize.displayText }}</span>
-                </div>
-            </div>
-
-            <div class="setting-item" @click="openSelection('desktopLyrics')">
-                <span>{{ $t('xian-shi-zhuo-mian-ge-ci') }}</span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.desktopLyrics.displayText }}</span>
-                </div>
-            </div>
-
-        </section>
-
-        <section class="setting-section">
-            <h3>{{ $t('xi-tong') }}</h3>
-            <div class="setting-item" @click="openSelection('gpuAcceleration')">
-                <span>{{ $t('jin-yong-gpu-jia-su-zhong-qi-sheng-xiao') }}
-                    <span v-if="showRefreshHint.gpuAcceleration" class="refresh-hint"> {{ $t('zhong-qi-hou-sheng-xiao') }}</span>
-                </span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.gpuAcceleration.displayText }}</span>
-                </div>
-            </div>
-            
-            <div class="setting-item" @click="openSelection('highDpi')">
-                <span>{{ $t('shi-pei-gao-dpi') }}
-                    <span v-if="showRefreshHint.highDpi" class="refresh-hint"> {{ $t('zhong-qi-hou-sheng-xiao') }}</span>
-                </span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.highDpi.displayText }}</span>
-                </div>
-            </div>
-
-            <div class="setting-item" @click="openSelection('minimizeToTray')">
-                <span>{{ $t('guan-bi-shi-minimize-to-tray') }}</span>
-                <div class="setting-control">
-                    <span>{{ selectedSettings.minimizeToTray.displayText }}</span>
-                </div>
-            </div>
-            
-            <div class="setting-item" @click="openShortcutSettings">
-                <span>{{ $t('quan-ju-kuai-jie-jian') }}</span>
-                <div class="setting-control">
-                    <span>{{ $t('zi-ding-yi-kuai-jie-jian') }}</span>
+                    <span>{{ item.icon }}{{ item.customText || selectedSettings[item.key]?.displayText }}</span>
                 </div>
             </div>
         </section>
@@ -121,131 +32,15 @@
             <div class="shortcut-modal-content">
                 <h3>{{ $t('kuai-jie-jian-she-zhi') }}</h3>
                 <div class="shortcut-list">
-                    <div class="shortcut-item">
-                        <span>{{ $t('xian-shi-yin-cang-zhu-chuang-kou') }}</span>
-                        <div class="shortcut-input" @click="startRecording('mainWindow')" 
-                             :class="{ 'recording': recordingKey === 'mainWindow' }">
-                            {{ shortcuts.mainWindow || '点击设置快捷键' }}
-                            <div v-if="shortcuts.mainWindow" 
+                    <div class="shortcut-item" v-for="(config, key) in shortcutConfigs" :key="key">
+                        <span>{{ config.label }}</span>
+                        <div class="shortcut-input" 
+                             @click="startRecording(key)" 
+                             :class="{ 'recording': recordingKey === key }">
+                            {{ shortcuts[key] || '点击设置快捷键' }}
+                            <div v-if="shortcuts[key]" 
                                  class="clear-shortcut" 
-                                 @click.stop="clearShortcut('mainWindow')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <span>{{ $t('tui-chu-zhu-cheng-xu') }}</span>
-                        <div class="shortcut-input" @click="startRecording('quitApp')"
-                             :class="{ 'recording': recordingKey === 'quitApp' }">
-                            {{ shortcuts.quitApp || '点击设置快捷键' }}
-                            <div v-if="shortcuts.quitApp" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('quitApp')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('shang-yi-shou') }}</span>
-                        <div class="shortcut-input" @click="startRecording('prevTrack')"
-                             :class="{ 'recording': recordingKey === 'prevTrack' }">
-                            {{ shortcuts.prevTrack || '点击设置快捷键' }}
-                            <div v-if="shortcuts.prevTrack" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('prevTrack')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('xia-yi-shou') }}</span>
-                        <div class="shortcut-input" @click="startRecording('nextTrack')"
-                             :class="{ 'recording': recordingKey === 'nextTrack' }">
-                            {{ shortcuts.nextTrack || '点击设置快捷键' }}
-                            <div v-if="shortcuts.nextTrack" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('nextTrack')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('zan-ting-bo-fang') }}</span>
-                        <div class="shortcut-input" @click="startRecording('playPause')"
-                             :class="{ 'recording': recordingKey === 'playPause' }">
-                            {{ shortcuts.playPause || '点击设置快捷键' }}
-                            <div v-if="shortcuts.playPause" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('playPause')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('yin-liang-zeng-jia') }}</span>
-                        <div class="shortcut-input" @click="startRecording('volumeUp')"
-                             :class="{ 'recording': recordingKey === 'volumeUp' }">
-                            {{ shortcuts.volumeUp || '点击设置快捷键' }}
-                            <div v-if="shortcuts.volumeUp" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('volumeUp')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('yin-liang-jian-xiao') }}</span>
-                        <div class="shortcut-input" @click="startRecording('volumeDown')"
-                             :class="{ 'recording': recordingKey === 'volumeDown' }">
-                            {{ shortcuts.volumeDown || '点击设置快捷键' }}
-                            <div v-if="shortcuts.volumeDown" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('volumeDown')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="shortcut-item">
-                        <span>{{ $t('jing-yin') }}</span>
-                        <div class="shortcut-input" @click="startRecording('mute')"
-                             :class="{ 'recording': recordingKey === 'mute' }">
-                            {{ shortcuts.mute || '点击设置快捷键' }}
-                            <div v-if="shortcuts.mute" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('mute')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <span>{{ $t('tian-jia-wo-xi-huan') }}</span>
-                        <div class="shortcut-input" @click="startRecording('like')"
-                             :class="{ 'recording': recordingKey === 'like' }">
-                            {{ shortcuts.like || '点击设置快捷键' }}
-                            <div v-if="shortcuts.like" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('like')">
-                                ×
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="shortcut-item">
-                        <span>{{ $t('qie-huan-bo-fang-mo-shi') }}</span>
-                        <div class="shortcut-input" @click="startRecording('mode')"
-                             :class="{ 'recording': recordingKey === 'mode' }">
-                            {{ shortcuts.mode || '点击设置快捷键' }}
-                            <div v-if="shortcuts.mode" 
-                                 class="clear-shortcut" 
-                                 @click.stop="clearShortcut('mode')">
+                                 @click.stop="clearShortcut(key)">
                                 ×
                             </div>
                         </div>
@@ -265,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance, onUnmounted } from 'vue';
+import { ref, onMounted, getCurrentInstance, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { MoeAuthStore } from '../stores/store';
 
@@ -274,6 +69,8 @@ const { t } = useI18n();
 const { proxy } = getCurrentInstance();
 const appVersion = ref('');
 const platform = ref('');
+
+// 设置配置
 const selectedSettings = ref({
     language: { displayText: '🌏 ' + t('zi-dong'), value: '' },
     themeColor: { displayText: t('shao-nv-fen'), value: 'pink' },
@@ -288,9 +85,95 @@ const selectedSettings = ref({
     highDpi: { displayText: t('guan-bi'), value: 'off' }
 });
 
+// 设置分区配置
+const settingSections = computed(() => [
+    {
+        title: t('jie-mian'),
+        items: [
+            {
+                key: 'language',
+                label: t('yu-yan')
+            },
+            {
+                key: 'themeColor',
+                label: t('zhu-se-tiao'),
+                icon: '🎨 '
+            },
+            {
+                key: 'theme',
+                label: t('wai-guan')
+            }
+        ]
+    },
+    {
+        title: t('sheng-yin'),
+        items: [
+            {
+                key: 'quality',
+                label: t('yin-zhi-xuan-ze'),
+                icon: '🎧 '
+            },
+            {
+                key: 'greetings',
+                label: t('qi-dong-wen-hou-yu'),
+                icon: '👋 '
+            }
+        ]
+    },
+    {
+        title: t('ge-ci'),
+        items: [
+            {
+                key: 'lyricsBackground',
+                label: t('xian-shi-ge-ci-bei-jing'),
+                showRefreshHint: true,
+                refreshHintText: t('shua-xin-hou-sheng-xiao')
+            },
+            {
+                key: 'lyricsFontSize',
+                label: t('ge-ci-zi-ti-da-xiao'),
+                showRefreshHint: true,
+                refreshHintText: t('shua-xin-hou-sheng-xiao')
+            },
+            {
+                key: 'desktopLyrics',
+                label: t('xian-shi-zhuo-mian-ge-ci')
+            }
+        ]
+    },
+    {
+        title: t('xi-tong'),
+        items: [
+            {
+                key: 'gpuAcceleration',
+                label: t('jin-yong-gpu-jia-su-zhong-qi-sheng-xiao'),
+                showRefreshHint: true,
+                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+            },
+            {
+                key: 'highDpi',
+                label: t('shi-pei-gao-dpi'),
+                showRefreshHint: true,
+                refreshHintText: t('zhong-qi-hou-sheng-xiao')
+            },
+            {
+                key: 'minimizeToTray',
+                label: t('guan-bi-shi-minimize-to-tray')
+            },
+            {
+                key: 'shortcuts',
+                label: t('quan-ju-kuai-jie-jian'),
+                customText: t('zi-ding-yi-kuai-jie-jian'),
+                action: openShortcutSettings
+            }
+        ]
+    }
+]);
+
 const isSelectionOpen = ref(false);
 const selectionType = ref('');
 
+// 选项配置
 const selectionTypeMap = {
     language: {
         title: t('xuan-ze-yu-yan'),
@@ -384,6 +267,7 @@ const showRefreshHint = ref({
     lyricsBackground: false,
     lyricsFontSize: false,
     gpuAcceleration: false,
+    highDpi: false
 });
 
 const openSelection = (type) => {
@@ -456,18 +340,10 @@ onMounted(() => {
     if (savedSettings?.shortcuts) {
         shortcuts.value = savedSettings.shortcuts;
     } else {
-        shortcuts.value = {
-            mainWindow: 'Ctrl+Shift+S',      // 显示/关闭主窗口
-            quitApp: 'Ctrl+Q',               // 退出主程序
-            prevTrack: 'Alt+Ctrl+Left',      // 上一首
-            nextTrack: 'Alt+Ctrl+Right',     // 下一首
-            playPause: 'Alt+Ctrl+Space',     // 暂停/播放
-            volumeUp: 'Alt+Ctrl+Up',         // 音量大
-            volumeDown: 'Alt+Ctrl+Down',     // 音量小
-            mute: 'Alt+Ctrl+M',               // 静音
-            like: 'Alt+Ctrl+L',               // 一键我喜欢
-            mode: 'Alt+Ctrl+P'                // 切换播放模式
-        };
+        shortcuts.value = Object.entries(shortcutConfigs.value).reduce((acc, [key, config]) => {
+            acc[key] = config.defaultValue;
+            return acc;
+        }, {});
     }
     if(isElectron()){
         appVersion.value = localStorage.getItem('version');
@@ -478,6 +354,49 @@ onMounted(() => {
 const showShortcutModal = ref(false);
 const recordingKey = ref('');
 const shortcuts = ref({});
+
+const shortcutConfigs = ref({
+    mainWindow: { 
+        label: t('xian-shi-yin-cang-zhu-chuang-kou'),
+        defaultValue: 'Ctrl+Shift+S'
+    },
+    quitApp: { 
+        label: t('tui-chu-zhu-cheng-xu'),
+        defaultValue: 'Ctrl+Q'
+    },
+    prevTrack: { 
+        label: t('shang-yi-shou'),
+        defaultValue: 'Alt+Ctrl+Left'
+    },
+    nextTrack: { 
+        label: t('xia-yi-shou'),
+        defaultValue: 'Alt+Ctrl+Right'
+    },
+    playPause: { 
+        label: t('zan-ting-bo-fang'),
+        defaultValue: 'Alt+Ctrl+Space'
+    },
+    volumeUp: { 
+        label: t('yin-liang-zeng-jia'),
+        defaultValue: 'Alt+Ctrl+Up'
+    },
+    volumeDown: { 
+        label: t('yin-liang-jian-xiao'),
+        defaultValue: 'Alt+Ctrl+Down'
+    },
+    mute: { 
+        label: t('jing-yin'),
+        defaultValue: 'Alt+Ctrl+M'
+    },
+    like: { 
+        label: t('tian-jia-wo-xi-huan'),
+        defaultValue: 'Alt+Ctrl+L'
+    },
+    mode: { 
+        label: t('qie-huan-bo-fang-mo-shi'),
+        defaultValue: 'Alt+Ctrl+P'
+    }
+});
 
 const openShortcutSettings = () => {
     showShortcutModal.value = true;
