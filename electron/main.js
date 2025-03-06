@@ -75,7 +75,7 @@ if(settings?.gpuAcceleration === 'off'){
 
 if(settings?.highDpi === 'on'){
     app.commandLine.appendSwitch('high-dpi-support', '1');
-    app.commandLine.appendSwitch('force-device-scale-factor', '1');
+    app.commandLine.appendSwitch('force-device-scale-factor', settings?.dpiScale || '1');
 }
 
 // 即将退出

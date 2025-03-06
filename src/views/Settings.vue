@@ -32,6 +32,26 @@
                     </label>
                 </div>
                 
+                <div v-if="selectionType === 'highDpi'" class="scale-slider-container">
+                    <div class="scale-slider-label">缩放因子: {{ dpiScale }} <span class="scale-slider-hint">调整后需要重启应用生效</span></div>
+                    <div class="scale-slider-wrapper">
+                        <input 
+                            type="range" 
+                            min="0.5" 
+                            max="2" 
+                            step="0.1" 
+                            v-model="dpiScale" 
+                            class="scale-slider"
+                        />
+                        <div class="scale-marks">
+                            <span>0.5</span>
+                            <span>1.0</span>
+                            <span>1.5</span>
+                            <span>2.0</span>
+                        </div>
+                    </div>
+                </div>
+                
                 <button @click="closeSelection">{{ $t('guan-bi') }}</button>
             </div>
         </div>
@@ -92,7 +112,8 @@ const selectedSettings = ref({
     gpuAcceleration: { displayText: t('guan-bi'), value: 'off' },
     minimizeToTray: { displayText: t('da-kai'), value: 'on' },
     highDpi: { displayText: t('guan-bi'), value: 'off' },
-    qualityCompatibility: { displayText: t('guan-bi'), value: 'off' }
+    qualityCompatibility: { displayText: t('guan-bi'), value: 'off' },
+    dpiScale: { displayText: '1.0', value: '1.0' }
 });
 
 // 设置分区配置
@@ -277,6 +298,12 @@ const selectionTypeMap = {
             { displayText: t('kai-qi'), value: 'on' },
             { displayText: t('guan-bi'), value: 'off' }
         ]
+    },
+    dpiScale: {
+        title: '缩放因子',
+        options: [
+            { displayText: '1.0', value: '1.0' }
+        ]
     }
 };
 
@@ -294,10 +321,14 @@ const openSelection = (type) => {
     if (type === 'quality') {
         qualityCompatibilityMode.value = selectedSettings.value.qualityCompatibility?.value === 'on';
     }
+    
+    if (type === 'highDpi') {
+        dpiScale.value = parseFloat(selectedSettings.value.dpiScale?.value || '1.0');
+    }
 };
 
 const selectOption = (option) => {
-    const electronFeatures = ['desktopLyrics', 'gpuAcceleration', 'minimizeToTray'];
+    const electronFeatures = ['desktopLyrics', 'gpuAcceleration', 'minimizeToTray', 'highDpi'];
     if (!isElectron() && electronFeatures.includes(selectionType.value)) {
         window.$modal.alert(t('fei-ke-hu-duan-huan-jing-wu-fa-qi-yong'));
         return;
@@ -318,6 +349,12 @@ const selectOption = (option) => {
             selectedSettings.value.qualityCompatibility = { 
                 value: qualityCompatibilityMode.value ? 'on' : 'off',
                 displayText: qualityCompatibilityMode.value ? t('kai-qi') : t('guan-bi')
+            };
+        },
+        'highDpi': () => {
+            selectedSettings.value.dpiScale = { 
+                value: dpiScale.value.toString(),
+                displayText: dpiScale.value.toString()
             };
         },
         'desktopLyrics': () => {
@@ -556,6 +593,7 @@ const clearShortcut = (key) => {
 };
 
 const qualityCompatibilityMode = ref(false);
+const dpiScale = ref(1.0);
 </script>
 
 <style scoped>
@@ -799,4 +837,65 @@ const qualityCompatibilityMode = ref(false);
     color: #666;
     line-height: 21px;
 }
+
+.scale-slider-container {
+    margin-top: 15px;
+    text-align: left;
+    padding: 15px;
+    background-color: var(--background-color);
+    border-radius: 8px;
+}
+
+.scale-slider-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.scale-slider-hint {
+    font-size: 12px;
+    color: #666;
+}
+
+.scale-slider-wrapper {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.scale-slider {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    outline: none;
+    border-radius: 3px;
+}
+
+.scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+}
+
+.scale-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    border: none;
+}
+
+.scale-marks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
 </style>
