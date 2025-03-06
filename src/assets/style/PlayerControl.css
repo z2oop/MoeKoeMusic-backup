@@ -508,14 +508,6 @@
     color: var(--primary-color);
 }
 
-.queue-item.marked-as-deleted {
-    text-decoration: line-through;
-    color: #888;
-    transition: all 0.5s ease;
-    opacity: 0.5;
-    pointer-events: none;
-}
-
 .loop-icon {
     position: relative;
     display: inline-block;

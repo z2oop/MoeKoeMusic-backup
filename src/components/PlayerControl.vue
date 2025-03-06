@@ -85,7 +85,7 @@
                                         item.author
                                     )"><i class="fas fa-play"></i></button>
                                     <i class="fas fa-times close-store"
-                                        @click="musicQueueStore.queue.splice(index, 1); $event.target.closest('li').classList.add('marked-as-deleted');"></i>
+                                        @click="removeSongFromQueue(index);"></i>
                                 </template>
                             </div>
                         </li>
@@ -145,7 +145,7 @@
                             <i class="fas fa-step-forward"></i>
                         </button>
                         <button class="control-btn" @click="togglePlaybackMode">
-                            <i v-if="currentPlaybackMode.mode !== 'loop_one'" :class="currentPlaybackMode.icon"
+                            <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon"
                                 :title="currentPlaybackMode.title"></i>
                             <span v-else class="loop-icon" :title="currentPlaybackMode.title">
                                 <i class="fas fa-repeat"></i>
@@ -381,15 +381,19 @@ const playSong = async (song) => {
 
 // 获取音乐高潮
 const getMusicHighlights = async (hash) => {
-    const response = await get(`/song/climax?hash=${hash}`);
-    if (response.status !== 1) {
+    try {
+        const response = await get(`/song/climax?hash=${hash}`);
+        if (response.status !== 1) {
+            climaxPoints.value = [];
+            return;
+        }
+        climaxPoints.value = response.data.map(point => ({
+            position: (parseInt(point.start_time) / 1000 / audio.duration) * 100,
+            duration: parseInt(point.timelength) / 1000
+        }));
+    } catch (error) {
         climaxPoints.value = [];
-        return;
     }
-    climaxPoints.value = response.data.map(point => ({
-        position: (parseInt(point.start_time) / 1000 / audio.duration) * 100,
-        duration: parseInt(point.timelength) / 1000
-    }));
 };
 
 // 从队列中播放歌曲
@@ -752,6 +756,10 @@ const parseLyrics = (text) => {
 
 // 添加到下一首 
 const addToNext = async (hash, name, img, author, timeLength) => {
+    const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
+    if (existingSongIndex !== -1) {
+        removeSongFromQueue(existingSongIndex);
+    }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     musicQueueStore.queue.splice(currentIndex !== -1 ? currentIndex + 1 : musicQueueStore.queue.length, 0, {
         id: musicQueueStore.queue.length + 1,
@@ -761,6 +769,7 @@ const addToNext = async (hash, name, img, author, timeLength) => {
         author: author,
         timeLength: timeLength,
     });
+
     NextSong.value.push({
         id: musicQueueStore.queue.length + 1,
         hash: hash,
@@ -1128,6 +1137,16 @@ const handleKeyDown = (event) => {
             playSongFromQueue('next');
             break;
     }
+};
+
+// 从队列中删除歌曲
+const removeSongFromQueue = (index) => {
+    const updatedQueue = [...musicQueueStore.queue];
+    updatedQueue.splice(index, 1);
+    updatedQueue.forEach((song, i) => {
+        song.id = i + 1;
+    });
+    musicQueueStore.setQueue(updatedQueue);
 };
 </script>
 
