@@ -32,6 +32,7 @@
                 </button>
             </div>
             <div class="extra-controls">
+                <button class="extra-btn" title="桌面歌词" v-if="isElectron()" @click="desktopLyrics"><i class="fas">词</i></button>
                 <button class="extra-btn" title="我喜欢" @click="toLike"><i class="fas fa-heart"></i></button>
                 <button class="extra-btn" title="收藏至" @click="toggleFavorite"><i class="fas fa-add"></i></button>
                 <button class="extra-btn" @click="togglePlaybackMode">
@@ -1147,6 +1148,15 @@ const removeSongFromQueue = (index) => {
         song.id = i + 1;
     });
     musicQueueStore.setQueue(updatedQueue);
+};
+
+const desktopLyrics = () => {
+    let savedConfig = JSON.parse(localStorage.getItem('settings')) || {};
+    if(!savedConfig?.desktopLyrics) savedConfig.desktopLyrics = 'off';
+    let action = savedConfig?.desktopLyrics === 'off' ? 'display-lyrics' : 'close-lyrics';
+    window.electron.ipcRenderer.send('desktop-lyrics-action', action);
+    savedConfig.desktopLyrics = action === 'display-lyrics' ? 'on' : 'off';
+    localStorage.setItem('settings', JSON.stringify(savedConfig));
 };
 </script>
 
