@@ -478,7 +478,6 @@ const addAllSongsToQueue = () => {
     width: 60px;
     height: 60px;
     position: relative;
-    background: linear-gradient(45deg, #f0f4ff, #ffffff);
     border-radius: 12px;
     transform: perspective(500px) rotateY(-15deg);
     transition: transform 0.3s ease;
@@ -539,7 +538,6 @@ const addAllSongsToQueue = () => {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -654,7 +652,7 @@ const addAllSongsToQueue = () => {
     width: 100%;
     height: 100%;
     text-decoration: none;
-    background: linear-gradient(135deg, var(--primary-color), #6c5ce7);
+    background: linear-gradient(135deg, var(--primary-color), #9f92ff);
     border-radius: 15px;
     overflow: hidden;
 }
@@ -727,7 +725,7 @@ const addAllSongsToQueue = () => {
 }
 
 .recommend-card.gradient-background {
-    background: linear-gradient(135deg, #6c5ce7, #f8a3d1);
+    background: linear-gradient(135deg, var(--primary-color), #8ff2ff);
     color: white;
 }
 
@@ -739,7 +737,7 @@ const addAllSongsToQueue = () => {
     width: 100%;
     height: 100%;
     border-radius: 15px;
-    background: linear-gradient(135deg, #6c5ce7, #f8a3d1);
+    background: linear-gradient(135deg, var(--primary-color), #cfff82);
     color: white;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
