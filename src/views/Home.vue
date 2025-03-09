@@ -6,7 +6,7 @@
                 <div class="radio-card">
                     <div class="radio-left">
                         <div class="disc-container">
-                            <img src="@/assets/images/home/radio-disc.png" class="radio-disc" alt="Radio disc">
+                            <img src="@/assets/images/home/hutao1.png" class="radio-disc">
                         </div>
                         <div class="decorative-box">
                             <div class="music-bars">
@@ -39,12 +39,7 @@
                     path: '/Ranking'
                 }" class="ranking-entry">
                     <div class="ranking-content">
-                        <div class="ranking-icon">🏆</div>
-                        <div class="ranking-decoration">
-                            <div class="ranking-bar"></div>
-                            <div class="ranking-bar"></div>
-                            <div class="ranking-bar"></div>
-                        </div>
+                        <img src="@/assets/images/home/hutao2.png" class="ranking-icon">
                         <h3 class="ranking-title">排行榜</h3>
                         <div class="ranking-description">发现你的专属好歌</div>
                     </div>
@@ -69,8 +64,8 @@
         </div>
 
         <h2 class="section-title">
+            <img src="@/assets/images/home/mama.png" class="mama" @click="addAllSongsToQueue">
             {{ $t('mei-ri-tui-jian') }}
-            <span class="play-all-icon" @click="addAllSongsToQueue" title="虽然不明显，但你就当它是个彩蛋吧"><i class="fas fa-music"></i></span>
         </h2>
         <div v-if="isLoading" class="skeleton-loader">
             <div v-for="n in 16" :key="n" class="skeleton-item">
@@ -258,6 +253,12 @@ const addAllSongsToQueue = () => {
     color: var(--primary-color);
 }
 
+.section-title .mama{
+    position: absolute;
+    height: 40px;
+    margin-left: 117px;
+    cursor: cell;
+}
 .recommendations {
     display: flex;
     gap: 35px;
@@ -448,8 +449,7 @@ const addAllSongsToQueue = () => {
 
 .radio-left {
     flex: 0;
-    margin-top: 15px;
-    margin-bottom: 8px;
+    margin-top: 7px;
     display: flex;
     align-items: center;
     width: 100%;
@@ -462,16 +462,14 @@ const addAllSongsToQueue = () => {
 }
 
 .radio-disc {
-    width: 80px;
-    height: 80px;
+    width: 125px;
+    height: 125px;
     object-fit: cover;
     border-radius: 50%;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2),
         inset 0 0 20px rgba(0, 0, 0, 0.1),
         0 2px 4px rgba(255, 255, 255, 0.8);
-    border: 8px solid #e8eeff;
     padding: 2px;
-    background: #fff;
 }
 
 .decorative-box {
@@ -579,7 +577,6 @@ const addAllSongsToQueue = () => {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
 }
 
 .heart-icon {
@@ -667,61 +664,20 @@ const addAllSongsToQueue = () => {
     position: relative;
 }
 
-.ranking-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
+.ranking-icon{
+    width: 135px
 }
 
 .ranking-title {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
     margin-top: 0px;
 }
 
 .ranking-description {
     font-size: 16px;
     opacity: 0.9;
-}
-
-.ranking-decoration {
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-}
-
-.ranking-bar {
-    width: 6px;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 3px;
-    animation: rankingBars 1.5s ease-in-out infinite;
-}
-
-.ranking-bar:nth-child(1) {
-    height: 20px;
-    animation-delay: 0s;
-}
-
-.ranking-bar:nth-child(2) {
-    height: 30px;
-    animation-delay: 0.2s;
-}
-
-.ranking-bar:nth-child(3) {
-    height: 25px;
-    animation-delay: 0.4s;
-}
-
-@keyframes rankingBars {
-
-    0%,
-    100% {
-        transform: scaleY(1);
-    }
-
-    50% {
-        transform: scaleY(0.7);
-    }
 }
 
 .recommend-card.gradient-background {
@@ -766,12 +722,4 @@ const addAllSongsToQueue = () => {
     width: 100%;
     height: 100%;
 }
-
-.play-all-icon {
-    cursor: pointer;
-    font-size: 20px;
-    color: var(--primary-color);
-    transition: transform 0.2s ease;
-}
-
 </style>
