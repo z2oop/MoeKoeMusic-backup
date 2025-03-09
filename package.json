@@ -1,6 +1,6 @@
 {
   "name": "moekoemusic",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "main": "electron/main.js",
   "scripts": {
     "install-all": "npm install && cd api && npm install",
@@ -87,7 +87,7 @@
       "warningsAsErrors": true
     },
     "mac": {
-      "x64ArchFiles": "*", 
+      "x64ArchFiles": "*",
       "icon": "build/icons/icon.icns",
       "target": [
         "dmg",

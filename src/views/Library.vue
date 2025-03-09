@@ -71,9 +71,10 @@
                     </div>
                 </div>
             </template>
-            <div v-if="selectedCategory === 3 || selectedCategory === 4 || selectedCategory === 5" class="music-card"
-                v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : selectedCategory === 4 ? collectedFriends  : [])" :key="index">
-                <img :src="artist.pic" alt="artist avatar" class="album-image" />
+            <div v-if="selectedCategory === 3 || selectedCategory === 4" class="music-card"
+                v-for="(artist, index) in (selectedCategory === 3 ? followedArtists : selectedCategory === 4 ? collectedFriends  : [])" :key="index"
+                @click="goToArtistDetail(artist)">
+                <img :src="artist.pic" class="album-image" />
                 <div class="album-info">
                     <h3>{{ artist.nickname }}</h3>
                 </div>
@@ -207,6 +208,17 @@ const createPlaylist = async () => {
         }
     }
 }
+
+const goToArtistDetail = (artist) => {
+    if (!artist.singerid) return;
+    router.push({
+        path: '/PlaylistDetail',
+        query: { 
+            singerid: artist.singerid,
+            unfollow: true
+        }
+    });
+};
 </script>
 
 <style scoped>
@@ -336,6 +348,7 @@ const createPlaylist = async () => {
 
 .music-card {
     text-align: center;
+    cursor: pointer;
 }
 
 .album-image {
