@@ -125,7 +125,7 @@ const flyingNotes = ref([]);
 let noteId = 0;
 
 // 歌手特有状态
-const isFollowed = computed(() => !!route.query.unfollow);
+const isFollowed = ref(true);
 const followLoading = ref(false);
 
 const props = defineProps({
@@ -133,6 +133,7 @@ const props = defineProps({
 });
 
 onMounted(() => {
+    isFollowed.value = !!route.query.unfollow;
     loadData();
     document.addEventListener('click', handleClickOutside);
 });
@@ -409,6 +410,7 @@ const toggleFollow = async () => {
         console.error('切换关注状态失败:', error);
     } finally {
         followLoading.value = false;
+        localStorage.setItem('t', Date.now());
     }
 };
 

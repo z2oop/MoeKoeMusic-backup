@@ -484,9 +484,88 @@ onMounted(async () => {
 
 @media (max-width: 1200px) {
     .ranking-list {
-        grid-template-columns: 1fr;
-        max-width: 800px;
-        margin: 0 auto;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .ranking-item {
+        height: auto;
+        min-height: 500px;
+    }
+    
+    .rank-header {
+        padding: 15px;
+    }
+    
+    .rank-cover {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .rank-title {
+        font-size: 20px;
+    }
+    
+    .rank-update {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .ranking-container {
+        padding: 10px;
+    }
+    
+    .rank-selector {
+        padding: 12px;
+        gap: 8px;
+    }
+    
+    .rank-chip {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .ranking-list {
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .rank-cover {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .rank-info {
+        margin-left: 10px;
+    }
+    
+    .rank-title {
+        font-size: 16px;
+        margin: 0 0 4px 0;
+    }
+    
+    .song-cover {
+        width: 40px;
+        height: 40px;
+        margin: 0 10px;
+    }
+    
+    .song-rank {
+        width: 30px;
+    }
+    
+    .song-name {
+        font-size: 13px;
+    }
+    
+    .song-author {
+        font-size: 12px;
+    }
+    
+    .album {
+        display: none;
     }
 }
 
@@ -499,4 +578,4 @@ onMounted(async () => {
     z-index: 9999;
     transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
-</style> 
+</style>

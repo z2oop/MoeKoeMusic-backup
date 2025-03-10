@@ -299,15 +299,16 @@ const addAllSongsToQueue = () => {
 .song-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 12px;
     margin-top: 20px;
+    justify-content: flex-start;
 }
 
 .song-item {
     display: flex;
     align-items: center;
-    gap: 15px;
-    width: 250px;
+    gap: 6px;
+    width: calc(20% - 30px);
     background-color: #fff;
     padding: 10px;
     border-radius: 10px;
@@ -329,18 +330,22 @@ const addAllSongsToQueue = () => {
 .song-info {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-width: 0;
 }
 
 .song-title {
     font-size: 16px;
     font-weight: bold;
     color: var(--primary-color);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .song-artist {
     font-size: 14px;
     color: #666;
-    width: 185px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -360,9 +365,68 @@ const addAllSongsToQueue = () => {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 200px;
+    width: calc(16.666% - 30px);
 }
 
+@media screen and (max-width: 1400px) {
+    .playlist-grid {
+        gap: 25px;
+    }
+    
+    .playlist-item {
+        width: calc(20% - 20px);
+    }
+}
+
+@media screen and (max-width: 1200px) {
+    .playlist-grid {
+        gap: 20px;
+    }
+    
+    .playlist-item {
+        width: calc(25% - 15px);
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .playlist-grid {
+        gap: 18px;
+    }
+    
+    .playlist-item {
+        width: calc(25% - 14px);
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .playlist-grid {
+        gap: 15px;
+    }
+    
+    .playlist-item {
+        width: calc(33.333% - 10px);
+        min-width: 150px;
+    }
+    
+    .playlist-title {
+        font-size: 14px;
+    }
+    
+    .playlist-description {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .playlist-grid {
+        gap: 12px;
+    }
+    
+    .playlist-item {
+        width: calc(50% - 6px);
+        min-width: 140px;
+    }
+}
 .playlist-item:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px var(--color-box-shadow);

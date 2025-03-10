@@ -205,7 +205,7 @@ const playlist = async () => {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     padding: 10px;
     text-align: center;
-    width: 200px;
+    width: 180px;
 }
 
 .music-card:hover {
