@@ -50,9 +50,9 @@ jobs:
             COMMITS="* Regular update and bug fixes"
           fi
           # 创建changelog链接
-          CHANGELOG_LINK="https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...v${NEW_VERSION}"
+          CHANGELOG_LINK="https://github.com/${GITHUB_REPOSITORY}/compare/${PREV_TAG}...${{ steps.set-version.outputs.NEW_VERSION }}"
           # 创建release body
-          RELEASE_BODY="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: [${PREV_TAG}...v${NEW_VERSION}](${CHANGELOG_LINK})"
+          RELEASE_BODY="## What's Changed\n\n${COMMITS}\n\n**Full Changelog**: [${PREV_TAG}...${{ steps.set-version.outputs.NEW_VERSION }}](${CHANGELOG_LINK})"
           # 将release body转义后输出
           echo "RELEASE_BODY<<EOF" >> $GITHUB_OUTPUT
           echo -e "$RELEASE_BODY" >> $GITHUB_OUTPUT
@@ -66,7 +66,7 @@ jobs:
           name: "Release ${{ steps.set-version.outputs.NEW_VERSION }}"
           body: ${{ steps.create-release.outputs.RELEASE_BODY }}
           prerelease: false
-          draft: true
+          draft: false
 
   # Windows 端打包并上传到 GitHub Release
   build-windows:
