@@ -164,6 +164,10 @@ html.dark header .user-avatar {
     border-color: #333;
 }
 
+html.dark .primary-btn , html.dark .more-btn-container .more-btn {
+    border: none !important;
+}
+
 /* 按钮 */
 html.dark button {
     background-color: #2a2a2a !important;
@@ -214,15 +218,9 @@ html.dark .music-card .description {
 }
 
 /* PlaylistDetail 页面样式 */
-html.dark .playlist-detail {
-    background-color: #121212;
-    color: #e1e1e1;
+html.dark .detail-page .header .description {
+    color: #666;
 }
-
-html.dark .playlist-detail-page {
-    color: #999;
-}
-
 
 html.dark .playlist-info .description {
     color: #999;
@@ -230,6 +228,7 @@ html.dark .playlist-info .description {
 
 html.dark .track-list .li {
     border-bottom: none;
+    color: #999;
 }
 
 html.dark .track-list .li:hover {
@@ -241,25 +240,8 @@ html.dark .playlist-info .meta {
     color: #999;
 }
 
-
-html.dark .playlist-actions button {
-    background-color: #2a2a2a;
-    color: #e1e1e1;
-    border: 1px solid #373434;
-}
-
-html.dark .playlist-actions button:hover {
-    background-color: #363636;
-}
-
 html.dark .song-list {
     background-color: #121212;
-}
-
-html.dark .song-list-header {
-    background-color: #1d1d1d;
-    color: #999;
-    border-bottom: 1px solid #333;
 }
 
 html.dark .song-item:hover {
@@ -270,24 +252,22 @@ html.dark .song-item .song-name {
     color: #e1e1e1;
 }
 
-html.dark .song-item .album-name {
-    color: #999;
-}
-
-html.dark .song-item .song-album {
-    color: #999;
-}
-
-html.dark .song-item .song-duration {
-    color: #999;
-}
-
-html.dark .song-item .song-actions {
+html.dark .song-item .album-name, html.dark .song-item .song-album, html.dark .song-item .song-duration, html.dark .song-item .song-actions {
     color: #999;
 }
 
 html.dark .song-item .song-actions button {
     color: #e1e1e1;
+}
+
+html.dark .more-btn-container .dropdown-menu {
+    background-color: #1d1d1d;
+    border: none;
+    color: #e1e1e1;
+}
+
+html.dark .more-btn-container .dropdown-menu li:hover {
+    background-color: #2a2a2a;
 }
 
 html.dark .song-item .song-actions button:hover {
@@ -441,4 +421,56 @@ html.dark .queue-play-btn{
 
 html.dark .playlist-select-list li{
     background-color: inherit;
+}
+
+html.dark .tab-button{
+    background-color: #121212!important;
+    border: none!important;
+}
+
+html.dark .search-tabs{
+    border-bottom: 1px solid #333;
+}
+
+html.dark .playlist-card , html.dark .album-card , html.dark .artist-card{
+    background-color: #1d1d1d;
+}
+
+html.dark .playlist-card .playlist-info .playlist-name , html.dark .album-card .album-info .album-name , html.dark .music-card .album-info {
+    color: #e1e1e1;
+}
+
+html.dark .playlist-card .playlist-info .playlist-description {
+    color: #999;
+}
+
+html.dark .playlist-card .playlist-meta .meta-item , html.dark .album-card .album-meta .meta-item, html.dark .artist-card .artist-counts .count-item {
+    background-color: #1d1d1d;
+    border: 1px solid #333;
+}
+
+html.dark .artist-card .artist-avatar {
+    background: #1d1d1d;
+}
+
+html.dark .grid-skeleton .skeleton-grid .skeleton-grid-card  {
+    background: #1d1d1d;
+}
+
+html.dark .skeleton-grid-card .skeleton-avatar , html.dark .skeleton-grid-card .skeleton-line,html.dark .skeleton-grid-card .skeleton-cover {
+    background: #2a2a2a;
+}
+
+html.dark .skeleton-container .song-skeleton .skeleton-cover, html.dark .skeleton-container .song-skeleton .skeleton-line {
+    background: #1d1d1d;
+}
+html.dark .result-item {
+    border: none;
+}
+html.dark .result-item:hover {
+    background-color: #2a2a2a;
+}
+
+html.dark .modal {
+    background-color: #1d1d1d;
 }
