@@ -108,6 +108,8 @@ const selectedSettings = ref({
     lyricsBackground: { displayText: t('da-kai'), value: 'on' },
     desktopLyrics: { displayText: t('guan-bi'), value: 'off' },
     lyricsFontSize: { displayText: t('zhong'), value: '24px' },
+    font: { displayText: '默认字体', value: '' },
+    fontUrl: { displayText: '默认字体', value: '' },
     greetings: { displayText: t('kai-qi'), value: 'on' },
     gpuAcceleration: { displayText: t('guan-bi'), value: 'off' },
     minimizeToTray: { displayText: t('da-kai'), value: 'on' },
@@ -133,6 +135,13 @@ const settingSections = computed(() => [
             {
                 key: 'theme',
                 label: t('wai-guan')
+            },
+            {
+                key: 'font',
+                label: '字体设置',
+                action: openFontSettings,
+                showRefreshHint: true,
+                refreshHintText: t('shua-xin-hou-sheng-xiao')
             }
         ]
     },
@@ -304,6 +313,18 @@ const selectionTypeMap = {
         options: [
             { displayText: '1.0', value: '1.0' }
         ]
+    },
+    font: {
+        title: '字体设置',
+        options: [
+            { displayText: '默认字体', value: '' }
+        ]
+    },
+    fontUrl: {
+        title: '字体文件地址',
+        options: [
+            { displayText: '默认字体', value: '' }
+        ]
     }
 };
 
@@ -311,7 +332,8 @@ const showRefreshHint = ref({
     lyricsBackground: false,
     lyricsFontSize: false,
     gpuAcceleration: false,
-    highDpi: false
+    highDpi: false,
+    font: false
 });
 
 const openSelection = (type) => {
@@ -392,10 +414,18 @@ onMounted(() => {
         for (const key in savedSettings) {
             if (key === 'shortcuts') continue;
             if (selectionTypeMap[key] && selectionTypeMap[key].options) {
-                const displayText = selectionTypeMap[key].options.find(
-                    (option) => option.value === savedSettings[key]
-                )?.displayText || '🌏 ' + t('zi-dong');
-                selectedSettings.value[key] = { displayText, value: savedSettings[key] };
+                if (key === 'font') {
+                    const value = savedSettings[key];
+                    selectedSettings.value[key] = { 
+                        displayText: value || '默认字体',
+                        value: value 
+                    };
+                } else {
+                    const displayText = selectionTypeMap[key].options.find(
+                        (option) => option.value === savedSettings[key]
+                    )?.displayText || '🌏 ' + t('zi-dong');
+                    selectedSettings.value[key] = { displayText, value: savedSettings[key] };
+                }
             }
         }
     }
@@ -590,6 +620,19 @@ onUnmounted(() => {
 
 const clearShortcut = (key) => {
     shortcuts.value[key] = '';
+};
+
+const openFontSettings = async () => {
+    const url = await window.$modal.prompt('请输入字体文件地址', selectedSettings.value.fontUrl?.value || '');
+    if (url) {
+        const family = await window.$modal.prompt('请输入字体名称', selectedSettings.value.font?.value || '');
+        if(family){
+            selectedSettings.value.font = { displayText: family, value: family };
+            selectedSettings.value.fontUrl = { displayText: url, value: url };
+            saveSettings();
+            showRefreshHint.value.font = true;
+        }
+    }
 };
 
 const qualityCompatibilityMode = ref(false);
