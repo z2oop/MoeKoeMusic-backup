@@ -624,14 +624,13 @@ const clearShortcut = (key) => {
 
 const openFontSettings = async () => {
     const url = await window.$modal.prompt('请输入字体文件地址', selectedSettings.value.fontUrl?.value || '');
-    if (url) {
-        const family = await window.$modal.prompt('请输入字体名称', selectedSettings.value.font?.value || '');
-        if(family){
-            selectedSettings.value.font = { displayText: family, value: family };
-            selectedSettings.value.fontUrl = { displayText: url, value: url };
-            saveSettings();
-            showRefreshHint.value.font = true;
-        }
+    const family = await window.$modal.prompt('请输入字体名称', selectedSettings.value.font?.value || '');
+    selectedSettings.value.font = { displayText: family, value: family };
+    selectedSettings.value.fontUrl = { displayText: url, value: url };
+    saveSettings();
+    showRefreshHint.value.font = true;
+    if(family == ''){
+        selectedSettings.value.font = { displayText: '默认字体', value: '' };
     }
 };
 
