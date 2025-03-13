@@ -12,6 +12,7 @@ const store = new Store();
 let mainWindow = null;
 let apiProcess = null;
 let tray = null;
+// import { checkForUpdates } from './updater.js';
 
 // 创建主窗口
 export function createWindow() {
@@ -163,6 +164,12 @@ export function createTray(mainWindow) {
                 shell.openExternal('https://github.com/iAJue/MoeKoeMusic/issues');
             }
         },
+        // {
+        //     label: '检查更新',
+        //     click: () => {
+        //         checkForUpdates(false);
+        //     }
+        // },
         {
             label: '显示/隐藏', accelerator: 'CmdOrCtrl+Shift+S', click: () => {
                 if (mainWindow) {

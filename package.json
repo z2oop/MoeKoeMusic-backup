@@ -22,7 +22,11 @@
     "node": ">=18"
   },
   "build": {
-    "publish": null,
+    "publish": {
+      "provider": "github",
+      "owner": "iAJue",
+      "repo": "MoeKoeMusic"
+    },
     "compression": "maximum",
     "extraResources": [
       {
@@ -68,8 +72,7 @@
             "ia32"
           ]
         }
-      ],
-      "artifactName": "${productName}.${ext}"
+      ]
     },
     "nsis": {
       "oneClick": false,
@@ -132,6 +135,7 @@
     "electron-is-dev": "^3.0.1",
     "electron-log": "^5.2.0",
     "electron-store": "^10.0.0",
+    "electron-updater": "^6.3.9",
     "element-plus": "^2.8.7",
     "pinia": "^2.2.4",
     "pinia-plugin-persistedstate": "^4.1.1",
