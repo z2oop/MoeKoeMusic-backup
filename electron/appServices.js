@@ -136,6 +136,20 @@ export function createLyricsWindow() {
         });
     }
 
+    // 监听窗口移动事件，限制窗口位置
+    lyricsWindow.on('move', () => {
+        const bounds = lyricsWindow.getBounds();
+        const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
+        
+        // 如果窗口移动到工作区域之外，将其移回工作区域内
+        if (bounds.y + bounds.height > screenHeight) {
+            lyricsWindow.setPosition(bounds.x, screenHeight - bounds.height);
+        }
+        if (bounds.y < 0) {
+            lyricsWindow.setPosition(bounds.x, 0);
+        }
+    });
+
     // 设置窗口置顶级别
     lyricsWindow.setAlwaysOnTop(true, 'screen-saver');
 

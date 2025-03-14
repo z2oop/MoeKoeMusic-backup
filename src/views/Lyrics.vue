@@ -67,7 +67,7 @@
         </div>
         <!-- 歌词内容 -->
         <div 
-            class="lyrics-container lyrics-container-hover" 
+            class="lyrics-content-wrapper"
             ref="lyricsContainerRef"
             @mouseenter="handleMouseEnter"
             @mouseleave="handleMouseLeave"
@@ -101,7 +101,7 @@
                     </div>
                 </div>
             </template>
-            <div v-else class="lyrics-content hovering">暂无歌词</div>
+            <div v-else class="lyrics-content hovering nolyrics">暂无歌词</div>
         </div>
     </div>
 </template>
@@ -341,11 +341,25 @@ html {
     user-select: none;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     cursor: inherit;
     font-weight: bold;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
 }
+
+.lyrics-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
 .lyrics-container-hover:not(.locked):hover {
     background-color: rgba(0, 0, 0, 0.5);
 }
@@ -353,8 +367,10 @@ html {
 .controls-overlay {
     opacity: 0;
     transition: opacity 0.3s ease;
-    margin-top: 10px;
+    margin-bottom: 10px;
     height: 40px;
+    position: relative;
+    z-index: 10;
 }
 
 .controls-overlay:hover {
@@ -390,7 +406,7 @@ html {
 }
 
 .controls-wrapper button {
-    background: transparent;
+    background: #020202c4;
     border: none !important;
     color: white;
     cursor: pointer;
@@ -430,6 +446,10 @@ html {
 
 .lyrics-container:not(.locked) .lyrics-content.hovering:hover {
     cursor: move;
+}
+
+.nolyrics{
+    margin-bottom: 30px;
 }
 
 .controls-wrapper:not(.locked-controls) {
