@@ -33,8 +33,8 @@
             </div>
             <div class="extra-controls">
                 <button class="extra-btn" title="桌面歌词" v-if="isElectron()" @click="desktopLyrics"><i class="fas">词</i></button>
-                <button class="extra-btn" title="我喜欢" @click="toLike"><i class="fas fa-heart"></i></button>
-                <button class="extra-btn" title="收藏至" @click="toggleFavorite"><i class="fas fa-add"></i></button>
+                <button class="extra-btn" title="我喜欢" @click="playlistSelect.toLike()"><i class="fas fa-heart"></i></button>
+                <button class="extra-btn" title="收藏至" @click="playlistSelect.fetchPlaylists()"><i class="fas fa-add"></i></button>
                 <button class="extra-btn" @click="togglePlaybackMode">
                     <i v-if="currentPlaybackModeIndex != '2'" :class="currentPlaybackMode.icon"
                         :title="currentPlaybackMode.title"></i>
@@ -133,7 +133,7 @@
                     </div>
 
                     <div class="player-controls">
-                        <button class="control-btn like-btn" title="我喜欢" @click="toLike">
+                        <button class="control-btn like-btn" title="我喜欢" @click="playlistSelect.toLike()">
                             <i class="fas fa-heart"></i>
                         </button>
                         <button class="control-btn" @click="playSongFromQueue('previous')">
@@ -172,22 +172,8 @@
     </transition>
 
     <!-- 歌单选择模态框 -->
-    <transition name="fade">
-        <div v-if="isPlaylistSelectOpen" class="modal">
-            <div class="modal-content">
-                <h3>{{ t('shou-cang-dao') }}</h3>
-                <ul class="playlist-select-list" v-if="playlists.length > 0">
-                    <li v-for="playlist in playlists" 
-                        :key="playlist.list_id" 
-                        @click="addToPlaylist(playlist.listid, currentSong); closePlaylistSelect()">
-                        {{ playlist.name }}
-                    </li>
-                </ul>
-                <div v-else class="no-playlist">{{ t('mei-you-ge-dan') }}</div>
-                <button class="close-btn-modal" @click="closePlaylistSelect">{{ t('guan-bi') }}</button>
-            </div>
-        </div>
-    </transition>
+    <PlaylistSelectModal ref="playlistSelect" :current-song="currentSong" :playlists="playlists"/>
+
 </template>
 
 <script setup>
@@ -195,10 +181,11 @@ import { ref, onMounted, computed, onUnmounted, onBeforeUnmount, nextTick } from
 import { RecycleScroller } from 'vue3-virtual-scroller';
 import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
 import { get } from '../utils/request';
-import { ElMessage } from 'element-plus';
 import { useMusicQueueStore } from '../stores/musicQueue';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
+import PlaylistSelectModal from './PlaylistSelectModal.vue';
+const playlistSelect = ref(null);
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
@@ -232,7 +219,6 @@ const isDraggingHandle = ref(false);
 const climaxPoints = ref([]);
 const NextSong = ref([]);
 const playlists = ref([]);
-const isPlaylistSelectOpen = ref(false);
 const lyricsFontSize = ref('24px');
 const isInputFocused = ref(false);
 const playedSongsStack = ref([]);
@@ -245,60 +231,6 @@ const togglePlaybackMode = () => {
     playedSongsStack.value = [];
     currentStackIndex.value = -1;
     localStorage.setItem('player_playback_mode', currentPlaybackModeIndex.value);
-};
-const validateUserAndSong = () => {
-    if (!MoeAuth.isAuthenticated) {
-        window.$modal.alert(t('qing-xian-deng-lu')); 
-        return false;
-    }
-    if (!currentSong.value.hash) {
-        window.$modal.alert(t('mei-you-zheng-zai-bo-fang-de-ge-qu')); 
-        return false;
-    }
-    return true;
-}
-const toLike = ()=>{
-    if (!validateUserAndSong()) return;
-    const like_id = localStorage.getItem('like');
-    if(!like_id) {window.$modal.alert('先去看看你的收藏夹吧');return;}
-    addToPlaylist(like_id, currentSong.value);
-}
-
-const toggleFavorite = async () => {
-    if (!validateUserAndSong()) return;
-    try {
-        const playlistResponse = await get('/user/playlist',{
-            pagesize:100
-        });
-        if (playlistResponse.status !== 1) {
-            window.$modal.alert(t('huo-qu-ge-dan-shi-bai'));
-            return;
-        }
-        playlists.value = playlistResponse.data.info.filter(
-            playlist => playlist.list_create_userid === MoeAuth.UserInfo.userid
-        );
-        isPlaylistSelectOpen.value = true;
-    } catch (error) {
-        window.$modal.alert(t('shou-cang-shi-bai'));
-    }
-};
-const addToPlaylist = async (listid, song) => {
-    try {
-        await get(`/playlist/tracks/add?listid=${listid}&data=${encodeURIComponent(song.name.replace(',', ''))}|${song.hash}`);
-        ElMessage.success({
-            message: t('cheng-gong-tian-jia-dao-ge-dan'),
-            duration: 2000
-        });
-    } catch (error) {
-        ElMessage.error({
-            message: t('tian-jia-dao-ge-dan-shi-bai'),
-            duration: 2000
-        })
-    }
-    closePlaylistSelect();
-};
-const closePlaylistSelect = () => {
-    isPlaylistSelectOpen.value = false;
 };
 
 onMounted(() => {
@@ -928,7 +860,7 @@ const handleShortcut = (event) => {
             toggleMute();
         });
         window.electron.ipcRenderer.on('toggle-like', () => {
-            toLike();
+            playlistSelect.value.toLike();
         });
         window.electron.ipcRenderer.on('toggle-mode', () => {
             togglePlaybackMode();
