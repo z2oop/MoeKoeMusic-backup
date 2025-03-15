@@ -81,11 +81,11 @@
                         :class="{ 'hovering': isHovering && !isLocked }"
                     >
                         <span
-                            v-for="(char, index) in lyrics[displayedLines[0]]?.characters"
+                            v-for="(segment, index) in processedLyrics[displayedLines[0]]"
                             :key="`line1-${index}`"
                             class="character"
-                            :style="getCharacterStyle(char)"
-                        >{{ char.char }}</span>
+                            :style="getSegmentStyle(segment)"
+                        >{{ segment.text }}</span>
                     </div>
                 </div>
                 <div class="lyrics-line next" v-if="lyrics[displayedLines[1]]">
@@ -93,11 +93,11 @@
                         :class="{ 'hovering': isHovering && !isLocked }"
                     >
                         <span
-                            v-for="(char, index) in lyrics[displayedLines[1]]?.characters"
+                            v-for="(segment, index) in processedLyrics[displayedLines[1]]"
                             :key="`line2-${index}`"
                             class="character"
-                            :style="getCharacterStyle(char)"
-                        >{{ char.char }}</span>
+                            :style="getSegmentStyle(segment)"
+                        >{{ segment.text }}</span>
                     </div>
                 </div>
             </template>
@@ -244,6 +244,7 @@ window.electron.ipcRenderer.on('lyrics-data', (data) => {
         JSON.stringify(lyrics.value) !== JSON.stringify(data.lyricsData)) {
         
         lyrics.value = data.lyricsData;
+        processLyrics(); 
         currentLineIndex.value = 0;
         currentTime.value = 0;
         currentLineScrollX.value = 0;
@@ -315,6 +316,74 @@ const handleMouseLeave = () => {
 const containerStyle = computed(() => ({
     fontSize: `${fontSize.value}px`
 }))
+
+const processedLyrics = ref([])
+
+const processLyrics = () => {
+    if (!lyrics.value || lyrics.value.length === 0) {
+        processedLyrics.value = []
+        return
+    }
+    
+    processedLyrics.value = lyrics.value.map(line => {
+        if (!line?.characters?.length) return []
+        
+        const segments = []
+        let currentSegment = null
+        let isEnglish = false
+        
+        for (let i = 0; i < line.characters.length; i++) {
+            const char = line.characters[i]
+            const isCurrentCharEnglish = /[a-zA-Z]/.test(char.char)
+            
+            if (i === 0 || isCurrentCharEnglish !== isEnglish) {
+                if (currentSegment) {
+                    segments.push(currentSegment)
+                }
+                
+                currentSegment = {
+                    text: char.char,
+                    startTime: char.startTime,
+                    endTime: char.endTime
+                }
+                
+                isEnglish = isCurrentCharEnglish
+            } else {
+                currentSegment.text += char.char
+                currentSegment.endTime = char.endTime
+            }
+        }
+        
+        if (currentSegment) {
+            segments.push(currentSegment)
+        }
+        
+        return segments
+    })
+}
+
+// 获取段落样式
+const getSegmentStyle = (segment) => {
+    const startTime = segment.startTime / 1000
+    const endTime = segment.endTime / 1000
+    const progress = (currentTime.value + 0.5 - startTime) / (endTime - startTime)
+    
+    let fillPercent = 0
+    if (currentTime.value + 0.5 < startTime) {
+        fillPercent = 0
+    } else if (currentTime.value + 0.5 >= endTime) {
+        fillPercent = 100
+    } else {
+        fillPercent = Math.max(0, Math.min(100, progress * 100))
+    }
+    
+    return {
+        backgroundImage: `linear-gradient(to right, ${highlightColor.value} 50%, ${defaultColor.value} 50%)`,
+        backgroundSize: '200% 100%',
+        backgroundPosition: `${100 - fillPercent}% 0`,
+        transition: 'background-position 0.3s ease-out'
+    }
+}
 </script>
 
 <style>
@@ -333,6 +402,7 @@ html {
     -webkit-background-clip: text;
     color: transparent;
     font-weight: bold;
+    letter-spacing: 2px;
 }
 
 .lyrics-container {
