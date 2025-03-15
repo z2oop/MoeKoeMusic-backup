@@ -43,7 +43,7 @@
                         <sup>1</sup>
                     </span>
                 </button>
-                <button class="extra-btn" @click="toggleQueue"><i class="fas fa-list"></i></button>
+                <button class="extra-btn" @click="queueList.openQueue()"><i class="fas fa-list"></i></button>
                 <!-- 音量控制 -->
                 <div class="volume-control" @wheel="handleVolumeScroll">
                     <i :class="isMuted ? 'fas fa-volume-mute' : 'fas fa-volume-up'" @click="toggleMute"></i>
@@ -54,47 +54,10 @@
                 </div>
             </div>
         </div>
-
-
-        <!-- 播放队列 -->
-        <transition name="fade">
-            <div v-if="showQueue" class="queue-popup">
-                <div class="queue-header">
-                    <h3>
-                        <span>{{ $t('bo-fang-lie-biao') }}</span> ({{ musicQueueStore.queue.length }})
-                        <i class="fas fa-trash-alt close-store" @click="musicQueueStore.clearQueue()" title="close"></i>
-                    </h3>
-                </div>
-
-                <RecycleScroller :items="musicQueueStore.queue" :item-size="50" key-field="id" :buffer="200"
-                    :items-limit="2000" :prerender="Math.min(10, musicQueueStore.queue.length)" ref="queueScroller"
-                    class="queue-list">
-                    <template #default="{ item, index }">
-                        <li class="queue-item" :class="{ 'playing': currentSong.hash == item.hash }" :key="item.id">
-                            <div class="queue-song-info">
-                                <span class="queue-song-title">{{ item.name }}</span>
-                                <span class="queue-artist">{{ $formatMilliseconds(item.timeLength) }}</span>
-                            </div>
-                            <div class="queue-actions">
-                                <button v-if="currentSong.hash == item.hash"
-                                    class="queue-play-btn fas fa-music"></button>
-                                <template v-else>
-                                    <button class="queue-play-btn" @click="addSongToQueue(
-                                        item.hash,
-                                        item.name,
-                                        item.img,
-                                        item.author
-                                    )"><i class="fas fa-play"></i></button>
-                                    <i class="fas fa-times close-store"
-                                        @click="removeSongFromQueue(index);"></i>
-                                </template>
-                            </div>
-                        </li>
-                    </template>
-                </RecycleScroller>
-            </div>
-        </transition>
     </div>
+    
+    <!-- 播放队列 -->
+    <QueueList :current-song="currentSong" @add-song-to-queue="addSongToQueue" ref="queueList"/>
 
     <!-- 全屏歌词界面 -->
     <transition name="slide-up">
@@ -177,20 +140,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, onUnmounted, onBeforeUnmount, nextTick } from 'vue';
-import { RecycleScroller } from 'vue3-virtual-scroller';
-import 'vue3-virtual-scroller/dist/vue3-virtual-scroller.css';
+import { ref, onMounted, computed, onUnmounted, onBeforeUnmount } from 'vue';
 import { get } from '../utils/request';
 import { useMusicQueueStore } from '../stores/musicQueue';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
 import PlaylistSelectModal from './PlaylistSelectModal.vue';
+import QueueList from './QueueList.vue';
+const queueList = ref(null);
 const playlistSelect = ref(null);
 const MoeAuth = MoeAuthStore();
 const { t } = useI18n();
 const showLyrics = ref(false); // 是否显示歌词
 const isDragging = ref(false);
-const showQueue = ref(false);
 const currentSong = ref({ name: '', author: '', img: '', url: '', hash: '' }); // 当前播放的音乐信息
 const playing = ref(false); // 是否正在播放
 const isMuted = ref(false); // 是否静音
@@ -205,7 +167,6 @@ const currentTime = ref(0);
 const SongTips = ref(t('zan-wu-ge-ci'));
 const lyricsBackground = ref('on');
 let currentLineIndex = 0;
-const queueScroller = ref(null);
 const timeoutId = ref(null);
 const playbackModes = ref([
     { icon: 'fas fa-random', title: t('sui-ji-bo-fang') },
@@ -623,16 +584,6 @@ const handleAudioEvent = (event) => {
 
 audio.addEventListener('pause', handleAudioEvent);
 audio.addEventListener('play', handleAudioEvent);
-const toggleQueue = async () => {
-    showQueue.value = !showQueue.value;
-    if (showQueue.value) {
-        await nextTick();
-        setTimeout(() => {
-            const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
-            queueScroller.value.scrollToItem(currentIndex - 3);
-        }, 100);
-    }
-};
 
 const toggleLyrics = async () => {
     showLyrics.value = !showLyrics.value;
@@ -648,20 +599,25 @@ const toggleLyrics = async () => {
 
 // 请求歌词
 const getLyrics = async (hash) => {
-    const savedConfig = JSON.parse(localStorage.getItem('settings'));
-    if (!showLyrics.value && savedConfig?.desktopLyrics === 'off') return;
-    const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
-    if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
-        SongTips.value = t('zan-wu-ge-ci');
-        return;
-    }
-    const lyricResponse = await get(`/lyric?id=${lyricSearchResponse.candidates[0].id}&accesskey=${lyricSearchResponse.candidates[0].accesskey}&decode=true`);
-    if (lyricResponse.status !== 200) {
+    try {
+        const savedConfig = JSON.parse(localStorage.getItem('settings'));
+        if (!showLyrics.value && savedConfig?.desktopLyrics === 'off') return;
+        const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
+        if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
+            SongTips.value = t('zan-wu-ge-ci');
+            return;
+        }
+        const lyricResponse = await get(`/lyric?id=${lyricSearchResponse.candidates[0].id}&accesskey=${lyricSearchResponse.candidates[0].accesskey}&decode=true`);
+        if (lyricResponse.status !== 200) {
+            SongTips.value = t('huo-qu-ge-ci-shi-bai');
+            return;
+        }
+        parseLyrics(lyricResponse.decodeContent);
+        centerFirstLine();
+    } catch (error) {
         SongTips.value = t('huo-qu-ge-ci-shi-bai');
         return;
     }
-    parseLyrics(lyricResponse.decodeContent);
-    centerFirstLine();
 }
 
 const parseLyrics = (text) => {
@@ -691,7 +647,7 @@ const parseLyrics = (text) => {
 const addToNext = async (hash, name, img, author, timeLength) => {
     const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
     if (existingSongIndex !== -1) {
-        removeSongFromQueue(existingSongIndex);
+        queueList.value.removeSongFromQueue(existingSongIndex);
     }
     const currentIndex = musicQueueStore.queue.findIndex(song => song.hash === currentSong.value.hash);
     musicQueueStore.queue.splice(currentIndex !== -1 ? currentIndex + 1 : musicQueueStore.queue.length, 0, {
@@ -785,12 +741,7 @@ defineExpose({
     currentSong
 });
 
-onMounted(() => {
-    document.addEventListener('click', handleClickOutside);
-});
-
 onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside);
     if (isElectron()) {
         window.electron.ipcRenderer.removeAllListeners('play-previous-track');
         window.electron.ipcRenderer.removeAllListeners('play-next-track');
@@ -809,12 +760,6 @@ onBeforeUnmount(() => {
 });
 const isElectron = () => {
     return typeof window !== 'undefined' && typeof window.electron !== 'undefined';
-};
-const handleClickOutside = (event) => {
-    const queuePopup = document.querySelector('.queue-popup');
-    if (queuePopup && !queuePopup.contains(event.target) && !event.target.closest('.extra-btn')) {
-        showQueue.value = false;
-    }
 };
 const handleVolumeScroll = (event) => {
     event.preventDefault();
@@ -1070,16 +1015,6 @@ const handleKeyDown = (event) => {
             playSongFromQueue('next');
             break;
     }
-};
-
-// 从队列中删除歌曲
-const removeSongFromQueue = (index) => {
-    const updatedQueue = [...musicQueueStore.queue];
-    updatedQueue.splice(index, 1);
-    updatedQueue.forEach((song, i) => {
-        song.id = i + 1;
-    });
-    musicQueueStore.setQueue(updatedQueue);
 };
 
 const desktopLyrics = () => {
