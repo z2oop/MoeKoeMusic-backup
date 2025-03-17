@@ -22,11 +22,7 @@
     "node": ">=18"
   },
   "build": {
-    "publish": {
-      "provider": "github",
-      "owner": "iAJue",
-      "repo": "MoeKoeMusic"
-    },
+    "publish": null,
     "compression": "maximum",
     "extraResources": [
       {
