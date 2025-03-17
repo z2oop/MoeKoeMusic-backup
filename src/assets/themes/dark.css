@@ -474,3 +474,19 @@ html.dark .result-item:hover {
 html.dark .modal {
     background-color: #1d1d1d;
 }
+
+html.dark .shortcut-modal .shortcut-modal-content {
+    background-color: #1d1d1d;
+    color: #e1e1e1;
+}
+html.dark .shortcut-modal .shortcut-input{
+    background-color: #2a2a2a;
+}
+
+html.dark .shortcut-modal .shortcut-item {
+    border-bottom: 1px solid #333;
+}
+
+html.dark .scale-slider-container , html.dark .compatibility-option{
+    background-color: #2a2a2a;
+}

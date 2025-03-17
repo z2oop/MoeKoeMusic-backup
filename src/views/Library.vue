@@ -9,6 +9,7 @@
             <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
                 :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`${$t('chang-ting-ban')} ${userVip[1].vip_end_time}`" />
+            <span class="sign-in" @click="signIn">签到</span>
         </div>
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
@@ -219,9 +220,29 @@ const goToArtistDetail = (artist) => {
         }
     });
 };
+const signIn = async () => {
+    try {
+        const res = await get('/youth/vip');
+        if (res.status === 1) {
+            window.$modal.alert(`签到成功，获得${res.data.award_vip_hour}小时VIP时长`);
+        }
+    } catch (error) {
+        window.$modal.alert('签到失败，请勿频繁签到');
+    }
+}
 </script>
 
 <style scoped>
+.sign-in {
+    cursor: pointer;
+    color: var(--primary-color);
+    margin-left: 10px;
+    border-radius: 5px;
+    padding: 2px 8px;
+    border: 1px solid var(--primary-color);
+    font-size: 12px;
+}
+
 .library-page {
     padding: 20px;
 }

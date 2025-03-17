@@ -155,14 +155,6 @@ watch(() => route.query.q, (newQuery) => {
     performSearch();
 });
 
-watch(() => route.query.type, (newType) => {
-    if (newType) {
-        searchType.value = newType;
-        currentPage.value = 1;
-        performSearch();
-    }
-});
-
 const props = defineProps({
     playerControl: Object
 });
