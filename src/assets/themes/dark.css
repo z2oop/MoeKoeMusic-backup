@@ -219,7 +219,7 @@ html.dark .music-card .description {
 
 /* PlaylistDetail 页面样式 */
 html.dark .detail-page .header .description {
-    color: #666;
+    color: #777;
 }
 
 html.dark .playlist-info .description {
@@ -436,7 +436,7 @@ html.dark .playlist-card , html.dark .album-card , html.dark .artist-card{
     background-color: #1d1d1d;
 }
 
-html.dark .playlist-card .playlist-info .playlist-name , html.dark .album-card .album-info .album-name , html.dark .music-card .album-info {
+html.dark .playlist-card .playlist-info .playlist-name , html.dark .album-card .album-info .album-name , html.dark .music-card .album-info, html.dark .artist-info .artist-name {
     color: #e1e1e1;
 }
 
