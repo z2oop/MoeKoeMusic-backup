@@ -158,12 +158,17 @@ export function createLyricsWindow() {
 }
 
 // 创建托盘图标及菜单
-export function createTray(mainWindow) {
+export function createTray(mainWindow, title='') {
+    if(tray && title) {
+        tray.setToolTip(title);
+        return tray;
+    }
     const trayIconPath = isDev
         ? path.join(__dirname, '../build/icons/tray-icon.png')
         : ((process.platform === 'win32') ? path.join(process.resourcesPath, 'icons', 'tray-icon.ico') : path.join(process.resourcesPath, 'icons', 'tray-icon.png'));
 
     tray = new Tray(trayIconPath);
+    tray.setToolTip('MoeKoe Music');
 
     const contextMenu = Menu.buildFromTemplate([
         {
@@ -204,8 +209,6 @@ export function createTray(mainWindow) {
             }
         }
     ]);
-
-    tray.setToolTip('MoeKoe Music');
 
     switch (process.platform) {
         case 'linux':

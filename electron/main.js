@@ -220,3 +220,8 @@ ipcMain.on('play-pause-action',(event, playing) =>{
 ipcMain.on('open-url', (event, url) => {
     shell.openExternal(url);
 })
+
+ipcMain.on('set-tray-title', (event, title) => {
+    createTray(mainWindow, '正在播放：' + title);
+    mainWindow.setTitle(title);
+})

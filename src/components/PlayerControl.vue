@@ -487,6 +487,9 @@ const addPlaylistToQueue = async (info) => {
 // 添加歌曲到队列并播放的方法
 const addSongToQueue = async (hash, name, img, author, isReset = true) => {
     const currentSongHash = currentSong.value.hash;
+    if(isElectron()){
+        window.electron.ipcRenderer.send('set-tray-title', name + ' - ' + author);
+    }
     try {
         clearTimeout(timeoutId.value);
         currentSong.value.author = author;
