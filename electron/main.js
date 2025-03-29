@@ -1,4 +1,4 @@
-import { app, ipcMain, globalShortcut, dialog, Notification } from 'electron';
+import { app, ipcMain, globalShortcut, dialog, Notification, shell } from 'electron';
 import { 
     createWindow, createTray, startApiServer, 
     stopApiServer, registerShortcut, 
@@ -215,4 +215,8 @@ ipcMain.on('play-pause-action',(event, playing) =>{
         lyricsWindow.webContents.send('playing-status', playing);
     }
     setThumbarButtons(mainWindow, playing);
+})
+
+ipcMain.on('open-url', (event, url) => {
+    shell.openExternal(url);
 })
