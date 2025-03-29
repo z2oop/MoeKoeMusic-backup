@@ -94,8 +94,8 @@ jobs:
 
       - name: Rename Windows artifact
         run: |
-          mv "./dist_electron/MoeKoe Music.exe" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
-          mv "./dist_electron/MoeKoe Music.exe.blockmap" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe.blockmap"
+          mv "./dist_electron/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe"
+          mv "./dist_electron/MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe.blockmap" "./MoeKoe_Music_Setup_${{ needs.increment-version.outputs.version }}.exe.blockmap"
           mv "./dist_electron/latest.yml" "./latest.yml"
 
       - name: Upload Windows artifact to GitHub Release
@@ -178,7 +178,7 @@ jobs:
       - name: Rename Linux artifacts
         run: |
           mv "./dist_electron/MoeKoe Music.AppImage" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage"
-          mv "./dist_electron/MoeKoe Music.deb" "./MoeKoe Music_${{ needs.increment-version.outputs.version }}_amd64.deb"
+          mv "./dist_electron/MoeKoe Music.deb" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}_amd64.deb"
 
       - name: Upload Linux artifacts to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -188,5 +188,5 @@ jobs:
           name: "Release ${{ needs.increment-version.outputs.version }}"
           files: |
             ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}.AppImage
-            ./MoeKoe Music_${{ needs.increment-version.outputs.version }}_amd64.deb
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}_amd64.deb
         
