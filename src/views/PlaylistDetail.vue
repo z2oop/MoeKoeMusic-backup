@@ -480,7 +480,8 @@ const scrollToFirstItem = () => {
     recycleScrollerRef.value.scrollToItem(0, { behavior: 'smooth' });
     window.scrollTo({
         top: 0,
-        behavior: 'smooth' 
+        behavior: 'smooth',
+        scrollSource: 'manual-button-click' 
     });
 };
 
