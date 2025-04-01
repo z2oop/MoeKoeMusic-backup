@@ -152,6 +152,7 @@ export function createLyricsWindow() {
 
     // 设置窗口置顶级别
     lyricsWindow.setAlwaysOnTop(true, 'screen-saver');
+    lyricsWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
     // 允许窗口透明
     lyricsWindow.setBackgroundColor('#00000000');
@@ -414,7 +415,8 @@ export function playStartupSound() {
     try {
         switch (process.platform) {
             case 'win32':
-                exec(`powershell -c (New-Object Media.SoundPlayer '${soundPath}').PlaySync()`);
+                const escapedPath = soundPath.replace(/'/g, "''");
+                exec(`powershell -c "Add-Type -AssemblyName PresentationCore; $player = New-Object System.Windows.Media.MediaPlayer; $player.Open('${escapedPath}'); $player.Play(); Start-Sleep -s 3; $player.Stop()"`);
                 break;
             case 'darwin':
                 exec(`afplay "${soundPath}"`);
@@ -428,7 +430,7 @@ export function playStartupSound() {
                 break;
         }
     } catch (error) {
-        console.error('播放启动问候语失败:', error);
+        log.error('播放启动问候语失败:', error);
     }
 }
 
