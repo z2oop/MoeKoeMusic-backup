@@ -10,6 +10,7 @@
                 :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
                 :title="`${$t('chang-ting-ban')} ${userVip[1].vip_end_time}`" />
             <span class="sign-in" @click="signIn">签到</span>
+            <span class="sign-in" @click="getVip">VIP</span>
         </div>
         <h2 class="section-title" style="margin-bottom: 0px;">{{ $t('wo-xi-huan-ting') }}</h2>
         <div class="favorite-section">
@@ -228,6 +229,16 @@ const signIn = async () => {
         }
     } catch (error) {
         window.$modal.alert('签到失败，请勿频繁签到');
+    }
+}
+const getVip = async () => {
+    try{
+        const vipResponse = await get('/youth/day/vip');
+        if (vipResponse.status === 1) {
+            window.$modal.alert(`签到成功，获得1天畅听VIP`);
+        }
+    } catch (error) {
+        window.$modal.alert('获取VIP失败, 一天仅限一次');
     }
 }
 </script>
