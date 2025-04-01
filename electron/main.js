@@ -4,7 +4,7 @@ import {
     stopApiServer, registerShortcut, 
     playStartupSound, createLyricsWindow, setThumbarButtons 
 } from './appServices.js';
-// import { setupAutoUpdater, checkForUpdates } from './updater.js';
+import { setupAutoUpdater } from './updater.js';
 import Store from 'electron-store';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -34,10 +34,7 @@ app.on('ready', () => {
             createTray(mainWindow);
             playStartupSound();
             registerShortcut();
-            // setupAutoUpdater(mainWindow);
-            // setTimeout(() => {
-            //     checkForUpdates(true);
-            // }, 3000);
+            setupAutoUpdater(mainWindow);
         } catch (error) {
             console.log('初始化应用时发生错误:', error);
             createTray(null);

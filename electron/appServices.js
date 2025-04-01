@@ -7,12 +7,12 @@ import { fileURLToPath } from 'url';
 import isDev from 'electron-is-dev';
 import fs from 'fs';
 import { exec } from 'child_process';
+import { checkForUpdates } from './updater.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const store = new Store();
 let mainWindow = null;
 let apiProcess = null;
 let tray = null;
-// import { checkForUpdates } from './updater.js';
 
 // 创建主窗口
 export function createWindow() {
@@ -173,25 +173,51 @@ export function createTray(mainWindow, title='') {
 
     const contextMenu = Menu.buildFromTemplate([
         {
-            label: '项目主页',
+            label: '项目主页', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/home.png') : path.join(process.resourcesPath, 'icons', 'menu', 'home.png'),
             click: () => {
                 shell.openExternal('https://github.com/iAJue/');
             }
         },
         {
-            label: '反馈bug',
+            label: '反馈bug', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/bug.png') : path.join(process.resourcesPath, 'icons', 'menu', 'bug.png'),
             click: () => {
                 shell.openExternal('https://github.com/iAJue/MoeKoeMusic/issues');
             }
         },
-        // {
-        //     label: '检查更新',
-        //     click: () => {
-        //         checkForUpdates(false);
-        //     }
-        // },
         {
-            label: '显示/隐藏', accelerator: 'CmdOrCtrl+Shift+S', click: () => {
+            label: '上一首', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/prev.png') : path.join(process.resourcesPath, 'icons', 'menu', 'prev.png'), accelerator: 'Alt+CommandOrControl+Left', 
+            click: () => {
+                mainWindow.webContents.send('play-previous-track');
+            }
+        },
+        {
+            label: '暂停', accelerator: 'Alt+CommandOrControl+Space', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/play.png') : path.join(process.resourcesPath, 'icons', 'menu', 'play.png'),
+            click: () => {
+                mainWindow.webContents.send('toggle-play-pause');
+            }
+        },
+        {
+            label: '下一首', accelerator: 'Alt+CommandOrControl+Right', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/next.png') : path.join(process.resourcesPath, 'icons', 'menu', 'next.png'),
+            click: () => {
+                mainWindow.webContents.send('play-next-track');
+            }
+        },
+        {
+            label: '检查更新', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/update.png') : path.join(process.resourcesPath, 'icons', 'menu', 'update.png'),
+            click: () => {
+                checkForUpdates(false);
+            }
+        },
+        {
+            label: '显示/隐藏', accelerator: 'CmdOrCtrl+Shift+S', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/show.png') : path.join(process.resourcesPath, 'icons', 'menu', 'show.png'),
+            click: () => {
                 if (mainWindow) {
                     if (mainWindow.isVisible()) {
                         mainWindow.hide();
@@ -202,8 +228,8 @@ export function createTray(mainWindow, title='') {
             }
         },
         {
-            label: '退出程序',
-            accelerator: 'CmdOrCtrl+Q',
+            label: '退出程序', accelerator: 'CmdOrCtrl+Q', 
+            icon: isDev ? path.join(__dirname, '../build/icons/menu/quit.png') : path.join(process.resourcesPath, 'icons', 'menu', 'quit.png'),
             click: () => {
                 app.isQuitting = true;
                 app.quit();
