@@ -464,11 +464,16 @@ const getPlaylistAllSongs = async (id) => {
 }
 
 // 添加歌单到播放列表
-const addPlaylistToQueue = async (info) => {
-    musicQueueStore.clearQueue();
-    const songs = info.map((song, index) => {
+const addPlaylistToQueue = async (info, append = false) => {
+    let songs = [];
+    if(!append) {
+        musicQueueStore.clearQueue();
+    }else{
+        songs = [...musicQueueStore.queue];
+    }
+    const newSongs = info.map((song, index) => {
         return {
-            id: index + 1,
+            id: songs.length + index + 1,
             hash: song.hash,
             name: song.name,
             img: song.cover?.replace("{size}", 480) || './assets/images/ico.png',
@@ -476,6 +481,12 @@ const addPlaylistToQueue = async (info) => {
             timeLength: song.timelen
         };
     });
+    
+    if(append) {
+        songs = [...songs, ...newSongs];
+    } else {
+        songs = newSongs;
+    }
     musicQueueStore.queue = songs;
     let startIndex = 0;
     if (currentPlaybackModeIndex.value == 0) {

@@ -38,6 +38,9 @@
                                 <li @click="sharePlaylist">
                                     <i class="fas fa-share-alt"></i>
                                 </li>
+                                <li @click="addPlaylistToQueue($event,true)" title="添加至播放列表">
+                                    <i class="fas fa-add"></i>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -373,7 +376,7 @@ const playSong = (hash, name, img, author) => {
 };
 
 // 添加整个播放列表到队列
-const addPlaylistToQueue = (event) => {
+const addPlaylistToQueue = (event, append = false) => {
     const playButton = event.currentTarget;
     const rect = playButton.getBoundingClientRect();
     const note = {
@@ -389,7 +392,7 @@ const addPlaylistToQueue = (event) => {
     setTimeout(() => {
         flyingNotes.value = flyingNotes.value.filter(n => n.id !== note.id);
     }, 1500);
-    props.playerControl.addPlaylistToQueue(filteredTracks.value);
+    props.playerControl.addPlaylistToQueue(filteredTracks.value, append);
 };
 
 // 切换关注状态
