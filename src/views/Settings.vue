@@ -81,6 +81,13 @@
                 </div>
             </div>
         </div>
+        
+        <div class="reset-settings-container">
+            <button @click="openResetConfirmation" class="reset-settings-button">
+                <i class="fas fa-sync-alt"></i>
+                重置所有配置项
+            </button>
+        </div>
         <div class="version-info">
             <p>© MoeKoe Music</p>
             <span v-if="appVersion">V{{ appVersion }} - {{ platform }}</span>
@@ -636,6 +643,16 @@ const openFontSettings = async () => {
 
 const qualityCompatibilityMode = ref(false);
 const dpiScale = ref(1.0);
+const showResetConfirmation = ref(false);
+
+const openResetConfirmation = async () => {
+    const result = await window.$modal.confirm('你确定要重置所有配置吗？此操作不可恢复！');
+    if(result){
+        localStorage.clear();
+        isElectron() && window.electron.ipcRenderer.send('clear-settings');
+        window.$modal.alert('重置成功，重启生效');
+    }
+};
 </script>
 
 <style scoped>
@@ -940,4 +957,25 @@ const dpiScale = ref(1.0);
     color: #666;
 }
 
+.reset-settings-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0 20px 0;
+}
+
+.reset-settings-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 17px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.reset-settings-button:hover {
+    background-color: #e53935;
+}
 </style>

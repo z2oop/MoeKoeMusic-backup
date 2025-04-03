@@ -475,6 +475,10 @@ html.dark .modal {
     background-color: #1d1d1d;
 }
 
+html.dark .settings-page .modal{
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
 html.dark .shortcut-modal .shortcut-modal-content {
     background-color: #1d1d1d;
     color: #e1e1e1;
@@ -489,4 +493,17 @@ html.dark .shortcut-modal .shortcut-item {
 
 html.dark .scale-slider-container , html.dark .compatibility-option{
     background-color: #2a2a2a;
+}
+
+html.dark .track-list-header-row{
+    color: #999;
+}
+html.dark .batch-actions-menu{
+    background-color: #1d1d1d;
+    border: none;
+    color: #999;
+}
+html.dark .batch-actions-menu li:hover{
+    background-color: #2a2a2a;
+    border-radius: 5px;
 }

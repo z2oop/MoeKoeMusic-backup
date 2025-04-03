@@ -5,7 +5,6 @@ import App from './App.vue';
 import router from './router/router';
 import { formatMilliseconds, getCover, applyColorTheme, setTheme, getQuality } from '../src/utils/utils';
 import ModalPlugin from './plugins/ModalPlugin';
-import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import i18n from './utils/i18n';
 import '@/assets/themes/dark.css';
@@ -36,6 +35,5 @@ app.use(pinia);
 app.use(router);
 app.use(i18n);
 app.use(ModalPlugin);
-app.use(ElementPlus);
 
 app.mount('#app');

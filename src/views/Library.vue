@@ -4,10 +4,10 @@
             <img class="profile-pic" :src="user.pic" alt="{{ $t('yong-hu-tou-xiang') }}" />
             <h2 class="section-title">{{ user.nickname }}<span>{{ $t('de-yin-le-ku') }}</span></h2>
             <img v-if="userVip[0] && userVip[0].is_vip == 1" class="user-level"
-                :src="`./assets/images/${userVip[0].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
+                :src="`./assets/images/${userVip[0].product_type === 'svip' ? 'vip' : 'vip2'}.png`"
                 :title="`${$t('gai-nian-ban')} ${userVip[0].vip_end_time}`" />
             <img v-if="userVip[1] && userVip[1].is_vip == 1" class="user-level"
-                :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip2' : 'vip'}.png`"
+                :src="`./assets/images/${userVip[1].product_type === 'svip' ? 'vip' : 'vip2'}.png`"
                 :title="`${$t('chang-ting-ban')} ${userVip[1].vip_end_time}`" />
             <span class="sign-in" @click="signIn">签到</span>
             <span class="sign-in" @click="getVip">VIP</span>
@@ -95,6 +95,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { get } from '../utils/request';
+import { ElMessage } from 'element-plus';
 import { MoeAuthStore } from '../stores/store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';

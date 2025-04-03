@@ -149,6 +149,9 @@ app.on('will-quit', () => {
 ipcMain.on('save-settings', (event, settings) => {
     store.set('settings', settings);
 });
+ipcMain.on('clear-settings', (event) => {
+    store.clear();
+});
 ipcMain.on('custom-shortcut', (event) => {
     registerShortcut();
 });
