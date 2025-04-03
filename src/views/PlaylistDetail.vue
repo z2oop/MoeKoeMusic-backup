@@ -62,7 +62,7 @@
                             <input type="checkbox" v-model="batchSelectionMode" /> 批量操作
                             <span v-if="selectedTracks.length > 0" class="selected-count">{{ selectedTracks.length }}</span>
                         </button>
-                        <div v-if="batchSelectionMode && selectedTracks.length > 0" class="batch-actions-menu">
+                        <div v-if="batchSelectionMode && isBatchMenuVisible && selectedTracks.length > 0" class="batch-actions-menu">
                             <ul>
                                 <li @click="appendSelectedToQueue"><i class="fas fa-list"></i> 添加到播放列表 </li>
                                 <li @click="addSelectedToOtherPlaylist" v-if="MoeAuth.UserInfo?.userid"><i class="fas fa-folder-plus"></i> 添加到其他歌单</li>
@@ -74,6 +74,27 @@
                     <input type="text" v-model="searchQuery" @keyup.enter="searchTracks" :placeholder="t('sou-suo-ge-qu')" class="search-input" />
                 </div>
             </div>
+
+            <!-- 表头 -->
+            <div class="track-list-header-row">
+                <div class="track-checkbox-header" v-if="batchSelectionMode">
+                    <input type="checkbox" :checked="isAllSelected" @click="toggleSelectAll">
+                </div>
+                <div class="track-number-header" v-else>♪</div>
+                <div class="track-title-header" @click="sortTracks('name')">
+                    歌名 <i class="fas" :class="getSortIconClass('name')"></i>
+                </div>
+                <div class="track-artist-header" @click="sortTracks('author')">
+                    歌手 <i class="fas" :class="getSortIconClass('author')"></i>
+                </div>
+                <div class="track-album-header" @click="sortTracks('album')">
+                    专辑 <i class="fas" :class="getSortIconClass('album')"></i>
+                </div>
+                <div class="track-timelen-header" @click="sortTracks('timelen')">
+                    时间 <i class="fas" :class="getSortIconClass('timelen')"></i>
+                </div>
+            </div>
+
             <RecycleScroller ref="recycleScrollerRef" :items="filteredTracks" :item-size="50" class="track-list" key-field="hash">
                 <template #default="{ item, index }">
                     <div class="li" :key="item.hash"
@@ -157,10 +178,20 @@ const followLoading = ref(false);
 
 // 批量选择相关状态
 const batchSelectionMode = ref(false);
+const isBatchMenuVisible = ref(false);
 const selectedTracks = ref([]);
 let lastSelectedIndex = -1;
 const isPlaylistsDropdownVisible = ref(false);
 const songs = ref([]);
+
+// 排序状态
+const sortField = ref('');
+const sortOrder = ref('asc');
+
+// 判断是否全选
+const isAllSelected = computed(() => {
+    return selectedTracks.value.length === filteredTracks.value.length && filteredTracks.value.length > 0;
+});
 
 const props = defineProps({
     playerControl: Object
@@ -526,6 +557,13 @@ const handleClickOutside = (event) => {
     if (dropdown && !dropdown.contains(event.target) && !moreBtn.contains(event.target)) {
         isDropdownVisible.value = false;
     }
+    
+    // 处理批量操作菜单
+    const batchActionsMenu = document.querySelector('.batch-actions-menu');
+    const batchActionBtn = document.querySelector('.batch-action-btn');
+    if (batchActionsMenu && !batchActionsMenu.contains(event.target) && !batchActionBtn.contains(event.target)) {
+        isBatchMenuVisible.value = false;
+    }
 };
 
 // 切换下拉菜单显示状态
@@ -535,10 +573,22 @@ const toggleDropdown = () => {
 
 // 切换批量选择模式
 const toggleBatchSelection = () => {
-    batchSelectionMode.value = !batchSelectionMode.value;
-    if (!batchSelectionMode.value) {
-        selectedTracks.value = [];
-        lastSelectedIndex = -1;
+    if (batchSelectionMode.value) {
+        // 如果已经在批量选择模式，则切换菜单显示或退出模式
+        if (isBatchMenuVisible.value) {
+            // 如果菜单已经显示，则点击后退出批量选择模式
+            batchSelectionMode.value = false;
+            isBatchMenuVisible.value = false;
+            selectedTracks.value = [];
+            lastSelectedIndex = -1;
+        } else {
+            // 如果菜单未显示，则显示菜单
+            isBatchMenuVisible.value = true;
+        }
+    } else {
+        // 首次进入批量选择模式
+        batchSelectionMode.value = true;
+        isBatchMenuVisible.value = false;
     }
 };
 
@@ -581,7 +631,7 @@ const appendSelectedToQueue = async () => {
     const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
     await props.playerControl.addPlaylistToQueue(selectedSongs, true);
     ElMessage.success('添加到播放列表成功');
-    toggleBatchSelection();
+    isBatchMenuVisible.value = false;
 };
 
 // 将选中歌曲添加到其他歌单
@@ -590,7 +640,7 @@ const addSelectedToOtherPlaylist = async () => {
     const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
     songs.value =  selectedSongs;
     await playlistSelect.value.fetchPlaylists();
-    toggleBatchSelection();
+    isBatchMenuVisible.value = false;
 };
 
 // 从歌单中移除选中的歌曲
@@ -613,12 +663,60 @@ const removeSelectedFromPlaylist = async () => {
             });
             filteredTracks.value = tracks.value;
             ElMessage.success('歌曲已从歌单中移除');
-            toggleBatchSelection();
         } catch (err) {
             ElMessage.error('移除歌曲失败');
             return;
         }
     }
+    isBatchMenuVisible.value = false;
+};
+
+// 切换全选/取消全选
+const toggleSelectAll = () => {
+    if (isAllSelected.value) {
+        selectedTracks.value = [];
+    } else {
+        selectedTracks.value = Array.from({ length: filteredTracks.value.length }, (_, i) => i);
+    }
+};
+
+// 根据字段排序
+const sortTracks = (field) => {
+    if (sortField.value === field) {
+        sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortField.value = field;
+        sortOrder.value = 'asc';
+    }
+    
+    filteredTracks.value = [...filteredTracks.value].sort((a, b) => {
+        let valueA, valueB;
+        
+        if (field === 'timelen') {
+            valueA = a[field] || 0;
+            valueB = b[field] || 0;
+        } else {
+            valueA = (a[field] || '').toLowerCase();
+            valueB = (b[field] || '').toLowerCase();
+        }
+        
+        if (sortOrder.value === 'asc') {
+            return valueA > valueB ? 1 : -1;
+        } else {
+            return valueA < valueB ? 1 : -1;
+        }
+    });
+    
+    if (batchSelectionMode.value) {
+        selectedTracks.value = [];
+    }
+};
+
+const getSortIconClass = (field) => {
+    if (sortField.value !== field) {
+        return 'fa-sort';
+    }
+    return sortOrder.value === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
 };
 </script>
 
@@ -1044,5 +1142,60 @@ const removeSelectedFromPlaylist = async () => {
         transform: translate(80vw, 100vh) rotate(360deg) scale(0.6);
         opacity: 0;
     }
+}
+
+/* 表头样式 */
+.track-list-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid var(--primary-color);
+    font-weight: bold;
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+    border-radius: 5px 5px 0 0;
+}
+
+.track-checkbox-header {
+    margin-right: 10px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.track-number-header {
+    font-weight: bold;
+    margin-right: 10px;
+    width: 30px;
+}
+
+.track-title-header, .track-artist-header, .track-album-header, .track-timelen-header {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.track-title-header {
+    flex: 2;
+}
+
+.track-artist-header, .track-album-header {
+    flex: 1;
+    padding: 0 10px;
+}
+
+.track-timelen-header {
+    width: 95px;
+    text-align: right;
+}
+
+.track-title-header i, .track-artist-header i, .track-album-header i, .track-timelen-header i {
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.track-list-header-row:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.15);
 }
 </style>
