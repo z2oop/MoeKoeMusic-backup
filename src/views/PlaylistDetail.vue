@@ -56,14 +56,34 @@
         <div class="track-list-container">
             <div class="track-list-header">
                 <h2 class="track-list-title"><span>{{ $t('ge-qu-lie-biao') }}</span> ( {{ tracks.length }} )</h2>
-                <input type="text" v-model="searchQuery" @keyup.enter="searchTracks" :placeholder="t('sou-suo-ge-qu')" class="search-input" />
+                <div class="track-list-actions">
+                    <div class="batch-action-container">
+                        <button class="batch-action-btn" @click="toggleBatchSelection" :class="{ 'active': batchSelectionMode }">
+                            <input type="checkbox" v-model="batchSelectionMode" /> 批量操作
+                            <span v-if="selectedTracks.length > 0" class="selected-count">{{ selectedTracks.length }}</span>
+                        </button>
+                        <div v-if="batchSelectionMode && selectedTracks.length > 0" class="batch-actions-menu">
+                            <ul>
+                                <li @click="appendSelectedToQueue"><i class="fas fa-list"></i> 添加到播放列表 </li>
+                                <li @click="addSelectedToOtherPlaylist" v-if="MoeAuth.UserInfo?.userid"><i class="fas fa-folder-plus"></i> 添加到其他歌单</li>
+                                <li v-if="!isArtist && detail.list_create_userid == MoeAuth.UserInfo?.userid && route.query.listid" 
+                                    @click="removeSelectedFromPlaylist"><i class="fas fa-trash-alt"></i> 取消收藏</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="text" v-model="searchQuery" @keyup.enter="searchTracks" :placeholder="t('sou-suo-ge-qu')" class="search-input" />
+                </div>
             </div>
             <RecycleScroller ref="recycleScrollerRef" :items="filteredTracks" :item-size="50" class="track-list" key-field="hash">
                 <template #default="{ item, index }">
                     <div class="li" :key="item.hash"
-                        @click="playSong(item.hash, item.name, item.cover, item.author)"
-                        @contextmenu.prevent="showContextMenu($event, item)">
-                        <div class="track-number">{{ index + 1 }}</div>
+                        @click="batchSelectionMode ? selectTrack(index, $event) : playSong(item.hash, item.name, item.cover, item.author)"
+                        @contextmenu.prevent="showContextMenu($event, item)"
+                        :class="{ 'selected': selectedTracks.includes(index) }">
+                        <div class="track-checkbox" v-if="batchSelectionMode">
+                            <input type="checkbox" :checked="selectedTracks.includes(index)" @click.stop="selectTrack(index, $event)">
+                        </div>
+                        <div class="track-number" v-else>{{ index + 1 }}</div>
                         <div class="track-title" :title="item.name">{{ item.name }}
                             <span v-if="item.privilege == 10" class="icon vip-icon">VIP</span>
                             <span v-if="item.isHQ" class="icon sq-icon">HQ</span>
@@ -95,17 +115,21 @@
             </transition-group>
         </div>
     </div>
+    <PlaylistSelectModal ref="playlistSelect" :current-song="songs"/>
 </template>
 
 <script setup>
 import { ref, onMounted, watch, onBeforeUnmount, computed } from 'vue';
 import { RecycleScroller } from 'vue3-virtual-scroller';
 import ContextMenu from '../components/ContextMenu.vue';
+import PlaylistSelectModal from '../components/PlaylistSelectModal.vue';
+import { ElMessage } from 'element-plus';
 import { get } from '../utils/request';
 import { useRoute, useRouter } from 'vue-router';
 import { MoeAuthStore } from '../stores/store';
 import { useI18n } from 'vue-i18n';
 
+const playlistSelect = ref(null);
 const { t } = useI18n();
 const MoeAuth = MoeAuthStore();
 const router = useRouter();
@@ -130,6 +154,13 @@ let noteId = 0;
 // 歌手特有状态
 const isFollowed = ref(true);
 const followLoading = ref(false);
+
+// 批量选择相关状态
+const batchSelectionMode = ref(false);
+const selectedTracks = ref([]);
+let lastSelectedIndex = -1;
+const isPlaylistsDropdownVisible = ref(false);
+const songs = ref([]);
 
 const props = defineProps({
     playerControl: Object
@@ -501,6 +532,94 @@ const handleClickOutside = (event) => {
 const toggleDropdown = () => {
     isDropdownVisible.value = !isDropdownVisible.value;
 };
+
+// 切换批量选择模式
+const toggleBatchSelection = () => {
+    batchSelectionMode.value = !batchSelectionMode.value;
+    if (!batchSelectionMode.value) {
+        selectedTracks.value = [];
+        lastSelectedIndex = -1;
+    }
+};
+
+// 选择/取消选择歌曲
+const selectTrack = (index, event) => {
+    if (event.shiftKey && lastSelectedIndex !== -1) {
+        // Shift 键多选
+        const start = Math.min(lastSelectedIndex, index);
+        const end = Math.max(lastSelectedIndex, index);
+        
+        for (let i = start; i <= end; i++) {
+            if (!selectedTracks.value.includes(i)) {
+                selectedTracks.value.push(i);
+            }
+        }
+    } else if (event.ctrlKey || event.metaKey) {
+        // Ctrl/Cmd 键选择性多选
+        const existingIndex = selectedTracks.value.indexOf(index);
+        if (existingIndex === -1) {
+            selectedTracks.value.push(index);
+        } else {
+            selectedTracks.value.splice(existingIndex, 1);
+        }
+    } else {
+        // 普通点击
+        const existingIndex = selectedTracks.value.indexOf(index);
+        if (existingIndex === -1) {
+            selectedTracks.value = [index];
+        } else {
+            selectedTracks.value = [];
+        }
+    }
+    
+    lastSelectedIndex = index;
+};
+
+// 将选中歌曲添加到播放队列（追加到当前队列）
+const appendSelectedToQueue = async () => {
+    if (selectedTracks.value.length === 0) return;
+    const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
+    await props.playerControl.addPlaylistToQueue(selectedSongs, true);
+    ElMessage.success('添加到播放列表成功');
+    toggleBatchSelection();
+};
+
+// 将选中歌曲添加到其他歌单
+const addSelectedToOtherPlaylist = async () => {
+    if (selectedTracks.value.length === 0) return;
+    const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
+    songs.value =  selectedSongs;
+    await playlistSelect.value.fetchPlaylists();
+    toggleBatchSelection();
+};
+
+// 从歌单中移除选中的歌曲
+const removeSelectedFromPlaylist = async () => {
+    if (selectedTracks.value.length === 0) return;
+    const result = await window.$modal.confirm('确定要移除选中的歌曲吗？');
+    if (result) {
+        const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
+        try {
+            const fileids = selectedSongs.map(song => song.originalData.fileid).join(',');
+            await get('/playlist/tracks/del', {
+                listid: route.query.listid,
+                fileids: fileids
+            });
+            selectedTracks.value.sort((a, b) => b - a).forEach(index => {
+                filteredTracks.value.splice(index, 1);
+                tracks.value = tracks.value.filter((_, i) => 
+                    !selectedTracks.value.includes(i)
+                );
+            });
+            filteredTracks.value = tracks.value;
+            ElMessage.success('歌曲已从歌单中移除');
+            toggleBatchSelection();
+        } catch (err) {
+            ElMessage.error('移除歌曲失败');
+            return;
+        }
+    }
+};
 </script>
 
 <style scoped>
@@ -632,6 +751,88 @@ const toggleDropdown = () => {
     color: var(--primary-color);
 }
 
+/* 搜索和批量操作按钮 */
+.track-list-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.batch-action-container {
+    position: relative;
+}
+
+.batch-action-btn {
+    background-color: transparent;
+    border: 1px solid var(--secondary-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    position: relative;
+}
+
+.batch-action-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.selected-count {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.batch-actions-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    margin-top: 5px;
+    width: 200px;
+}
+
+.batch-actions-menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.batch-actions-menu li {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.batch-actions-menu li i {
+    margin-right: 10px;
+    width: 16px;
+    text-align: center;
+}
+
+.batch-actions-menu li:hover {
+    background-color: #f0f0f0;
+}
+
 .search-input {
     width: 250px;
     padding: 8px;
@@ -657,6 +858,19 @@ const toggleDropdown = () => {
 
 .li:hover {
     background-color: var(--background-color);
+}
+
+.li.selected {
+    background-color: rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* 歌曲多选 */
+.track-checkbox {
+    margin-right: 10px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .track-number {
