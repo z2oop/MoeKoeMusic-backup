@@ -184,6 +184,7 @@ const lyricsFontSize = ref('24px');
 const isInputFocused = ref(false);
 const playedSongsStack = ref([]);
 const currentStackIndex = ref(-1);
+const originalLyrics = ref('');
 
 // 切换随机/顺序/单曲播放
 const togglePlaybackMode = () => {
@@ -592,7 +593,7 @@ audio.addEventListener('ended', () => {
 const handleAudioEvent = (event) => {
     playing.value = event.type === 'play';
     if(isElectron()){
-        window.electron.ipcRenderer.send('play-pause-action', playing.value);
+        window.electron.ipcRenderer.send('play-pause-action', playing.value, audio.currentTime);
     }
 };
 
@@ -615,7 +616,7 @@ const toggleLyrics = async () => {
 const getLyrics = async (hash) => {
     try {
         const savedConfig = JSON.parse(localStorage.getItem('settings'));
-        if (!showLyrics.value && savedConfig?.desktopLyrics === 'off') return;
+        if (!showLyrics.value && (savedConfig?.desktopLyrics === 'off' && savedConfig?.apiMode === 'off')) return;
         const lyricSearchResponse = await get(`/search/lyric?hash=${hash}`);
         if (lyricSearchResponse.status !== 200 || lyricSearchResponse.candidates.length === 0) {
             SongTips.value = t('zan-wu-ge-ci');
@@ -627,6 +628,7 @@ const getLyrics = async (hash) => {
             return;
         }
         parseLyrics(lyricResponse.decodeContent);
+        originalLyrics.value = lyricResponse.decodeContent;
         centerFirstLine();
     } catch (error) {
         SongTips.value = t('huo-qu-ge-ci-shi-bai');
@@ -736,10 +738,21 @@ const throttledHighlight = throttle(() => {
         if (showLyrics.value) {
             highlightCurrentChar(audio.currentTime);
         }
-        if (isElectron() && savedConfig?.desktopLyrics === 'on') {
-            window.electron.ipcRenderer.send('lyrics-data', { currentTime: audio.currentTime, lyricsData: JSON.parse(JSON.stringify(lyricsData.value)) });
+
+        if (isElectron()) {
+            if(savedConfig?.desktopLyrics === 'on'){
+                window.electron.ipcRenderer.send('lyrics-data', { currentTime: audio.currentTime, lyricsData: JSON.parse(JSON.stringify(lyricsData.value)) });
+            }
+            if(savedConfig?.apiMode === 'on'){
+                window.electron.ipcRenderer.send('server-lyrics', { 
+                    currentTime: audio.currentTime, 
+                    lyricsData: JSON.parse(JSON.stringify(originalLyrics.value)),
+                    currentSong: JSON.parse(JSON.stringify(currentSong.value)),
+                    duration: audio.duration
+                });
+            }
         }
-    } else if (isElectron() && savedConfig?.desktopLyrics === 'on') {
+    } else if (isElectron() && (savedConfig?.desktopLyrics === 'on' || savedConfig?.apiMode === 'on')) {
         getLyrics(currentSong.value.hash)
     }
     localStorage.setItem('player_progress', audio.currentTime);

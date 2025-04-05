@@ -5,6 +5,7 @@ import {
     playStartupSound, createLyricsWindow, setThumbarButtons 
 } from './appServices.js';
 import { setupAutoUpdater } from './updater.js';
+import apiService from './apiService.js';
 import Store from 'electron-store';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -35,6 +36,7 @@ app.on('ready', () => {
             playStartupSound();
             registerShortcut();
             setupAutoUpdater(mainWindow);
+            apiService.init(mainWindow);
         } catch (error) {
             console.log('初始化应用时发生错误:', error);
             createTray(null);
@@ -80,6 +82,10 @@ if(settings?.highDpi === 'on'){
     app.commandLine.appendSwitch('force-device-scale-factor', settings?.dpiScale || '1');
 }
 
+if (settings?.apiMode === 'on') {
+    apiService.start();
+}
+
 // 即将退出
 app.on('before-quit', () => {
     if (mainWindow && !mainWindow.isMaximized()) {
@@ -87,6 +93,7 @@ app.on('before-quit', () => {
         store.set('windowState', windowBounds);
     }
     stopApiServer();
+    apiService.stop();
 });
 // 关闭所有窗口
 app.on('window-all-closed', () => {
@@ -156,11 +163,14 @@ ipcMain.on('custom-shortcut', (event) => {
     registerShortcut();
 });
 
-ipcMain.on('lyrics-data', (event, data) => {
+ipcMain.on('lyrics-data', (event, lyricsData) => {
     const lyricsWindow = mainWindow.lyricsWindow;
     if (lyricsWindow) {
-        lyricsWindow.webContents.send('lyrics-data', data);
+        lyricsWindow.webContents.send('lyrics-data', lyricsData);
     }
+});
+ipcMain.on('server-lyrics', (event, lyricsData) => {
+    apiService.updateLyrics(lyricsData);
 });
 
 // 监听桌面歌词操作
@@ -209,11 +219,12 @@ ipcMain.on('window-drag', (event, { mouseX, mouseY }) => {
     store.set('lyricsWindowPosition', { x: mouseX, y: mouseY });
 })
 
-ipcMain.on('play-pause-action',(event, playing) =>{
+ipcMain.on('play-pause-action',(event, playing, currentTime) =>{
     const lyricsWindow = mainWindow.lyricsWindow;
     if (lyricsWindow) {
         lyricsWindow.webContents.send('playing-status', playing);
     }
+    apiService.updatePlayerState({ isPlaying: playing, currentTime: currentTime });
     setThumbarButtons(mainWindow, playing);
 })
 
