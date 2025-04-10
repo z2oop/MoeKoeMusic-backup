@@ -75,7 +75,7 @@ const addToPlaylist = async (listid, song) => {
 const cancel = async () => {
     try {
         await get(`/playlist/tracks/del?listid=${listId.value}&fileids=${contextSong.value.fileid}`);
-        events.target.parentNode.remove()
+        emit('songRemoved', contextSong.value.fileid);
         hideContextMenu();
         ElMessage.success(i18n.global.t('cheng-gong-qu-xiao-shou-cang'));
     } catch (error) {
@@ -86,6 +86,8 @@ const cancel = async () => {
 const props = defineProps({
     playerControl: Object
 });
+
+const emit = defineEmits(['songRemoved']);
 
 const addToNext = async (song) => {
     let songNameParts = song?.OriSongName.split(' - ');

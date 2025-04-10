@@ -129,7 +129,7 @@
             </div>
         </div>
 
-        <ContextMenu ref="contextMenuRef" :playerControl="playerControl" />
+        <ContextMenu ref="contextMenuRef" :playerControl="playerControl" @songRemoved="handleSongRemoved" />
         <div class="note-container">
             <transition-group name="fly-note">
                 <div v-for="note in flyingNotes" :key="note.id" class="flying-note" :style="note.style">♪</div>
@@ -181,7 +181,6 @@ const batchSelectionMode = ref(false);
 const isBatchMenuVisible = ref(false);
 const selectedTracks = ref([]);
 let lastSelectedIndex = -1;
-const isPlaylistsDropdownVisible = ref(false);
 const songs = ref([]);
 
 // 排序状态
@@ -662,6 +661,7 @@ const removeSelectedFromPlaylist = async () => {
                 );
             });
             filteredTracks.value = tracks.value;
+            selectedTracks.value = [];
             ElMessage.success('歌曲已从歌单中移除');
         } catch (err) {
             ElMessage.error('移除歌曲失败');
@@ -717,6 +717,11 @@ const getSortIconClass = (field) => {
         return 'fa-sort';
     }
     return sortOrder.value === 'asc' ? 'fa-sort-up' : 'fa-sort-down';
+};
+
+const handleSongRemoved = (fileid) => {
+    tracks.value = tracks.value.filter(track => track.originalData?.fileid !== fileid);
+    filteredTracks.value = filteredTracks.value.filter(track => track.originalData?.fileid !== fileid);
 };
 </script>
 
