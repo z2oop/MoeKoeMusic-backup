@@ -942,6 +942,18 @@ const getSortIconClass = (field) => {
 
 .track-list {
     height: 800px;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent; 
+    overflow: auto;
+}
+
+.track-list::-webkit-scrollbar {
+    width: 8px !important; 
+    display: block !important;
+}
+
+.track-list:hover {
+    scrollbar-color: var(--primary-color) transparent;
 }
 
 .li {
