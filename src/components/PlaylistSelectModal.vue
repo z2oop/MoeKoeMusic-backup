@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 import { get } from '../utils/request';
 import { ElMessage } from 'element-plus';
 import { useI18n } from 'vue-i18n';
