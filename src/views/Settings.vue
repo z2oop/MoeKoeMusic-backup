@@ -98,7 +98,7 @@
         <div class="reset-settings-container">
             <button @click="openResetConfirmation" class="reset-settings-button">
                 <i class="fas fa-sync-alt"></i>
-                重置所有配置项
+                恢复出厂设置
             </button>
         </div>
         <div class="version-info">
@@ -677,11 +677,11 @@ const qualityCompatibilityMode = ref(false);
 const dpiScale = ref(1.0);
 
 const openResetConfirmation = async () => {
-    const result = await window.$modal.confirm('你确定要重置所有配置吗？此操作不可恢复！');
+    const result = await window.$modal.confirm('你确定要恢复出厂设置吗？此操作不可逆！');
     if(result){
         localStorage.clear();
         isElectron() && window.electron.ipcRenderer.send('clear-settings');
-        window.$modal.alert('重置成功，重启生效');
+        window.$modal.alert('恢复出厂设置成功，重启生效');
     }
 };
 </script>

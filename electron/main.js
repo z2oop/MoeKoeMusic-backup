@@ -1,4 +1,4 @@
-import { app, ipcMain, globalShortcut, dialog, Notification, shell } from 'electron';
+import { app, ipcMain, globalShortcut, dialog, Notification, shell, session } from 'electron';
 import { 
     createWindow, createTray, startApiServer, 
     stopApiServer, registerShortcut, 
@@ -158,6 +158,10 @@ ipcMain.on('save-settings', (event, settings) => {
 });
 ipcMain.on('clear-settings', (event) => {
     store.clear();
+    session.defaultSession.clearCache();
+    session.defaultSession.clearStorageData();
+    const userDataPath = app.getPath('userData');
+    shell.openPath(userDataPath);
 });
 ipcMain.on('custom-shortcut', (event) => {
     registerShortcut();
