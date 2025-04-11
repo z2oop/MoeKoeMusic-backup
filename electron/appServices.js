@@ -8,6 +8,7 @@ import isDev from 'electron-is-dev';
 import fs from 'fs';
 import { exec } from 'child_process';
 import { checkForUpdates } from './updater.js';
+import { Notification } from 'electron';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const store = new Store();
 let mainWindow = null;
@@ -412,6 +413,25 @@ export function registerShortcut() {
         } else if (!settings?.shortcuts) {
             globalShortcut.register('Alt+CommandOrControl+P', clickFunc);
         }
+
+        clickFunc = () => {
+            if (mainWindow.lyricsWindow) {
+                mainWindow.lyricsWindow.close();
+                mainWindow.lyricsWindow = null;
+                new Notification({
+                    title: '桌面歌词已关闭',
+                    body: '仅本次生效',
+                    icon: isDev ? path.join(__dirname, '../build/icons/logo.png') : path.join(process.resourcesPath, 'icons', 'logo.png')
+                }).show();
+            } else {
+                createLyricsWindow();
+            }
+        }
+        if (settings?.shortcuts?.toggleDesktopLyrics) {
+            globalShortcut.register(settings.shortcuts.toggleDesktopLyrics, clickFunc);
+        } else if (!settings?.shortcuts) {
+            globalShortcut.register('Alt+Ctrl+D', clickFunc);
+        }
     } catch{
         dialog.showMessageBox({
             type: 'error',
@@ -420,7 +440,6 @@ export function registerShortcut() {
             buttons: ['确定']
         });
     }
-
 }
 
 // 播放启动问候语

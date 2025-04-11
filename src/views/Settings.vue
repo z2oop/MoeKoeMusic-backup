@@ -522,6 +522,10 @@ const shortcutConfigs = ref({
     mode: { 
         label: t('qie-huan-bo-fang-mo-shi'),
         defaultValue: 'Alt+Ctrl+P'
+    },
+    toggleDesktopLyrics: {
+        label: '显示/隐藏桌面歌词',
+        defaultValue: 'Alt+Ctrl+D'
     }
 });
 
@@ -671,7 +675,6 @@ const openFontSettings = async () => {
 
 const qualityCompatibilityMode = ref(false);
 const dpiScale = ref(1.0);
-const showResetConfirmation = ref(false);
 
 const openResetConfirmation = async () => {
     const result = await window.$modal.confirm('你确定要重置所有配置吗？此操作不可恢复！');
@@ -805,7 +808,7 @@ const openResetConfirmation = async () => {
 .shortcut-modal-content {
     background: white;
     border-radius: 12px;
-    padding: 24px;
+    padding: 15px;
     width: 90%;
     max-width: 500px;
 }
@@ -824,7 +827,7 @@ const openResetConfirmation = async () => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #eee;
 }
 
@@ -840,6 +843,7 @@ const openResetConfirmation = async () => {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    font-size: 15px;
 }
 
 .shortcut-input.recording {
@@ -870,7 +874,7 @@ const openResetConfirmation = async () => {
     color: #666;
     transition: all 0.2s;
     position: absolute;
-    right: 2px;
+    right: 5px;
 }
 
 .shortcut-modal-footer {
