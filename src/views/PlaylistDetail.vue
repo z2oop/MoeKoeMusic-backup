@@ -23,7 +23,7 @@
                         <i class="fas fa-heart"></i> {{ isFollowed ? '已关注' : '关注' }}
                     </button>
                     <button class="fav-btn" v-if="!isArtist && detail.list_create_userid != MoeAuth.UserInfo?.userid && !route.query.listid" 
-                        @click="toggleFavorite(detail.list_create_gid)">
+                        @click="toggleFavorite(detail.list_create_gid)" :class="{ 'active': isPlaylistFavorited }">
                         <i class="fas fa-heart"></i>
                     </button>
                     <div class="more-btn-container" v-if="!isArtist">
@@ -175,6 +175,19 @@ let noteId = 0;
 // 歌手特有状态
 const isFollowed = ref(true);
 const followLoading = ref(false);
+const collectedPlaylists = ref([]);
+// 判断歌单是否被收藏
+const isPlaylistFavorited = ref(false);
+
+// 更新收藏状态
+const updateFavoriteStatus = () => {
+    if (!detail.value.list_create_listid) {
+        isPlaylistFavorited.value = false;
+        return;
+    }
+    collectedPlaylists.value = JSON.parse(localStorage.getItem('collectedPlaylists') || '[]');
+    isPlaylistFavorited.value = collectedPlaylists.value.some(item => item.list_create_listid === detail.value.list_create_listid);
+};
 
 // 批量选择相关状态
 const batchSelectionMode = ref(false);
@@ -248,6 +261,7 @@ const getPlaylistDetail = async () => {
         });
         if (response.status === 1) {
             detail.value = response.data[0];
+            updateFavoriteStatus();
             await fetchPlaylistTracks();
         }
     } catch (error) {
@@ -486,16 +500,39 @@ const toggleFavorite = async (id) => {
     }
     
     try {
-        await get('/playlist/add', { 
-            name: detail.value.name, 
-            list_create_userid: MoeAuth.UserInfo.userid, 
-            type: 1,
-            list_create_gid: id 
-        });
+        if (isPlaylistFavorited.value) {
+            const playlist = collectedPlaylists.value.find(p => p.list_create_listid === detail.value.list_create_listid);
+            if (playlist) {
+                await get('/playlist/del', { listid: playlist.listid });
+                const newCollectedPlaylists = collectedPlaylists.value.filter(item => 
+                    item.list_create_listid !== detail.value.list_create_listid
+                );
+                localStorage.setItem('collectedPlaylists', JSON.stringify(newCollectedPlaylists));
+                isPlaylistFavorited.value = false;
+                ElMessage.success('取消收藏成功');
+            }
+        } else {
+            const response = await get('/playlist/add', { 
+                name: detail.value.name, 
+                list_create_userid: MoeAuth.UserInfo.userid, 
+                type: 1,
+                list_create_gid: id 
+            });
+            if (response.status === 1) {
+                const newPlaylist = {
+                    list_create_listid: detail.value.list_create_listid,
+                    listid: response.data.info.listid
+                };
+                const currentPlaylists = JSON.parse(localStorage.getItem('collectedPlaylists') || '[]');
+                currentPlaylists.push(newPlaylist);
+                localStorage.setItem('collectedPlaylists', JSON.stringify(currentPlaylists));
+                isPlaylistFavorited.value = true;
+                ElMessage.success('收藏成功');
+            }
+        }
         localStorage.setItem('t', Date.now());
-        window.$modal.alert(t('shou-cang-cheng-gong'));
     } catch (error) {
-        window.$modal.alert(t('shou-cang-shi-bai'));
+        ElMessage.error(isPlaylistFavorited.value ? t('qu-xiao-shou-cang-shi-bai') : t('shou-cang-shi-bai'));
     }
 };
 
@@ -832,7 +869,11 @@ const handleSongRemoved = (fileid) => {
 }
 
 .fav-btn i {
-    color: var(--color-primary);
+    color: #999;
+}
+
+.fav-btn.active i {
+    color: var(--primary-color);
 }
 
 /* 歌曲列表样式 */

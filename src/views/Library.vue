@@ -95,7 +95,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { get } from '../utils/request';
-import { ElMessage } from 'element-plus';
 import { MoeAuthStore } from '../stores/store';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -192,6 +191,14 @@ const getplaylist = async () => {
             }).sort((a, b) => a.name === '我喜欢' ? -1 : 1);
             collectedPlaylists.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && !playlist.authors);
             collectedAlbums.value = playlistResponse.data.info.filter(playlist => playlist.list_create_userid !== user.value.userid && playlist.authors);
+            
+            const collectedIds = [];
+            playlistResponse.data.info.forEach(playlist => {
+                if (playlist.list_create_userid !== user.value.userid) {
+                    collectedIds.push({list_create_listid:playlist.list_create_listid, listid:playlist.listid});
+                }
+            });
+            localStorage.setItem('collectedPlaylists', JSON.stringify(collectedIds));
         }
     } catch (error) {
         window.$modal.alert(t('xin-zeng-zhang-hao-qing-xian-zai-guan-fang-ke-hu-duan-zhong-deng-lu-yi-ci')); 
