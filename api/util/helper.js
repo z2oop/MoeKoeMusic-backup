@@ -70,7 +70,20 @@ const signParams = (params, data) => {
  * @returns {string} 加密后的sign
  */
 const signKey = (hash, mid, userid, appid) => {
-  return cryptoMd5(`${hash}57ae12eb6890223e355ccfcb74edf70d${appid || useAppid}${mid}${userid || 0}`);
+  const isLite = 'lite';
+  const str = isLite ? '185672dd44712f60bb1736df5a377e82' : '57ae12eb6890223e355ccfcb74edf70d';
+  return cryptoMd5(`${hash}${str}${appid || useAppid}${mid}${userid || 0}`);
+};
+
+/**
+ * signKey 加密云盘key
+ * @param {string} hash
+ * @param {string} pid
+ * @returns {string} 加密后的sign
+ */
+const signCloudKey = (hash, pid) => {
+  const str = 'ebd1ac3134c880bda6a2194537843caa0162e2e7';
+  return cryptoMd5(`musicclound${hash}${pid}${str}`);
 };
 
 /**
@@ -96,6 +109,7 @@ module.exports = {
   signKey,
   signParams,
   signParamsKey,
+  signCloudKey,
   signatureAndroidParams,
   signatureRegisterParams,
   signatureWebParams,
