@@ -1,5 +1,7 @@
 name: "💬 讨论问题"
 description: 提出一个需要讨论的话题或问题
+title: '[讨论]: '
+labels: ['question']
 body:
   - type: markdown
     attributes:

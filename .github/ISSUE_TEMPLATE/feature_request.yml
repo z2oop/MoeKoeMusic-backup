@@ -1,5 +1,7 @@
 name: "✨ 新特性请求"
 description: 为项目提出一个新想法或建议
+title: '[新需求]: '
+labels: ['enhancement']
 body:
   - type: markdown
     attributes:

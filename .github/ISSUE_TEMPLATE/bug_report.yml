@@ -1,5 +1,7 @@
 name: "🐞 Bug报告"
 description: 创建一个报告来帮助我们改进产品
+title: '[Bug]: '
+labels: ['bug']
 body:
   - type: markdown
     attributes:

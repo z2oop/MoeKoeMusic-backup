@@ -9,6 +9,7 @@ import PlaylistDetail from '@/views/PlaylistDetail.vue';
 import Search from '@/views/Search.vue';
 import Lyrics from '@/views/Lyrics.vue';
 import Ranking from '@/views/Ranking.vue';
+import CloudDrive from '@/views/CloudDrive.vue';
 import { MoeAuthStore } from '@/stores/store';
 
 
@@ -25,6 +26,7 @@ const routes = [
             { path: '/playlistDetail', name: 'PlaylistDetail', component: PlaylistDetail },
             { path: '/search', name: 'Search', component: Search },
             { path: '/ranking', name: 'Ranking', component: Ranking },
+            { path: '/CloudDrive', name: 'CloudDrive', component: CloudDrive },
         ],
     },
     { path: '/lyrics', name: 'Lyrics', component: Lyrics },
