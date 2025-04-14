@@ -2,7 +2,7 @@
     <div class="detail-page">
         <!-- 头部信息区域 -->
         <div class="header">
-            <img class="cover-art" :src="`./assets/images/cloud-disk.png`" />
+            <img class="cover-art" :src="`./assets/images/cloud.png`" />
             <div class="info">
                 <h1 class="title">{{ $t('wo-de-yun-pan') }}</h1>
                 <p class="subtitle">{{ $t('yun-pan-ge-qu-shu') }}: {{ tracks.length }}</p>
@@ -75,7 +75,7 @@
             <RecycleScroller ref="recycleScrollerRef" :items="filteredTracks" :item-size="50" class="track-list" key-field="hash">
                 <template #default="{ item, index }">
                     <div class="li" :key="item.hash"
-                        @click="batchSelectionMode ? selectTrack(index, $event) : playSong(item.hash, item.name, item.author)"
+                        @click="batchSelectionMode ? selectTrack(index, $event) : playSong(item.hash, item.name, item.author, item.timelen)"
                         :class="{ 'selected': selectedTracks.includes(index) }">
                         <div class="track-checkbox" v-if="batchSelectionMode">
                             <input type="checkbox" :checked="selectedTracks.includes(index)" @click.stop="selectTrack(index, $event)">
@@ -122,7 +122,7 @@ const router = useRouter();
 const tracks = ref([]);
 const filteredTracks = ref([]);
 const searchQuery = ref('');
-const pageSize = ref(30); // 默认每页30条
+const pageSize = ref(100);
 const recycleScrollerRef = ref(null);
 const loading = ref(true);
 const flyingNotes = ref([]);
@@ -248,7 +248,6 @@ const formatTrackList = (songList) => {
         name: track.name,
         author: track.author_name || '云盘音乐',
         album: track.album_name || '云盘音乐',
-        cover: track.img,
         timelen: track.timelen || 0,
         isSQ: track.bitrate >= 1,
         isHQ: track.bitrate >= 2,
@@ -275,19 +274,9 @@ const searchTracks = () => {
 };
 
 // 播放歌曲
-const playSong = async (hash, name, author) => {
+const playSong = async (hash, name, author, timeLength) => {
     name = name && name.includes(' - ') ? name.split(' - ')[1] : name;
-    try {
-        const response = await get('/user/cloud/url', { hash });
-        if (response.status === 1 && response.data.url) {
-            // props.playerControl.addSongToQueue(hash, name, img, author, response.data.url);
-        } else {
-            ElMessage.error(t('huo-qu-ge-qu-url-shi-bai'));
-        }
-    } catch (error) {
-        console.error('获取歌曲URL失败:', error);
-        ElMessage.error(t('huo-qu-ge-qu-url-shi-bai'));
-    }
+    props.playerControl.addCloudMusicToQueue(hash, name, author, timeLength);
 };
 
 // 添加整个播放列表到队列
@@ -307,24 +296,7 @@ const addPlaylistToQueue = async (event, append = false) => {
     setTimeout(() => {
         flyingNotes.value = flyingNotes.value.filter(n => n.id !== note.id);
     }, 1500);
-    
-    // 获取所有歌曲的URL
-    const songsWithUrl = [];
-    for (const track of filteredTracks.value) {
-        try {
-            const response = await get('/user/cloud/url', { hash: track.hash });
-            if (response.status === 1 && response.data.url) {
-                songsWithUrl.push({
-                    ...track,
-                    url: response.data.url
-                });
-            }
-        } catch (error) {
-            console.error(`获取歌曲 ${track.name} URL失败:`, error);
-        }
-    }
-    
-    props.playerControl.addPlaylistToQueue(songsWithUrl, append);
+    props.playerControl.addCloudPlaylistToQueue(filteredTracks.value, append);
 };
 
 const uploadMusic = () => {
@@ -414,29 +386,11 @@ const selectTrack = (index, event) => {
 // 将选中歌曲添加到播放队列（追加到当前队列）
 const appendSelectedToQueue = async () => {
     if (selectedTracks.value.length === 0) return;
-    
-    const selectedSongs = [];
-    for (const index of selectedTracks.value) {
-        const track = filteredTracks.value[index];
-        try {
-            const response = await get('/user/cloud/url', { hash: track.hash });
-            if (response.status === 1 && response.data.url) {
-                selectedSongs.push({
-                    ...track,
-                    url: response.data.url
-                });
-            }
-        } catch (error) {
-            console.error(`获取歌曲 ${track.name} URL失败:`, error);
-        }
-    }
-    
-    await props.playerControl.addPlaylistToQueue(selectedSongs, true);
+    const selectedSongs = selectedTracks.value.map(index => filteredTracks.value[index]);
+    await props.playerControl.addCloudPlaylistToQueue(selectedSongs, true);
     ElMessage.success(t('tian-jia-dao-bo-fang-lie-biao-cheng-gong'));
     isBatchMenuVisible.value = false;
 };
-
-
 
 // 从云盘中删除选中的歌曲
 const deleteSelectedFromCloud = async () => {

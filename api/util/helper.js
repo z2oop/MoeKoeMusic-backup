@@ -70,9 +70,7 @@ const signParams = (params, data) => {
  * @returns {string} 加密后的sign
  */
 const signKey = (hash, mid, userid, appid) => {
-  const isLite = 'lite';
-  const str = isLite ? '185672dd44712f60bb1736df5a377e82' : '57ae12eb6890223e355ccfcb74edf70d';
-  return cryptoMd5(`${hash}${str}${appid || useAppid}${mid}${userid || 0}`);
+  return cryptoMd5(`${hash}57ae12eb6890223e355ccfcb74edf70d${appid || useAppid}${mid}${userid || 0}`);
 };
 
 /**

@@ -57,7 +57,7 @@
     </div>
     
     <!-- 播放队列 -->
-    <QueueList :current-song="currentSong" @add-song-to-queue="addSongToQueue" ref="queueList"/>
+    <QueueList :current-song="currentSong" @add-song-to-queue="addSongToQueue" @add-cloud-music-to-queue="addCloudMusicToQueue" ref="queueList"/>
 
     <!-- 全屏歌词界面 -->
     <transition name="slide-up">
@@ -223,6 +223,7 @@ onMounted(() => {
 const formattedCurrentTime = computed(() => formatTime(currentTime.value));
 const formattedDuration = computed(() => formatTime(currentSong.value?.timeLength || 0));
 const formatTime = (seconds) => {
+    if (seconds > 1000) seconds = seconds/1000;
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs.toString().padStart(2, '0')}`;
@@ -345,6 +346,13 @@ const playSongFromQueue = (direction) => {
             ? (currentIndex === 0 ? musicQueueStore.queue.length - 1 : currentIndex - 1)
             : (currentIndex + 1) % musicQueueStore.queue.length;
     }
+    musicQueueStore.queue[targetIndex].isCloud ?
+    addCloudMusicToQueue(
+        musicQueueStore.queue[targetIndex].hash, 
+        musicQueueStore.queue[targetIndex].name, 
+        musicQueueStore.queue[targetIndex].author, 
+        musicQueueStore.queue[targetIndex].timeLength
+    ) : 
     addSongToQueue(
         musicQueueStore.queue[targetIndex].hash,
         musicQueueStore.queue[targetIndex].name,
@@ -493,6 +501,13 @@ const addPlaylistToQueue = async (info, append = false) => {
     if (currentPlaybackModeIndex.value == 0) {
         startIndex = Math.floor(Math.random() * songs.length);
     }
+    musicQueueStore.queue[startIndex].isCloud ?
+    addCloudMusicToQueue(
+        musicQueueStore.queue[startIndex].hash, 
+        musicQueueStore.queue[startIndex].name, 
+        musicQueueStore.queue[startIndex].author, 
+        musicQueueStore.queue[startIndex].timeLength
+    ) : 
     addSongToQueue(songs[startIndex].hash, songs[startIndex].name, songs[startIndex].img, songs[startIndex].author);
 };
 
@@ -583,6 +598,125 @@ const addSongToQueue = async (hash, name, img, author, isReset = true) => {
             playSongFromQueue('next');
         }, 3000);
     }
+};
+
+//添加云盘歌曲到播放列表
+const addCloudMusicToQueue = async (hash, name, author, timeLength, isReset = true) => {
+    const currentSongHash = currentSong.value.hash;
+    if(isElectron()){
+        window.electron.ipcRenderer.send('set-tray-title', name + ' - ' + author);
+    }
+    try {
+        clearTimeout(timeoutId.value);
+        currentSong.value.author = author;
+        currentSong.value.name = name;
+        currentSong.value.hash = hash;
+
+        const response = await get('/user/cloud/url', { hash });
+        if (response.status !== 1) {
+            currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-shi-bai');
+            if (musicQueueStore.queue.length === 0) return;
+            currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
+            timeoutId.value = setTimeout(() => {
+                playSongFromQueue('next');
+            }, 3000);
+            return;
+        }
+
+        if (isReset) {
+            localStorage.setItem('player_progress', 0);
+            audio.currentTime = progressWidth.value = 0;
+        }
+
+        const existingSongIndex = musicQueueStore.queue.findIndex(song => song.hash === hash);
+
+        if (existingSongIndex === -1) {
+            const song = {
+                id: musicQueueStore.queue.length + 1,
+                hash: hash,
+                name: name,
+                author: author,
+                timeLength: timeLength || 0,
+                url: response.data.url,
+                isCloud: true
+            };
+
+            const currentIndex = musicQueueStore.queue.findIndex(song => song.hash == currentSongHash);
+            if (currentIndex !== -1) {
+                musicQueueStore.queue.splice(currentIndex + 1, 0, song);
+            } else {
+                musicQueueStore.addSong(song);
+            }
+            playSong(song);
+        } else {
+            const updatedQueue = [...musicQueueStore.queue];
+            const newSong = {
+                id: musicQueueStore.queue[existingSongIndex].id,
+                hash: hash,
+                name: name,
+                author: author,
+                timeLength: timeLength || 0,
+                url: response.data.url,
+                isCloud: true
+            };
+            updatedQueue[existingSongIndex] = newSong;
+            musicQueueStore.setQueue(updatedQueue);
+            playSong(newSong);
+        }
+    } catch (error) {
+        currentSong.value.author = currentSong.value.name = t('huo-qu-yin-le-di-zhi-shi-bai');
+        if (musicQueueStore.queue.length === 0) return;
+        currentSong.value.author = t('3-miao-hou-zi-dong-qie-huan-xia-yi-shou');
+        timeoutId.value = setTimeout(() => {
+            playSongFromQueue('next');
+        }, 3000);
+    }
+};
+// 批量添加云盘歌曲到播放列表
+const addCloudPlaylistToQueue = async (songs, append = false) => {
+    let queueSongs = [];
+    if(!append) {
+        musicQueueStore.clearQueue();
+    } else {
+        queueSongs = [...musicQueueStore.queue];
+    }
+    
+    const newSongs = songs.map((song, index) => {
+        return {
+            id: queueSongs.length + index + 1,
+            hash: song.hash,
+            name: song.name,
+            author: song.author,
+            timeLength: song.timelen || 0,
+            url: song.url,
+            isCloud: true
+        };
+    });
+    
+    if(append) {
+        queueSongs = [...queueSongs, ...newSongs];
+    } else {
+        queueSongs = newSongs;
+    }
+    
+    musicQueueStore.queue = queueSongs;
+    let startIndex = 0;
+    if (currentPlaybackModeIndex.value == 0) {
+        startIndex = Math.floor(Math.random() * queueSongs.length);
+    }
+    musicQueueStore.queue[startIndex].isCloud ?
+    addCloudMusicToQueue(
+        musicQueueStore.queue[startIndex].hash, 
+        musicQueueStore.queue[startIndex].name, 
+        musicQueueStore.queue[startIndex].author, 
+        musicQueueStore.queue[startIndex].timeLength
+    ) : 
+    addSongToQueue(
+        musicQueueStore.queue[startIndex].hash,
+        musicQueueStore.queue[startIndex].name,
+        musicQueueStore.queue[startIndex].img,
+        musicQueueStore.queue[startIndex].author
+    );
 };
 
 // 音乐播放结束后自动播放下一首
@@ -765,6 +899,8 @@ defineExpose({
     getPlaylistAllSongs,
     addPlaylistToQueue,
     addToNext,
+    addCloudMusicToQueue,
+    addCloudPlaylistToQueue,
     currentSong
 });
 

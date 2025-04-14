@@ -21,7 +21,9 @@
                             <button v-if="currentSong.hash == item.hash"
                                 class="queue-play-btn fas fa-music"></button>
                             <template v-else>
-                                <button class="queue-play-btn" @click="addSongToQueue(
+                                <button class="queue-play-btn" @click="item.isCloud ? addCloudMusicToQueue(
+                                    item.hash, item.name, item.author, item.timeLength
+                                ) : addSongToQueue(
                                     item.hash,
                                     item.name,
                                     item.img,
@@ -51,7 +53,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:showQueue', 'addSongToQueue']);
+const emit = defineEmits(['update:showQueue', 'addSongToQueue', 'addCloudMusicToQueue']);
 
 const musicQueueStore = useMusicQueueStore();
 const queueScroller = ref(null);
@@ -70,6 +72,10 @@ const removeSongFromQueue = (index) => {
 // 添加歌曲到队列并播放
 const addSongToQueue = (hash, name, img, author) => {
     emit('addSongToQueue', hash, name, img, author);
+};
+
+const addCloudMusicToQueue = (hash, name, author, timeLength) => {
+    emit('addCloudMusicToQueue', hash, name, author, timeLength);
 };
 
 // 滚动到当前播放歌曲位置

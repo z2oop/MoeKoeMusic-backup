@@ -50,6 +50,10 @@ const validateUserAndSong = () => {
         window.$modal.alert(t('mei-you-zheng-zai-bo-fang-de-ge-qu'));
         return false;
     }
+    if (props.currentSong.isCloud) {
+        window.$modal.alert('云盘音乐不支持添加到歌单');
+        return false;
+    }
     return true;
 };
 
