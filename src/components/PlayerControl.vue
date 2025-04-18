@@ -71,7 +71,7 @@
                 <div class="left-section">
                     <div class="album-art-large">
                         <img v-if="easterEggImage" :src="easterEggImage.src" :class="easterEggClass" alt="Easter Egg" />
-                        <img :src="currentSong?.img || 'https://random.MoeJue.cn/randbg.php'" alt="Album Art" />
+                        <img :src="currentSong?.img || './assets/images/!.png'" alt="Album Art" />
                     </div>
                     <div class="song-details">
                         <div class="song-title">{{ currentSong?.name }}</div>

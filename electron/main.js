@@ -71,7 +71,7 @@ app.on('ready', () => {
 });
 
 const settings = store.get('settings');
-if(settings?.gpuAcceleration === 'off'){
+if(settings?.gpuAcceleration === 'on'){
     app.disableHardwareAcceleration();
     app.commandLine.appendSwitch('enable-transparent-visuals');
     app.commandLine.appendSwitch('disable-gpu-compositing');

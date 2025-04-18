@@ -205,9 +205,11 @@ const fetchCloudTracks = async () => {
                 const totalPages = Math.ceil(firstPageResponse.data.list_count / pageSize.value);
                 for (let i = 1; i < totalPages && currentPage <= totalPages; i++) {
                     const nextPageData = await fetchCloudPage(currentPage);
-                    if (!nextPageData || nextPageData.length < pageSize.value) break;
+                    if (!nextPageData || nextPageData.length === 0) break;
                     
                     allTracks = allTracks.concat(nextPageData);
+                    tracks.value = allTracks;
+                    filteredTracks.value = allTracks;
                     currentPage++;
                 }
             }
@@ -216,8 +218,6 @@ const fetchCloudTracks = async () => {
         ElMessage.error(t('ge-qu-shu-ju-cuo-wu'));
         console.error('获取云盘歌曲失败:', error);
     } finally {
-        tracks.value = allTracks;
-        filteredTracks.value = allTracks;
         loading.value = false;
     }
 };
