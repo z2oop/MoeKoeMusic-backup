@@ -21,14 +21,7 @@
                             <button v-if="currentSong.hash == item.hash"
                                 class="queue-play-btn fas fa-music"></button>
                             <template v-else>
-                                <button class="queue-play-btn" @click="item.isCloud ? addCloudMusicToQueue(
-                                    item.hash, item.name, item.author, item.timeLength
-                                ) : addSongToQueue(
-                                    item.hash,
-                                    item.name,
-                                    item.img,
-                                    item.author
-                                )"><i class="fas fa-play"></i></button>
+                                <button class="queue-play-btn" @click="playQueueItem(item)"><i class="fas fa-play"></i></button>
                                 <i class="fas fa-times close-store"
                                     @click="removeSongFromQueue(index);"></i>
                             </template>
@@ -69,13 +62,16 @@ const removeSongFromQueue = (index) => {
     musicQueueStore.setQueue(updatedQueue);
 };
 
-// 添加歌曲到队列并播放
-const addSongToQueue = (hash, name, img, author) => {
-    emit('addSongToQueue', hash, name, img, author);
-};
-
-const addCloudMusicToQueue = (hash, name, author, timeLength) => {
-    emit('addCloudMusicToQueue', hash, name, author, timeLength);
+// 播放队列中的歌曲项
+const playQueueItem = (item) => {
+    console.log('[QueueList] 点击播放队列中的歌曲:', item.name);
+    showQueue.value = false; // 点击后关闭播放队列面板
+    
+    if (item.isCloud) {
+        emit('addCloudMusicToQueue', item.hash, item.name, item.author, item.timeLength);
+    } else {
+        emit('addSongToQueue', item.hash, item.name, item.img, item.author);
+    }
 };
 
 // 滚动到当前播放歌曲位置
@@ -106,7 +102,8 @@ onUnmounted(() => {
 });
 
 defineExpose({
-    openQueue
+    openQueue,
+    removeSongFromQueue
 });
 </script>
 <style scoped>
