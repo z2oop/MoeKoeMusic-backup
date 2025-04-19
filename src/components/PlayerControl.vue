@@ -121,7 +121,7 @@
                         </button>
                     </div>
                 </div>
-                <div id="lyrics-container">
+                <div id="lyrics-container" @wheel="handleLyricsWheel" @mousedown="startLyricsDrag" @mousemove="handleLyricsDrag" @mouseup="endLyricsDrag" @mouseleave="endLyricsDrag">
                     <div v-if="lyricsData.length > 0" id="lyrics"
                         :style="{ fontSize: lyricsFontSize, transform: `translateY(${scrollAmount ? scrollAmount + 'px' : '50%'})` }">
                         <div v-for="(lineData, lineIndex) in lyricsData" :key="lineIndex" class="line">
@@ -566,6 +566,24 @@ const handleVolumeScroll = (event) => {
     console.log('[PlayerControl] 滚轮设置音量:', volume.value, '实际audio.volume:', audio.volume);
 };
 
+// 歌词滚轮控制播放进度
+const handleLyricsWheel = (event) => {
+    if (!audio.duration || !currentSong.value?.hash) return;
+    
+    event.preventDefault();
+    // 计算调整时间，向下滚动为前进，向上滚动为后退，每次5秒
+    const delta = Math.sign(event.deltaY);
+    const adjustmentSeconds = 5 * delta;
+    
+    // 计算新时间，并确保在有效范围内
+    const newTime = Math.max(0, Math.min(audio.duration, audio.currentTime + adjustmentSeconds));
+    
+    // 设置新时间
+    audio.currentTime = newTime;
+    progressWidth.value = (newTime / audio.duration) * 100;
+    console.log(`[PlayerControl] 滚轮${delta > 0 ? '前进' : '后退'}${Math.abs(adjustmentSeconds)}秒，当前进度:`, newTime);
+};
+
 // 键盘快捷键
 const handleKeyDown = (event) => {
     const isInputFocused = ['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName);
@@ -621,6 +639,53 @@ const toggleMute = () => {
     }
     localStorage.setItem('player_volume', volume.value);
     console.log('[PlayerControl] 切换静音:', isMuted.value, '音量:', volume.value, '实际audio.volume:', audio.volume);
+};
+
+// 添加拖动相关状态变量
+const isDraggingLyrics = ref(false);
+const lyricsDragStartY = ref(0);
+const lyricsDragStartTime = ref(0);
+const tempTime = ref(0);
+
+// 开始拖动歌词
+const startLyricsDrag = (event) => {
+    if (!audio.duration || !currentSong.value?.hash) return;
+    
+    isDraggingLyrics.value = true;
+    lyricsDragStartY.value = event.clientY;
+    lyricsDragStartTime.value = audio.currentTime;
+    tempTime.value = audio.currentTime;
+    
+    console.log('[PlayerControl] 开始拖动歌词');
+};
+
+// 处理歌词拖动
+const handleLyricsDrag = (event) => {
+    if (!isDraggingLyrics.value) return;
+    
+    // 计算垂直移动距离
+    const deltaY = event.clientY - lyricsDragStartY.value;
+    
+    // 根据移动距离计算时间调整，向上拖动前进，向下拖动后退
+    // 灵敏度因子：每移动100像素调整30秒
+    const sensitivityFactor = 30 / 100;
+    const timeAdjustment = -deltaY * sensitivityFactor;
+    
+    // 计算新时间并确保在有效范围内
+    tempTime.value = Math.max(0, Math.min(audio.duration, lyricsDragStartTime.value + timeAdjustment));
+    
+    // 更新进度条显示
+    progressWidth.value = (tempTime.value / audio.duration) * 100;
+    
+    console.log(`[PlayerControl] 拖动歌词预览进度: ${tempTime.value.toFixed(2)}s / ${audio.duration.toFixed(2)}s`);
+};
+
+// 结束拖动歌词
+const endLyricsDrag = () => {
+    if (!isDraggingLyrics.value) return;
+    isDraggingLyrics.value = false;
+    audio.currentTime = tempTime.value;
+    console.log('[PlayerControl] 结束拖动歌词，设置最终进度:', tempTime.value);
 };
 
 // 组件挂载

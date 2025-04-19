@@ -9,6 +9,7 @@
     position: relative;
     width: 60%;
     text-align: center;
+    cursor: grab;
 }
 
 #lyrics {
