@@ -68,6 +68,7 @@ jobs:
           prerelease: false
           draft: false
 
+  # Windows 端打包并上传到 GitHub Release
 
   # macOS 端打包并上传到 GitHub Release
   build-macos:
@@ -91,12 +92,12 @@ jobs:
         run: npm run build
 
       - name: Run macOS build
-        run: npm run electron:build -- --mac --x64
+        run: npm run electron:build:macos
 
       - name: Rename macOS artifacts
         run: |
-          mv "./dist_electron/MoeKoe Music.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-x64.dmg"
-          mv "./dist_electron/MoeKoe Music.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-x64-mac.zip"
+          mv "./dist_electron/MoeKoe Music.dmg" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg"
+          mv "./dist_electron/MoeKoe Music.zip" "./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip"
       
       - name: List files after renaming
         run: ls -al ./dist_electron
@@ -108,5 +109,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           name: "Release ${{ needs.increment-version.outputs.version }}"
           files: |
-            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-x64.dmg
-            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-x64-mac.zip
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64.dmg
+            ./MoeKoe_Music_${{ needs.increment-version.outputs.version }}-arm64-mac.zip
+
+  # Linux 端打包并上传到 GitHub Release
+
+        
