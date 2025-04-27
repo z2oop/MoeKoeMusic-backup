@@ -92,7 +92,8 @@ jobs:
         run: npm run build
 
       - name: Run macOS build
-        run: npm run electron:build:macos
+        run: 
+          npm run electron:build -- --mac --universal
 
       - name: Rename macOS artifacts
         run: |
